@@ -26,15 +26,29 @@ export class Tys {// Type string name
         if ([Boolean,Number,String].some(C=>v instanceof C)) {return `BoxedPrimitive<${v.constructor.name}>`}
         const des = DesTys.name(v);
         if (des) return des;
-        if (Object.prototype===proto) return `PlainObject`;
-        if (this._isIns(v,proto)) return `Instance<${proto.constructor.name}>`;
+        const isPlain = Object.prototype===proto;
+        if (isPlain) return `PlainObject`;
+        const isIns = this._isIns(v,proto);
+//        if (isIns) return `Instance<${proto.constructor.name}>`;
+//        if (!isPlain && 'Object'!==name) return isIns ? `Instance<${proto.constructor.name}>` : `BuiltinObject<${tag}>`;
+        if (!isPlain && 'Object'!==name && !isIns) return `BuiltinObject<${name}>`;
+        if (isIns) return `Instance<${proto.constructor.name}>`;
         // Object.create()で拡張されたりnew Function()で生成されたES5以前の擬似クラスインスタンスなど上記以外全て。
         return 'PrototypedObject';
         //return name;
     }
+    /*
     static _isIns(v,proto) {// Instance
         const ctor = proto.constructor;
         return 'function'===typeof ctor && FnTys._isEsCls(ctor);
+    }
+    */
+    static _isIns(v, proto) {
+        const ctor = proto.constructor;
+        if (typeof ctor !== 'function') return false;
+        const str = Function.prototype.toString.call(ctor);
+        // Bunの最適化やコメントに対応した正規表現で class 構文か判定
+        return /^\s*(?:\/\*[\s\S]*?\*\/\s*)*class\b/.test(str);
     }
 }
 class DesTys {

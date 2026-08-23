@@ -36,11 +36,14 @@ describe(`Tys`, ()=>{
             describe(`Object系`, ()=>{
                 test('HasNotPrototypeObject',()=>expect(Tys.name(Object.create(null))).toBe('HasNotPrototypeObject'));
                 test('PlainObject',()=>expect(Tys.name({})).toBe('PlainObject'));
+                describe(`組込疑似クラスインスタンス系`, ()=>{
+                    test('(new Map())',()=>expect(Tys.name(new Map())).toBe('BuiltinObject<Map>'));
+                    test('(new Uint8Array())',()=>expect(Tys.name(new Uint8Array())).toBe('BuiltinObject<Uint8Array>'));
+                });
                 describe(`PrototypedObject系`, ()=>{
                     test('Object.create({})',()=>expect(Tys.name(Object.create({}))).toBe('PrototypedObject'));
                     function Es5Cls(){}
                     test('ES5疑似クラスインスタンス',()=>expect(Tys.name(new Es5Cls())).toBe('PrototypedObject'));
-                    test('組込疑似クラスインスタンス(new Map())',()=>expect(Tys.name(new Map())).toBe('PrototypedObject'));
                 });
                 describe(`BoxedPrimitive系`, ()=>{
                     test('Boolean',()=>expect(Tys.name(new Boolean())).toBe('BoxedPrimitive<Boolean>'));
@@ -59,6 +62,10 @@ describe(`Tys`, ()=>{
                     test('Getter',()=>expect(Tys.name(g)).toBe('Descriptor<Getter>'));
                     test('Setter',()=>expect(Tys.name(s)).toBe('Descriptor<Setter>'));
                     test('Accessor',()=>expect(Tys.name(a)).toBe('Descriptor<Accessor>'));
+                });
+                describe(`ES6クラスインスタンス系`, ()=>{
+                    class MyClass {}
+                    test('MyClass',()=>expect(Tys.name(new MyClass())).toBe('Instance<MyClass>'));
                 });
 
             });
