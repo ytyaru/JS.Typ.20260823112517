@@ -28,7 +28,8 @@ export class Tys {// Type string name
         const isPlain = Object.prototype===proto;
         if (isPlain) return `PlainObject`;
         const isIns = this._isIns(v,proto);
-        if (!isPlain && 'Object'!==name && !isIns) return `BuiltinObject<${name}>`;
+        //if (!isPlain && 'Object'!==name && !isIns) return `BuiltinObject<${name}>`;
+        if (!isPlain && 'Object'!==name && !isIns) return `NativeObject<${name}>`;
         if (isIns) return `Instance<${proto.constructor.name}>`;
         // Object.create()で拡張されたりnew Function()で生成されたES5以前の擬似クラスインスタンスなど上記以外全て。
         return 'PrototypedObject';
@@ -84,7 +85,8 @@ class FnTys {// クラスと関数を分け、関数を更に細分化する
         const s = Function.prototype.toString.call(v);
         if (this._isEsCls(v,s)) return `Class<${v.name}>`;
         if (this._isBound(v,s)) return `BoundFunction<${v.name.replace(/bound /,'')}>`;
-        if (this._isBuiltin(v,s)) return `BuiltinFunction<${v.name}>`;
+        //if (this._isBuiltin(v,s)) return `BuiltinFunction<${v.name}>`;
+        if (this._isNative(v,s)) return `NativeFunction<${v.name}>`;
         if (this._isArrow(v,s)) return `${FnAgTys.name(v,s)}ArrowFunction`;
         if (this._isMethod(v,s)) return `${FnAgTys.name(v,s)}Method`;
         return `${FnAgTys.name(v,s)}Function`;
@@ -94,7 +96,8 @@ class FnTys {// クラスと関数を分け、関数を更に細分化する
         // Bunの最適化やコメントに対応した正規表現で class 構文か判定
         return /^\s*(?:\/\*[\s\S]*?\*\/\s*)*class\b/.test(s);
     }
-    static _isBuiltin(v,s) {return s.includes('[native code]');}
+    //static _isBuiltin(v,s) {return s.includes('[native code]');}
+    static _isNative(v,s) {return s.includes('[native code]');}
     static _isBound(v,s) {return v.name.startsWith('bound ');}
     static _isArrow(v,s) {
         // アロー関数は prototype プロパティを持たない特徴を利用

@@ -37,8 +37,10 @@ describe(`Tys`, ()=>{
                 test('HasNotPrototypeObject',()=>expect(Tys.name(Object.create(null))).toBe('HasNotPrototypeObject'));
                 test('PlainObject',()=>expect(Tys.name({})).toBe('PlainObject'));
                 describe(`組込疑似クラスインスタンス系`, ()=>{
-                    test('(new Map())',()=>expect(Tys.name(new Map())).toBe('BuiltinObject<Map>'));
-                    test('(new Uint8Array())',()=>expect(Tys.name(new Uint8Array())).toBe('BuiltinObject<Uint8Array>'));
+                    test('(new Map())',()=>expect(Tys.name(new Map())).toBe('NativeObject<Map>'));
+                    test('(new Uint8Array())',()=>expect(Tys.name(new Uint8Array())).toBe('NativeObject<Uint8Array>'));
+//                    test('(new Map())',()=>expect(Tys.name(new Map())).toBe('BuiltinObject<Map>'));
+//                    test('(new Uint8Array())',()=>expect(Tys.name(new Uint8Array())).toBe('BuiltinObject<Uint8Array>'));
                 });
                 describe(`PrototypedObject系`, ()=>{
                     test('Object.create({})',()=>expect(Tys.name(Object.create({}))).toBe('PrototypedObject'));
@@ -74,7 +76,8 @@ describe(`Tys`, ()=>{
                     test('MyClass',()=>expect(Tys.name(MyClass)).toBe('Class<MyClass>'));
                 });
                 describe(`組込疑似クラス系`, ()=>{
-                    test('Map',()=>expect(Tys.name(Map)).toBe('BuiltinFunction<Map>'));
+                    //test('Map',()=>expect(Tys.name(Map)).toBe('BuiltinFunction<Map>'));
+                    test('Map',()=>expect(Tys.name(Map)).toBe('NativeFunction<Map>'));
                 });
                 describe(`Bound系`, ()=>{
                     function fn(){}
