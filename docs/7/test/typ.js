@@ -40,6 +40,18 @@ describe(`Typ`, ()=>{
                 });
             });
         });
+        describe(`finite`, ()=>{
+            describe(`false`, ()=>{
+                test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[0n],[''],[Symbol()]])(`(%p)`, (v)=>{
+                    expect(Typ.is.fin(v)).toBe(false);
+                });
+            });
+            describe(`true`, ()=>{
+                test.each([[0.1],[-12.3],[45.6789],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER]])(`(%p)`, (v)=>{
+                    expect(Typ.is.fin(v)).toBe(true);
+                });
+            });
+        });
         describe(`big`, ()=>{
             describe(`false`, ()=>{
                 test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[0.1],[0],[''],[Symbol()]])(`(%p)`, (v)=>{
@@ -49,6 +61,30 @@ describe(`Typ`, ()=>{
             describe(`true`, ()=>{
                 test.each([[0n],[BigInt(Number.MAX_SAFE_INTEGER) + 1n],[BigInt(Number.MIN_SAFE_INTEGER) - 1n]])(`(%p)`, (v)=>{
                     expect(Typ.is.big(v)).toBe(true);
+                });
+            });
+        });
+        describe(`str`, ()=>{
+            describe(`false`, ()=>{
+                test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[0.1],[0],[0n],[Symbol()]])(`(%p)`, (v)=>{
+                    expect(Typ.is.str(v)).toBe(false);
+                });
+            });
+            describe(`true`, ()=>{
+                test.each([[''],[' '],['\n'],['a'],['あ']])(`(%p)`, (v)=>{
+                    expect(Typ.is.str(v)).toBe(true);
+                });
+            });
+        });
+        describe(`sym`, ()=>{
+            describe(`false`, ()=>{
+                test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[0.1],[0],[0n],['']])(`(%p)`, (v)=>{
+                    expect(Typ.is.sym(v)).toBe(false);
+                });
+            });
+            describe(`true`, ()=>{
+                test.each([[Symbol()],[Symbol('a')],[Symbol.for('a')]])(`(%p)`, (v)=>{
+                    expect(Typ.is.sym(v)).toBe(true);
                 });
             });
         });
@@ -78,8 +114,21 @@ describe(`Typ`, ()=>{
                 });
             });
         });
+        describe(`finite`, ()=>{
+            describe(`TypeError`, ()=>{
+                test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[0n],[''],[Symbol()]])(`(%p)`, (v)=>{
+                    //expect(Typ.is.fin(v)).toBe(false);
+                    assertThrow(TypeError, `Expected: '${Typ.is.fin.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Typ.er.fin(v));
+                });
+            });
+            describe(`true`, ()=>{
+                test.each([[0.1],[-12.3],[45.6789],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER]])(`(%p)`, (v)=>{
+                    expect(Typ.er.fin(v)).toBe(true);
+                });
+            });
+        });
         describe(`big`, ()=>{
-            describe(`false`, ()=>{
+            describe(`TypeError`, ()=>{
                 test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[0.1],[0],[''],[Symbol()]])(`(%p)`, (v)=>{
                     assertThrow(TypeError, `Expected: '${Typ.is.big.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Typ.er.big(v));
                 });
@@ -87,6 +136,30 @@ describe(`Typ`, ()=>{
             describe(`true`, ()=>{
                 test.each([[0n],[BigInt(Number.MAX_SAFE_INTEGER) + 1n],[BigInt(Number.MIN_SAFE_INTEGER) - 1n]])(`(%p)`, (v)=>{
                     expect(Typ.er.big(v)).toBe(true);
+                });
+            });
+        });
+        describe(`str`, ()=>{
+            describe(`TypeError`, ()=>{
+                test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[0.1],[0],[0n],[Symbol()]])(`(%p)`, (v)=>{
+                    assertThrow(TypeError, `Expected: '${Typ.is.str.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Typ.er.str(v));
+                });
+            });
+            describe(`true`, ()=>{
+                test.each([[''],[' '],['\n'],['a'],['あ']])(`(%p)`, (v)=>{
+                    expect(Typ.er.str(v)).toBe(true);
+                });
+            });
+        });
+        describe(`sym`, ()=>{
+            describe(`TypeError`, ()=>{
+                test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[0.1],[0],[0n],['']])(`(%p)`, (v)=>{
+                    assertThrow(TypeError, `Expected: '${Typ.is.sym.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Typ.er.sym(v));
+                });
+            });
+            describe(`true`, ()=>{
+                test.each([[Symbol()],[Symbol('a')],[Symbol.for('a')]])(`(%p)`, (v)=>{
+                    expect(Typ.er.sym(v)).toBe(true);
                 });
             });
         });
