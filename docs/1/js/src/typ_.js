@@ -1,4 +1,3 @@
-import {Tys} from './tys.js';
 export class Typ {
     static get is() {return Typis}
     static get er() {return Typer}
@@ -18,7 +17,6 @@ class Typer {
     static sym(v) {return this._('sym', v);}
     static _(n,v) {
         if (Typis[n](v)) return true;
-//        throw new TypeError(`Expected: '${Typis[n].toString()}' like value.\nActual: ${v}, typeof: ${typeof v}`);
-        throw new TypeError(`Expected: '${Typis[n].toString()}' like value.\nActual: ${Tys.name(v)}`);
+        throw new TypeError(`Expected: '${Typis[n].toString()}' like value.\nActual: ${v}, typeof: ${typeof v}`);
     }
 }
