@@ -6,8 +6,11 @@ export class Tyo {
 }
 class Tyois {
     static some(v) {
+//        return ['des','fn','md'].some(n=>this[n].some(v)) || ['obj','ary','cls','ins'].some(n=>this[n](v));
         const N = Tys.name(v);
-        return ['Function','Method'].some(n=>N.endsWith(n)) || ['PlainObject','Array'].some(n=>n===N) || ['Descriptor','Class','Instance'].some(n=>N.startsWith(n+'<'));
+        return TyoisFn._some(N) || ['Method'].some(n=>N.endsWith(n)) || ['PlainObject','Array'].some(n=>n===N) || ['Descriptor','Class','Instance'].some(n=>N.startsWith(n+'<'));
+//        const N = Tys.name(v);
+//        return ['Function','Method'].some(n=>N.endsWith(n)) || ['PlainObject','Array'].some(n=>n===N) || ['Descriptor','Class','Instance'].some(n=>N.startsWith(n+'<'));
     }
     static obj(v) {return 'PlainObject'===Tys.name(v)}
     static ary(v) {return Array.isArray(v)}
@@ -42,14 +45,19 @@ class TyoisDesA extends TyoisDesDA {
     static a(v) {return 'Descriptor<Accessor>'===Tys.name(v)}
 }
 class TyoisFn {
-    static some(v) {return Tys.name(v).endsWith('Function')}
-    static bound(v) {return 'BoundFunction'===Tys.name(v)}
-    static native(v) {return 'NativeFunction'===Tys.name(v)}
+    //static some(v) {return Tys.name(v).endsWith('Function')}
+    static some(v) {
+        const N = Tys.name(v);
+        return N.endsWith('Function') || `Bound Native`.split(' ').some(n=>N.startsWith(n+'Function<'));
+    }
+    static bound(v) {return Tys.name(v).startsWith(`BoundFunction<`)}
+    static native(v) {return Tys.name(v).startsWith(`NativeFunction<`)}
     static get arrow() {return TyoisArrFn}
     static a(v) {return 'AsyncFunction'===Tys.name(v)}
     static g(v) {return 'GeneratorFunction'===Tys.name(v)}
     static ag(v) {return 'AsyncGeneratorFunction'===Tys.name(v)}
     static s(v) {return 'Function'===Tys.name(v)}
+    static _some(N) {return N.endsWith('Function') || `Bound Native`.split(' ').some(n=>N.startsWith(n+'Function<'))}
 }
 class TyoisArrFn {
     static some(v) {return Tys.name(v).endsWith('ArrowFunction')}
@@ -75,26 +83,57 @@ class Tyoer {
     static ins(v,C) {return this._('ins', v);}
     static get des() {return TyoerDes}
     static get fn() {return TyoerFn}
+    static get md() {return TyoerMd}
     static _(n,v) {
         if (Tyois[n](v)) return true;
         throw new TyoeError(`Expected: '${Tyois[n].toString()}' like value.\nActual: ${Tys.name(v)}`);
     }
 }
+/*
 class TyoerDes {
     static some(v) {
         if (TyoisDes.some(v)) return true;
         throw new TypeError(`Expected: a value that makes 'Tyois.des.some(v)' return true.\nActual: ${Tys.name(v)}`);
     }
-    static v(v) {return }
-    static m(v) {return }
-    static g(v) {return }
-    static s(v) {return }
-    static a(v) {return }
+    static v(v) {return this._('v',v);}
+    static m(v) {return this._('m',v);}
+    static g(v) {return this._('g',v);}
+    static s(v) {return this._('s',v);}
+    static a(v) {return this._('a',v);}
     static _(n,v) {
         if (TyoisDes[n](v)) return true;
         throw new TyoeError(`Expected: '${TyoisDes[n].toString()}' like value.\nActual: ${Tys.name(v)}`);
     }
 }
+*/
+class TyoerDes {
+    static some(v) {
+        if (TyoisDes.some(v)) return true;
+        throw new TypeError(`Expected: a value that makes 'Tyois.des.some(v)' return true.\nActual: ${Tys.name(v)}`);
+    }
+    static get d() {return TyoisDesD}
+    static get a() {return TyoisDesA}
+}
+class TyoerDesD extends TyoisDesDA {
+    static some(v) {return super.some(v, 'Value Method'.split(' '))}
+    static v(v) {return this._('v',v);}
+    static m(v) {return this._('m',v);}
+    static _(n,v) {
+        if (TyoisDesD[n](v)) return true;
+        throw new TyoeError(`Expected: '${Tyois.des.d[n].toString()}' like value.\nActual: ${Tys.name(v)}`);
+    }
+}
+class TyoerDesA extends TyoisDesDA {
+    static some(v) {return this._('some',v);}
+    static g(v) {return this._('g',v);}
+    static s(v) {return this._('s',v);}
+    static a(v) {return this._('a',v);}
+    static _(n,v) {
+        if (TyoisDesA[n](v)) return true;
+        throw new TyoeError(`Expected: '${Tyois.des.a[n].toString()}' like value.\nActual: ${Tys.name(v)}`);
+    }
+}
+
 class TyoerFn {
     static some(v) {
         if (TyoisFn.some(v)) return true;
@@ -124,3 +163,27 @@ class TyoerArrFn {
         throw new TyoeError(`Expected: '${TyoisArrFn[n].toString()}' like value.\nActual: ${Tys.name(v)}`);
     }
 }
+/*
+class TyoisMd {
+    static some(v) {return Tys.name(v).endsWith('Method')}
+    static a(v) {return 'AsyncMethod'===Tys.name(v)}
+    static g(v) {return 'GeneratorMethod'===Tys.name(v)}
+    static ag(v) {return 'AsyncGeneratorMethod'===Tys.name(v)}
+    static s(v) {return 'Method'===Tys.name(v)}
+}
+*/
+class TyoerMd {
+    static some(v) {
+        if (TyoisMd.some(v)) return true;
+        throw new TypeError(`Expected: a value that makes 'Tyois.md.some(v)' return true.\nActual: ${Tys.name(v)}`);
+    }
+    static a() {return this._('a',v)}
+    static g() {return this._('g',v)}
+    static ag() {return this._('ag',v)}
+    static s() {return this._('s',v)}
+    static _(n,v) {
+        if (TyoisMd[n](v)) return true;
+        throw new TyoeError(`Expected: '${TyoisMd[n].toString()}' like value.\nActual: ${Tys.name(v)}`);
+    }
+}
+
