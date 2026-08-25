@@ -92,7 +92,7 @@ class TyoisMd {
 class Tyoer {
     static some(v) {
         if (Tyois.some(v)) return true;
-        throw new TypeError(`Expected: a value that makes 'Tyois.some(v)' return true.\nActual: ${Tys.name(v)}`);
+        throw new TypeError(`Expected: a value that makes 'Tyo.is.some(v)' return true.\nActual: ${Tys.name(v)}`);
     }
     static obj(v) {return this._('obj', v);}
     static ary(v) {return this._('ary', v);}
@@ -111,7 +111,7 @@ class Tyoer {
 class TyoerCls {
     static some(v) {
         if (TyoisCls.some(v)) return true;
-        throw new TypeError(`Expected: a value that makes 'Tyois.cls.some(v)' return true.\nActual: ${Tys.name(v)}`);
+        throw new TypeError(`Expected: a value that makes 'Tyo.is.cls.some(v)' return true.\nActual: ${Tys.name(v)}`);
     }
     static es6(v) {return this._('es6',v);}
     static es5(v) {return this._('es5',v);}
@@ -124,7 +124,7 @@ class TyoerCls {
 class TyoerIns {
     static some(v,C) {
         if (TyoisIns.some(v)) return true;
-        throw new TypeError(`Expected: a value that makes 'Tyois.ins.some(v)' return true.\nActual: ${Tys.name(v)}`);
+        throw new TypeError(`Expected: a value that makes 'Tyo.is.ins.some(v)' return true.\nActual: ${Tys.name(v)}`);
     }
     static es6(v) {return this._('es6',v);}
     static es5(v) {return this._('es5',v);}
@@ -139,13 +139,21 @@ class TyoerIns {
 class TyoerDes {
     static some(v) {
         if (TyoisDes.some(v)) return true;
-        throw new TypeError(`Expected: a value that makes 'Tyois.des.some(v)' return true.\nActual: ${Tys.name(v)}`);
+        throw new TypeError(`Expected: a value that makes 'Tyo.is.des.some(v)' return true.\nActual: ${Tys.name(v)}`);
     }
-    static get d() {return TyoisDesD}
-    static get a() {return TyoisDesA}
+    static get d() {return TyoerDesD}
+    static get a() {return TyoerDesA}
 }
-class TyoerDesD extends TyoisDesDA {
-    static some(v) {return super.some(v, 'Value Method'.split(' '))}
+class TyoerDesDA {
+    static some(v, n, names) {
+        const N = Tys.name(v);
+        const ns = names.map(n=>`Descriptor<${n}>`);
+        if (ns.some(n=>n===N)) return true;
+        throw new TypeError(`Expected: a value that makes 'Tyo.is.des.${n}.some(v)' return true.\nActual: ${Tys.name(v)}`);
+    }
+}
+class TyoerDesD extends TyoerDesDA {
+    static some(v) {return super.some(v, 'd', 'Value Method'.split(' '))}
     static v(v) {return this._('v',v);}
     static m(v) {return this._('m',v);}
     static _(n,v) {
@@ -153,8 +161,8 @@ class TyoerDesD extends TyoisDesDA {
         throw new TypeError(`Expected: '${Tyois.des.d[n].toString()}' like value.\nActual: ${Tys.name(v)}`);
     }
 }
-class TyoerDesA extends TyoisDesDA {
-    static some(v) {return this._('some',v);}
+class TyoerDesA extends TyoerDesDA {
+    static some(v) {return super.some(v, 'a', 'Getter Setter Accessor'.split(' '))}
     static g(v) {return this._('g',v);}
     static s(v) {return this._('s',v);}
     static a(v) {return this._('a',v);}

@@ -718,8 +718,6 @@ describe(`Tyo`, ()=>{
                 });
             });
         });
-
-
     });
     /*
     describe(`er`, ()=>{
@@ -742,7 +740,7 @@ describe(`Tyo`, ()=>{
             describe(`TypeError`, ()=>{
                 test.each([...prims, ...dangers])(`(%p)`, (v)=>{
                     //expect(Tyo.er.some(v)).toBe(false);
-                    assertThrow(TypeError, `Expected: a value that makes 'Tyois.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.some(v));
+                    assertThrow(TypeError, `Expected: a value that makes 'Tyo.is.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.some(v));
                 });
             });
             describe(`true`, ()=>{
@@ -771,7 +769,7 @@ describe(`Tyo`, ()=>{
         describe(`obj`, ()=>{
             describe(`TypeError`, ()=>{
                 test.each([[[]], ...dangers, ...prims, ...des.o, ...des.c, ...des.i, ...cal.fn, ...cal.md, ...cls.es6, ...cls.es5, ...cls.native, ...ins.es6, ...ins.es5, ...ins.native])(`(%p)`, (v)=>{
-                    console.log(`name: ${Tyo.is.obj(v)}: ${Tys.name(v)}`);
+//                    console.log(`name: ${Tyo.is.obj(v)}: ${Tys.name(v)}`);
                     //expect(Tyo.er.obj(v)).toBe(false);
                     assertThrow(TypeError, `Expected: '${Tyo.is.obj.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.obj(v));
                 });
@@ -801,7 +799,7 @@ describe(`Tyo`, ()=>{
                 describe(`TypeError`, ()=>{
                     test.each([...ins.es6, ...ins.es5, ...ins.native, [{}],[[]], ...dangers, ...prims, ...des.o, ...des.c, ...des.i, ...cal.fn, ...cal.md])(`(%p)`, (v)=>{
                         //expect(Tyo.er.cls(v)).toBe(false);
-                        assertThrow(TypeError, `Expected: a value that makes 'Tyois.cls.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.cls.some(v));
+                        assertThrow(TypeError, `Expected: a value that makes 'Tyo.is.cls.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.cls.some(v));
                     });
                 });
                 describe(`true`, ()=>{
@@ -851,7 +849,7 @@ describe(`Tyo`, ()=>{
             describe(`some`, ()=>{
                 describe(`TypeError`, ()=>{
                     test.each([...cls.es6, ...cls.es5, ...cls.native, [{}],[[]], ...dangers, ...prims, ...des.o, ...des.c, ...des.i, ...cal.fn, ...cal.md])(`(%p)`, (v)=>{
-                        assertThrow(TypeError, `Expected: a value that makes 'Tyois.ins.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.ins.some(v));
+                        assertThrow(TypeError, `Expected: a value that makes 'Tyo.is.ins.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.ins.some(v));
                     });
                 });
                 describe(`true`, ()=>{
@@ -897,13 +895,11 @@ describe(`Tyo`, ()=>{
                 });
             });
         });
-        /*
         describe(`des`, ()=>{
             describe(`some`, ()=>{
                 describe(`TypeError`, ()=>{
-                    test.each([[{}],[[]],[C],[class{}],[class C{}],[new C()],[new (class{})],[new (class C{})], ...dangers, ...prims, ...cal.fn, ...cal.md])(`(%p)`, (v)=>{
-//                        expect(Tyo.er.des.some(v)).toBe(false);
-                        assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.some.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.some(v));
+                    test.each([[{}],[[]],[C], ...dangers, ...prims, ...cal.fn, ...cal.md, ...cls.es6, ...cls.es5, ...cls.native, ...ins.es6, ...ins.es5, ...ins.native])(`(%p)`, (v)=>{
+                        assertThrow(TypeError, `Expected: a value that makes 'Tyo.is.des.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.some(v));
                     });
                 });
                 describe(`true`, ()=>{
@@ -918,20 +914,19 @@ describe(`Tyo`, ()=>{
                         describe(`Obj系`, ()=>{
                             const data = [[{_d:0}, {get(){return this._d}}], [{_d:0}, {set(v){this._d=v;}}], [{_d:0}, {get(){return this._d}, set(v){this._d=v}}]].map(x=>[getDes(...x)]);
                             test.each(data)(`(%p)`, (v)=>{
-//                                expect(Tyo.er.des.d.some(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.d.some.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.some(v));
+                                assertThrow(TypeError, `Expected: a value that makes 'Tyo.is.des.d.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.some(v));
                             });
                         });
                         describe(`Cls系`, ()=>{
                             test.each(des.c)(`(%p)`, (v)=>{
                                 //expect(Tyo.er.des.d.some(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.d.some.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.some(v));
+                                assertThrow(TypeError, `Expected: a value that makes 'Tyo.is.des.d.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.some(v));
                             });
                         });
                         describe(`Ins系`, ()=>{
                             test.each(des.i)(`(%p)`, (v)=>{
                                 //expect(Tyo.er.des.d.some(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.d.some.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.some(v));
+                                assertThrow(TypeError, `Expected: a value that makes 'Tyo.is.des.d.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.some(v));
                             });
                         });
                     });
@@ -939,8 +934,7 @@ describe(`Tyo`, ()=>{
                         describe(`Obj系`, ()=>{
                             const data = [[{}, {value:0}], [{}, {value(){}}]].map(x=>[getDes(...x)])
                             test.each(data)(`(%p)`, (v)=>{
-                                //expect(Tyo.er.des.d.some(v)).toBe(true);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.d.some.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.some(v));
+                                expect(Tyo.er.des.d.some(v)).toBe(true);
                             });
                         });
                     });
@@ -950,20 +944,17 @@ describe(`Tyo`, ()=>{
                         describe(`Obj系`, ()=>{
                             const data = [[{}, {value(){}}], [{_d:0}, {get(){return this._d}}], [{_d:0}, {set(v){this._d=v;}}], [{_d:0}, {get(){return this._d}, set(v){this._d=v}}]].map(x=>[getDes(...x)]);
                             test.each(data)(`(%p)`, (v)=>{
-                                //expect(Tyo.er.des.d.v(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.d.v.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.v(v));
+                                assertThrow(TypeError, `Expected: '${Tyo.is.des.d.v.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.v(v));
                             });
                         });
                         describe(`Cls系`, ()=>{
                             test.each(des.c)(`(%p)`, (v)=>{
-                                //expect(Tyo.er.des.d.v(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.d.v.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.v(v));
+                                assertThrow(TypeError, `Expected: '${Tyo.is.des.d.v.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.v(v));
                             });
                         });
                         describe(`Ins系`, ()=>{
                             test.each(des.i)(`(%p)`, (v)=>{
-                                //expect(Tyo.er.des.d.v(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.d.v.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.v(v));
+                                assertThrow(TypeError, `Expected: '${Tyo.is.des.d.v.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.v(v));
                             });
                         });
                     });
@@ -981,20 +972,17 @@ describe(`Tyo`, ()=>{
                         describe(`Obj系`, ()=>{
                             const data = [[{}, {value:0}], [{_d:0}, {get(){return this._d}}], [{_d:0}, {set(v){this._d=v;}}], [{_d:0}, {get(){return this._d}, set(v){this._d=v}}]].map(x=>[getDes(...x)]);
                             test.each(data)(`(%p)`, (v)=>{
-                                //expect(Tyo.er.des.d.m(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.d.m.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.m(v));
+                                assertThrow(TypeError, `Expected: '${Tyo.is.des.d.m.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.m(v));
                             });
                         });
                         describe(`Cls系`, ()=>{
                             test.each(des.c)(`(%p)`, (v)=>{
-                                //expect(Tyo.er.des.d.m(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.d.m.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.m(v));
+                                assertThrow(TypeError, `Expected: '${Tyo.is.des.d.m.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.m(v));
                             });
                         });
                         describe(`Ins系`, ()=>{
                             test.each(des.i)(`(%p)`, (v)=>{
-                                //expect(Tyo.er.des.d.m(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.d.m.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.m(v));
+                                assertThrow(TypeError, `Expected: '${Tyo.is.des.d.m.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.d.m(v));
                             });
                         });
                     });
@@ -1015,7 +1003,7 @@ describe(`Tyo`, ()=>{
                             const data = [[{}, {value:0}],[{}, {value(){}}]].map(x=>[getDes(...x)]);
                             test.each(data)(`(%p)`, (v)=>{
                                 //expect(Tyo.er.des.a.some(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.a.some.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.some(v));
+                                assertThrow(TypeError, `Expected: a value that makes 'Tyo.is.des.a.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.some(v));
                             });
                         });
                     });
@@ -1044,21 +1032,21 @@ describe(`Tyo`, ()=>{
                             const data = [[{}, {value:0}],[{}, {value(){}}],[{_d:0}, {set(v){this._d=v;}}], [{_d:0}, {get(){return this._d}, set(v){this._d=v}}]].map(x=>[getDes(...x)]);
                             test.each(data)(`(%p)`, (v)=>{
                                 //expect(Tyo.er.des.a.g(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.a.g.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.g(v));
+                                assertThrow(TypeError, `Expected: '${Tyo.is.des.a.g.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.g(v));
                             });
                         });
                         describe(`Cls系`, ()=>{
                             const data = [[C,'ss'],[C,'sa']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]);
                             test.each(data)(`(%p)`, (v)=>{
                                 //expect(Tyo.er.des.a.g(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.a.g.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.g(v));
+                                assertThrow(TypeError, `Expected: '${Tyo.is.des.a.g.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.g(v));
                             });
                         });
                         describe(`Ins系`, ()=>{
                             const data = [[c,'s'],[c,'a']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]);
                             test.each(data)(`(%p)`, (v)=>{
                                 //expect(Tyo.er.des.a.g(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.a.g.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.g(v));
+                                assertThrow(TypeError, `Expected: '${Tyo.is.des.a.g.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.g(v));
                             });
                         });
                     });
@@ -1089,21 +1077,21 @@ describe(`Tyo`, ()=>{
                             const data = [[{}, {value:0}],[{}, {value(){}}],[{_d:0},{get(){return this._d}}],[{_d:0},{get(){return this._d}, set(v){this._d=v}}]].map(x=>[getDes(...x)]);
                             test.each(data)(`(%p)`, (v)=>{
                                 //expect(Tyo.er.des.a.s(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.a.s.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.s(v));
+                                assertThrow(TypeError, `Expected: '${Tyo.is.des.a.s.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.s(v));
                             });
                         });
                         describe(`Cls系`, ()=>{
                             const data = [[C,'sa'],[C,'sg']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]);
                             test.each(data)(`(%p)`, (v)=>{
                                 //expect(Tyo.er.des.a.s(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.a.s.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.s(v));
+                                assertThrow(TypeError, `Expected: '${Tyo.is.des.a.s.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.s(v));
                             });
                         });
                         describe(`Ins系`, ()=>{
                             const data = [[c,'a'],[c,'g']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]);
                             test.each(data)(`(%p)`, (v)=>{
                                 //expect(Tyo.er.des.a.s(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.a.s.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.s(v));
+                                assertThrow(TypeError, `Expected: '${Tyo.is.des.a.s.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.s(v));
                             });
                         });
                     });
@@ -1134,21 +1122,21 @@ describe(`Tyo`, ()=>{
                             const data = [[{}, {value:0}],[{}, {value(){}}],[{_d:0},{get(){return this._d}}],[{_d:0}, {set(v){this._d=v;}}]].map(x=>[getDes(...x)]);
                             test.each(data)(`(%p)`, (v)=>{
                                 //expect(Tyo.er.des.a.a(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.a.a.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.a(v));
+                                assertThrow(TypeError, `Expected: '${Tyo.is.des.a.a.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.a(v));
                             });
                         });
                         describe(`Cls系`, ()=>{
                             const data = [[C,'sg'],[C,'ss']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]);
                             test.each(data)(`(%p)`, (v)=>{
                                 //expect(Tyo.er.des.a.a(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.a.a.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.a(v));
+                                assertThrow(TypeError, `Expected: '${Tyo.is.des.a.a.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.a(v));
                             });
                         });
                         describe(`Ins系`, ()=>{
                             const data = [[c,'g'],[c,'s']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]);
                             test.each(data)(`(%p)`, (v)=>{
                                 //expect(Tyo.er.des.a.a(v)).toBe(false);
-                                assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.des.a.a.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.a(v));
+                                assertThrow(TypeError, `Expected: '${Tyo.is.des.a.a.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.des.a.a(v));
                             });
                         });
                     });
@@ -1175,6 +1163,7 @@ describe(`Tyo`, ()=>{
                 });
             });
         });
+        /*
         describe(`fn`, ()=>{
             describe(`some`, ()=>{
                 describe(`TypeError`, ()=>{
