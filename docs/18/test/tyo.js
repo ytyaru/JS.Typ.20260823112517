@@ -1303,27 +1303,74 @@ describe(`Tyo`, ()=>{
                 });
             });
         });
-//const cal = {
-//    fn: [[fn],[gfn],[afn],[agfn],[arrFn],[aarrFn],[function(){}],[function*(){}],[async function(){}],[async function*(){}],[()=>{}],[async()=>{}],[fn.bind(null)],[[].map]],
-//    md: [[_obj.m],[_obj.gm],[_obj.am],[_obj.agm],[C.sm],[C.sgm],[C.sam],[C.sagm],[c.m],[c.gm],[c.am],[c.agm]],
-//}
-        /*
         describe(`md`, ()=>{
             describe(`some`, ()=>{
                 describe(`TypeError`, ()=>{
-                    test.each([...cal.fn, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
-                        //expect(Tyo.er.md.some(v)).toBe(false);
-                        assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.md.some.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.md.some(v));
+                    test.each([...cal.fn, ...dangers, ...prims, ...des.o, ...des.c, ...des.i, ...cls.es6, ...cls.es5, ...cls.native, ...ins.es6, ...ins.es5, ...ins.native])(`(%p)`, (v)=>{
+                        assertThrow(TypeError, `Expected: a value that makes 'Tyo.is.md.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.md.some(v));
                     });
                 });
                 describe(`true`, ()=>{
                     test.each([...cal.md])(`(%p)`, (v)=>{
-                        console.log(`name:`, Tys.name(v));
                         expect(Tyo.er.md.some(v)).toBe(true);
                     });
                 });
             });
+//const cal = {
+//    fn: [[fn],[gfn],[afn],[agfn],[arrFn],[aarrFn],[function(){}],[function*(){}],[async function(){}],[async function*(){}],[()=>{}],[async()=>{}],[fn.bind(null)],[[].map]],
+//    md: [[_obj.m],[_obj.gm],[_obj.am],[_obj.agm],[C.sm],[C.sgm],[C.sam],[C.sagm],[c.m],[c.gm],[c.am],[c.agm]],
+//}
+            describe(`s`, ()=>{
+                describe(`TypeError`, ()=>{
+                    test.each([[_obj.gm],[_obj.am],[_obj.agm],[C.sgm],[C.sam],[C.sagm],[c.gm],[c.am],[c.agm], ...cal.fn, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
+                        assertThrow(TypeError, `Expected: '${Tyo.is.md.s.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.md.s(v));
+                    });
+                });
+                describe(`true`, ()=>{
+                    test.each([[_obj.m],[C.sm],[c.m]])(`(%p)`, (v)=>{
+                        console.log(`name:`, Tys.name(v));
+                        expect(Tyo.er.md.s(v)).toBe(true);
+                    });
+                });
+            });
+            describe(`g`, ()=>{
+                describe(`TypeError`, ()=>{
+                    test.each([[_obj.m],[_obj.am],[_obj.agm],[C.sm],[C.sam],[C.sagm],[c.m],[c.am],[c.agm], ...cal.fn, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
+                        assertThrow(TypeError, `Expected: '${Tyo.is.md.g.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.md.g(v));
+                    });
+                });
+                describe(`true`, ()=>{
+                    test.each([[_obj.gm],[C.sgm],[c.gm]])(`(%p)`, (v)=>{
+                        console.log(`name:`, Tys.name(v));
+                        expect(Tyo.er.md.g(v)).toBe(true);
+                    });
+                });
+            });
+            describe(`a`, ()=>{
+                describe(`TypeError`, ()=>{
+                    test.each([[_obj.m],[_obj.gm],[_obj.agm],[C.sm],[C.sgm],[C.sagm],[c.m],[c.gm],[c.agm], ...cal.fn, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
+                        assertThrow(TypeError, `Expected: '${Tyo.is.md.a.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.md.a(v));
+                    });
+                });
+                describe(`true`, ()=>{
+                    test.each([[_obj.am],[C.sam],[c.am]])(`(%p)`, (v)=>{
+                        console.log(`name:`, Tys.name(v));
+                        expect(Tyo.er.md.a(v)).toBe(true);
+                    });
+                });
+            });
+            describe(`ag`, ()=>{
+                describe(`TypeError`, ()=>{
+                    test.each([[_obj.m],[_obj.gm],[_obj.am],[C.sm],[C.sgm],[C.sam],[c.m],[c.gm],[c.am], ...cal.fn, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
+                        assertThrow(TypeError, `Expected: '${Tyo.is.md.ag.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.md.ag(v));
+                    });
+                });
+                describe(`true`, ()=>{
+                    test.each([[_obj.agm],[C.sagm],[c.agm]])(`(%p)`, (v)=>{
+                        expect(Tyo.er.md.ag(v)).toBe(true);
+                    });
+                });
+            });
         });
-        */
     });
 });
