@@ -16,10 +16,31 @@ class Tyois {
     static ary(v) {return Array.isArray(v)}
     static cls(v) {return Tys.name(v).startsWith('Class<')}
     static ins(v,C) {return Tys.name(v).startsWith('Instance<') && (C ? v instanceof C: true);}
+//    static get cls() {return TyoisCls}
+//    static get ins() {return TyoisIns}
     static get des() {return TyoisDes}
     static get fn() {return TyoisFn}
     static get md() {return TyoisMd}
 }
+class TyoisCls {
+    static some(v) {
+        const N = Tys.name(v);
+        return ['','ES5.','Native'].some(n=>N.startsWith(`${n}Class<`));
+    }
+    static es6(v) {return Tys.name(v).startsWith('Class<')}
+    static es5(v) {return Tys.name(v).startsWith('ES5.Class<')}
+    static native(v) {return Tys.name(v).startsWith('NativeClass<')}
+}
+class TyoisIns {
+    static some(v,C) {
+        const N = Tys.name(v);
+        return ['','ES5.','Native'].some(n=>N.startsWith(`${n}Instance<`)) && (C ? v instanceof C: true);
+    }
+    static es6(v,C) {return Tys.name(v).startsWith('Instance<') && (C ? v instanceof C: true)}
+    static es5(v,C) {return Tys.name(v).startsWith('ES5.Instance<') && (C ? v instanceof C: true)}
+    static native(v,C) {return Tys.name(v).startsWith('NativeInstance<') && (C ? v instanceof C: true)}
+}
+
 class TyoisDes {
     static some(v) {return Tys.name(v).startsWith('Descriptor<')}
     static get d() {return TyoisDesD}
