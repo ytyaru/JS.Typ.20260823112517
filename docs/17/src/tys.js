@@ -115,6 +115,31 @@ class FnTys {// クラスと関数を分け、関数を更に細分化する
         const proto = v.prototype;
         if (!proto || typeof proto !== 'object') return false;
         
+        const isCtorSelf = proto.constructor === v;
+        if (!isCtorSelf) return false;
+
+        const keys = Object.getOwnPropertyNames(proto);
+        const hasCustomProps = keys.length > 1 || (keys.length === 1 && keys[0] !== 'constructor');
+        
+        // 文字列リテラル、コメント、テンプレートリテラル内を除外した「実行コード部分」を抽出
+        const cleanS = s
+            .replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '') // コメント除去
+            .replace(/(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g, '""') // 文字列リテラル（'' , "" , ``）を空文字に置換
+            .replace(/\/([^\/\n\\]|\\.)+\/[gimsuy]*/g, '//'); // 正規表現リテラルを除外
+
+        if (hasCustomProps || /\bthis\./.test(cleanS)) return true;
+
+        const name = v.name || '';
+        return /^[A-Z]/.test(name);
+    }
+    /*
+    static _isEs5Cls(v,s) {
+        if (!s) s = Function.prototype.toString.call(v);
+        if (this._isEs6Cls(v,s) || this._isNative(v,s) || this._isArrow(v,s)) return false;
+        
+        const proto = v.prototype;
+        if (!proto || typeof proto !== 'object') return false;
+        
         // constructorが自分自身を指しているか
         const isCtorSelf = proto.constructor === v;
         if (!isCtorSelf) return false;
@@ -130,6 +155,7 @@ class FnTys {// クラスと関数を分け、関数を更に細分化する
 
         return isPascalCase;
     }
+    */
     //static _isBuiltin(v,s) {return s.includes('[native code]');}
     static _isNative(v,s) {return s.includes('[native code]');}
     static _isNativeClass(v) {

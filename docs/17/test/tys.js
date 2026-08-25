@@ -152,12 +152,30 @@ describe(`Tys`, ()=>{
                     test('function(){this.x=0;}',()=>expect(Tys.name(function(){this.x=0;})).toBe('ES5.Class<(Anonymous)>'));
                     test('function(){this.m=()=>{};}',()=>expect(Tys.name(function(){this.m=()=>{};})).toBe('ES5.Class<(Anonymous)>'));
                 });
-                describe(`匿名空関数(匿名関数／匿名ES5疑似クラスの区別不能)`, ()=>{
+                describe(`匿名関数(匿名関数／匿名ES5疑似クラスの区別不能)`, ()=>{
                     //test('function(){}',()=>expect(Tys.name(function(){})).toBe('AnonymousBlankFunction'));
                     test('function(){}',()=>expect(Tys.name(function(){})).toBe('AnonymousFunction'));
                     test('function(){/**/}',()=>expect(Tys.name(function(){/**/})).toBe('AnonymousFunction'));
                     test('function(){let a=0;}',()=>expect(Tys.name(function(){let a=0;})).toBe('AnonymousFunction'));
-                    test('function(){/*this.x=0*/}',()=>expect(Tys.name(function(){let a=0;})).toBe('AnonymousFunction'));
+                    test('function(){/*this.x=0*/}',()=>expect(Tys.name(function(){/*this.x=0*/})).toBe('AnonymousFunction'));
+                    test('function(){\\n// this.x=0\\n}',()=>expect(Tys.name(function(){
+// this.x=0
+})).toBe('AnonymousFunction'));
+                    test("function(){'this.x=0'}",()=>expect(Tys.name(function(){'this.x=0'})).toBe('AnonymousFunction'));
+                    test('function(){"this.x=0"}',()=>expect(Tys.name(function(){"this.x=0"})).toBe('AnonymousFunction'));
+                    test('function(){`this.x=0`}',()=>expect(Tys.name(function(){`this.x=0`})).toBe('AnonymousFunction'));
+                    test('function(){/this.x=0/}',()=>expect(Tys.name(function(){/this.x=0/})).toBe('AnonymousFunction'));
+                    test('function(){`${this.x=0}`}',()=>expect(Tys.name(function(){`${this.x=0}`})).toBe('AnonymousFunction'));
+                    test('function(){`${this.x=0}`等全部載せ}',()=>expect(Tys.name(function(){
+                        let a=0;
+                        /*this.x=0*/
+                        // this.x=0
+                        'this.x=0';
+                        "this.x=0";
+                        `this.x=0`;
+                        /this.x=0/;
+                        `${this.x=0}`;
+                    })).toBe('AnonymousFunction'));
                 });
                 describe(`組込疑似クラス系`, ()=>{
                     test('Map',()=>expect(Tys.name(Map)).toBe('NativeClass<Map>'));
@@ -194,7 +212,7 @@ describe(`Tys`, ()=>{
                     test('AsyncGeneratorInstance',()=>expect(Tys.name(ins.agim)).toBe('AsyncGeneratorMethod'));
                     test('Static',()=>expect(Tys.name(MyClass.sm)).toBe('Method'));
                 });
-                describe(`Function系`, ()=>{
+                describe(`通常系`, ()=>{
                     function myFn(){}
                     function *GFn(){}
                     async function AFn(){}
@@ -203,6 +221,11 @@ describe(`Tys`, ()=>{
                     test('function *GFn(){}',()=>expect(Tys.name(GFn)).toBe('GeneratorFunction'));
                     test('async function AFn(){}',()=>expect(Tys.name(AFn)).toBe('AsyncFunction'));
                     test('async function *AGFn(){}',()=>expect(Tys.name(AGFn)).toBe('AsyncGeneratorFunction'));
+                });
+                describe(`匿名Async/Generator系(通常系と同じ。Anonymousは付かない)`, ()=>{
+                    test('function*(){/*this.x=0*/}',()=>expect(Tys.name(function*(){/*this.x=0*/})).toBe('GeneratorFunction'));
+                    test('async function(){/*this.x=0*/}',()=>expect(Tys.name(async function(){/*this.x=0*/})).toBe('AsyncFunction'));
+                    test('async function*(){/*this.x=0*/}',()=>expect(Tys.name(async function*(){/*this.x=0*/})).toBe('AsyncGeneratorFunction'));
                 });
             });
         });

@@ -589,6 +589,45 @@ describe(`Tyo`, ()=>{
                     });
                 });
             });
+            describe(`g`, ()=>{
+                describe(`false`, ()=>{
+                    test.each([[fn],[afn],[agfn],[arrFn],[aarrFn],[function(){}],[function(){const a=0;}],[async function(){}],[async function*(){}],[()=>{}],[async()=>{}],[fn.bind(null)],[[].map], ...cal.md, ...dangers, ...prims, ...des.o, ...des.c, ...des.i, ...cls.es6, ...cls.es5, ...cls.native])(`(%p)`, (v)=>{
+                        console.log(`name: ${Tyo.is.fn.s(v)}: ${Tys.name(v)}`); //: ${Object.prototype.toString.call(v)}
+                        expect(Tyo.is.fn.g(v)).toBe(false);
+                    });
+                });
+                describe(`true`, ()=>{//,[function(){const a=0;}]
+                    test.each([[gfn],[function*(){}]])(`(%p)`, (v)=>{
+                        expect(Tyo.is.fn.g(v)).toBe(true);
+                    });
+                });
+            });
+            describe(`a`, ()=>{
+                describe(`false`, ()=>{
+                    test.each([[fn],[gfn],[agfn],[arrFn],[aarrFn],[function(){}],[function(){const a=0;}],[function*(){}],[async function*(){}],[()=>{}],[async()=>{}],[fn.bind(null)],[[].map], ...cal.md, ...dangers, ...prims, ...des.o, ...des.c, ...des.i, ...cls.es6, ...cls.es5, ...cls.native])(`(%p)`, (v)=>{
+                        console.log(`name: ${Tyo.is.fn.s(v)}: ${Tys.name(v)}`); //: ${Object.prototype.toString.call(v)}
+                        expect(Tyo.is.fn.a(v)).toBe(false);
+                    });
+                });
+                describe(`true`, ()=>{//,[function(){const a=0;}]
+                    test.each([[afn],[async function(){}]])(`(%p)`, (v)=>{
+                        expect(Tyo.is.fn.a(v)).toBe(true);
+                    });
+                });
+            });
+            describe(`ag`, ()=>{
+                describe(`false`, ()=>{
+                    test.each([[fn],[gfn],[afn],[arrFn],[aarrFn],[function(){}],[function(){const a=0;}],[function*(){}],[async function(){}],[()=>{}],[async()=>{}],[fn.bind(null)],[[].map], ...cal.md, ...dangers, ...prims, ...des.o, ...des.c, ...des.i, ...cls.es6, ...cls.es5, ...cls.native])(`(%p)`, (v)=>{
+                        console.log(`name: ${Tyo.is.fn.s(v)}: ${Tys.name(v)}`); //: ${Object.prototype.toString.call(v)}
+                        expect(Tyo.is.fn.ag(v)).toBe(false);
+                    });
+                });
+                describe(`true`, ()=>{//,[function(){const a=0;}]
+                    test.each([[agfn],[async function*(){}]])(`(%p)`, (v)=>{
+                        expect(Tyo.is.fn.ag(v)).toBe(true);
+                    });
+                });
+            });
         });
         describe(`md`, ()=>{
             describe(`some`, ()=>{
