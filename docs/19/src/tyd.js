@@ -10,7 +10,7 @@ class Tydis {
     static nul(v) {return null===v}
     static num(v) {return TydisNum}
     static obj(v) {return TydisObj}
-//    static fn(v) {return 'AnonymousFunction'===Tys.name(v)} // 関数またはES5擬似クラスのどちらで使われるか識別不能。`function(){}`だと'AnonymousBlankFunction'で関数なのに、`new (function(){})`だと'ES5.Instance<(Anonymous)>'になる曖昧型。
+    static fn(v) {return 'AnonymousBlankFunction'===Tys.name(v)} // 関数またはES5擬似クラスのどちらで使われるか識別不能。`function(){}`だと'AnonymousBlankFunction'で関数なのに、`new (function(){})`だと'ES5.Instance<(Anonymous)>'になる曖昧型。
 }
 class TydisNum {
     static some(v) {return 'nan inf fin'.split(' ').some(n=>this[n](v));}
@@ -18,11 +18,8 @@ class TydisNum {
     static inf(v) {return Number.isInfinite(v)}
     static pinf(v) {return Infinity===v;}
     static ninf(v) {return -Infinity===v;}
-    static oint(v) {return Number.isInteger(v) && !Number.isSafeInteger(v)} // 範囲超過整数。
-    //static fin(v) {return Number.isFinite(v)} // 有限数。安全な整数も含む。
-    static ofin(v) {return Number.isFinite(v) && Number.MAX_SAFE_INTEGER < v && v < Number.MIN_SAFE_INTEGER;} // 有限数かつ安全範囲超過。
-    static flt(v) {return Number.isFinite(v) && !Number.isInteger(v)} // 不動少数。有限数かつ非整数な値。IEEE754誤差。
-    static err(v) {return this.ofin(v) || this.flt(v)} // 誤差が発生しうる値。
+    static fin(v) {return !Number.isSafeInteger(v)} // 非整数または整数だが安全範囲超過（浮動小数点数または安全超過整数）
+    //static fin(v) {return Number.isFinite(v)} // これだと安全な整数も含んでしまう。それは危険値でない。
 }
 class TydisObj {
     //static some(v) {return 'box hasNotProto builtin prototyped'.split(' ').some(n=>this[n](v));}
