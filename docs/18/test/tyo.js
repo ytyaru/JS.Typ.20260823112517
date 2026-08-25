@@ -1163,38 +1163,151 @@ describe(`Tyo`, ()=>{
                 });
             });
         });
-        /*
         describe(`fn`, ()=>{
             describe(`some`, ()=>{
                 describe(`TypeError`, ()=>{
-                    test.each([...cal.md, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
-                        //expect(Tyo.er.fn.some(v)).toBe(false);
-                        assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.fn.some.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.fn.some(v));
+                    test.each([...cal.md, ...dangers, ...prims, ...des.o, ...des.c, ...des.i, ...cls.es6, ...cls.es5, ...cls.native, ...ins.es6, ...ins.es5, ...ins.native])(`(%p)`, (v)=>{
+                        assertThrow(TypeError, `Expected: a value that makes 'Tyo.is.fn.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.fn.some(v));
                     });
                 });
                 describe(`true`, ()=>{
                     test.each([...cal.fn])(`(%p)`, (v)=>{
-                        console.log(`name:`, Tys.name(v));
                         expect(Tyo.er.fn.some(v)).toBe(true);
                     });
                 });
             });
             describe(`bound`, ()=>{
-// fn: [[fn],[gfn],[afn],[agfn],[arrFn],[aarrFn],[function(){}],[function*(){}],[async function(){}],[async function*(){}],[()=>{}],[async()=>{}]],
                 describe(`TypeError`, ()=>{
-                    test.each([...cal.md, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
-                        //expect(Tyo.er.fn.some(v)).toBe(false);
-                        assertThrow(TypeError, `Expected: a value that makes '${Tyo.is.fn.bound.toString()}' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.fn.bound.some(v));
+                    test.each([[fn],[gfn],[afn],[agfn],[arrFn],[aarrFn],[function(){}],[function*(){}],[async function(){}],[async function*(){}],[()=>{}],[async()=>{}],[[].map], ...cal.md, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
+                        assertThrow(TypeError, `Expected: '${Tyo.is.fn.bound.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.fn.bound(v));
                     });
                 });
                 describe(`true`, ()=>{
-                    test.each([...cal.fn])(`(%p)`, (v)=>{
-                        console.log(`name:`, Tys.name(v));
-                        expect(Tyo.er.fn.some(v)).toBe(true);
+                    test.each([[fn.bind(null)]])(`(%p)`, (v)=>{
+                        expect(Tyo.er.fn.bound(v)).toBe(true);
+                    });
+                });
+            });
+            describe(`native`, ()=>{
+                describe(`TypeError`, ()=>{
+                    test.each([[fn],[gfn],[afn],[agfn],[arrFn],[aarrFn],[function(){}],[function*(){}],[async function(){}],[async function*(){}],[()=>{}],[async()=>{}],[fn.bind(null)], ...cal.md, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
+                        assertThrow(TypeError, `Expected: '${Tyo.is.fn.native.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.fn.native(v));
+                    });
+                });
+                describe(`true`, ()=>{
+                    test.each([[[].map]])(`(%p)`, (v)=>{
+                        expect(Tyo.er.fn.native(v)).toBe(true);
+                    });
+                });
+            });
+            describe(`arrow`, ()=>{
+                describe(`some`, ()=>{
+                    describe(`TypeError`, ()=>{
+                        test.each([[fn],[gfn],[afn],[agfn],[function(){}],[function*(){}],[async function(){}],[async function*(){}],[fn.bind(null)],[[].map], ...cal.md, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
+                            assertThrow(TypeError, `Expected: a value that makes 'Tyo.is.fn.arrow.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.fn.arrow.some(v));
+                        });
+                    });
+                    describe(`true`, ()=>{
+                        test.each([[arrFn],[aarrFn],[()=>{}],[async()=>{}]])(`(%p)`, (v)=>{
+                            expect(Tyo.er.fn.arrow.some(v)).toBe(true);
+                        });
+                    });
+
+                });
+                describe(`a`, ()=>{
+                    describe(`TypeError`, ()=>{
+                        test.each([[fn],[gfn],[afn],[agfn],[arrFn],[function(){}],[function*(){}],[async function(){}],[async function*(){}],[()=>{}],[fn.bind(null)],[[].map], ...cal.md, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
+                            assertThrow(TypeError, `Expected: '${Tyo.is.fn.arrow.a.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.fn.arrow.a(v));
+                        });
+                    });
+                    describe(`true`, ()=>{
+                        test.each([[aarrFn],[async()=>{}]])(`(%p)`, (v)=>{
+                            expect(Tyo.er.fn.arrow.a(v)).toBe(true);
+                        });
+                    });
+
+                });
+                describe(`s`, ()=>{
+                    describe(`TypeError`, ()=>{
+                        test.each([[fn],[gfn],[afn],[agfn],[aarrFn],[function(){}],[function*(){}],[async function(){}],[async function*(){}],[async()=>{}],[fn.bind(null)],[[].map], ...cal.md, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
+                            assertThrow(TypeError, `Expected: '${Tyo.is.fn.arrow.s.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.fn.arrow.s(v));
+                        });
+                    });
+                    describe(`true`, ()=>{
+                        test.each([[arrFn],[()=>{}]])(`(%p)`, (v)=>{
+                            expect(Tyo.er.fn.arrow.s(v)).toBe(true);
+                        });
+                    });
+                });
+            });
+            describe(`anonymous`, ()=>{
+                describe(`TypeError`, ()=>{
+                    test.each([[fn],[gfn],[afn],[agfn],[arrFn],[aarrFn],[function*(){}],[async function(){}],[async function*(){}],[()=>{}],[async()=>{}],[fn.bind(null)],[[].map], ...cal.md, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
+                        assertThrow(TypeError, `Expected: '${Tyo.is.fn.anonymous.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.fn.anonymous(v));
+                    });
+                });
+                describe(`true`, ()=>{
+                    test.each([[function(){}],[function(){let x=0;/*this.x=0;*/}]])(`(%p)`, (v)=>{
+                        expect(Tyo.er.fn.anonymous(v)).toBe(true);
+                    });
+                });
+
+            });
+            describe(`s`, ()=>{
+                describe(`TypeError`, ()=>{
+                    test.each([[gfn],[afn],[agfn],[arrFn],[aarrFn],[function(){}],[function*(){}],[async function(){}],[async function*(){}],[()=>{}],[async()=>{}],[fn.bind(null)],[[].map], ...cal.md, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
+                        assertThrow(TypeError, `Expected: '${Tyo.is.fn.s.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.fn.s(v));
+                    });
+                });
+                describe(`true`, ()=>{
+                    test.each([[fn]])(`(%p)`, (v)=>{
+                        expect(Tyo.er.fn.s(v)).toBe(true);
+                    });
+                });
+            });
+            describe(`g`, ()=>{
+                describe(`TypeError`, ()=>{
+                    test.each([[fn],[afn],[agfn],[arrFn],[aarrFn],[function(){}],[async function(){}],[async function*(){}],[()=>{}],[async()=>{}],[fn.bind(null)],[[].map], ...cal.md, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
+                        assertThrow(TypeError, `Expected: '${Tyo.is.fn.g.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.fn.g(v));
+                    });
+                });
+                describe(`true`, ()=>{
+                    test.each([[gfn],[function*(){}]])(`(%p)`, (v)=>{
+                        expect(Tyo.er.fn.g(v)).toBe(true);
+                    });
+                });
+            });
+            describe(`a`, ()=>{
+                describe(`TypeError`, ()=>{
+                    test.each([[fn],[gfn],[agfn],[arrFn],[aarrFn],[function(){}],[function*(){}],[async function*(){}],[()=>{}],[async()=>{}],[fn.bind(null)],[[].map], ...cal.md, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
+                        assertThrow(TypeError, `Expected: '${Tyo.is.fn.a.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.fn.a(v));
+                    });
+                });
+                describe(`true`, ()=>{
+                    test.each([[afn],[async function(){}]])(`(%p)`, (v)=>{
+                        expect(Tyo.er.fn.a(v)).toBe(true);
+                    });
+                });
+
+            });
+            describe(`ag`, ()=>{
+                describe(`TypeError`, ()=>{
+                    test.each([[fn],[afn],[gfn],[arrFn],[aarrFn],[function(){}],[function*(){}],[async function(){}],[()=>{}],[async()=>{}],[fn.bind(null)],[[].map], ...cal.md, ...dangers, ...prims, ...des.o, ...des.c, ...des.i])(`(%p)`, (v)=>{
+                        assertThrow(TypeError, `Expected: '${Tyo.is.fn.ag.toString()}' like value.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.fn.ag(v));
+                    });
+                });
+                describe(`true`, ()=>{
+                    test.each([[agfn],[async function*(){}]])(`(%p)`, (v)=>{
+                        expect(Tyo.er.fn.ag(v)).toBe(true);
                     });
                 });
             });
         });
+//const cal = {
+//    fn: [[fn],[gfn],[afn],[agfn],[arrFn],[aarrFn],[function(){}],[function*(){}],[async function(){}],[async function*(){}],[()=>{}],[async()=>{}],[fn.bind(null)],[[].map]],
+//    md: [[_obj.m],[_obj.gm],[_obj.am],[_obj.agm],[C.sm],[C.sgm],[C.sam],[C.sagm],[c.m],[c.gm],[c.am],[c.agm]],
+//}
+        /*
         describe(`md`, ()=>{
             describe(`some`, ()=>{
                 describe(`TypeError`, ()=>{

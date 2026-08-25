@@ -134,8 +134,6 @@ class TyoerIns {
         throw new TypeError(`Expected: '${Tyois.ins[n].toString()}' like value.\nActual: ${Tys.name(v)}`);
     }
 }
-
-
 class TyoerDes {
     static some(v) {
         if (TyoisDes.some(v)) return true;
@@ -175,15 +173,16 @@ class TyoerDesA extends TyoerDesDA {
 class TyoerFn {
     static some(v) {
         if (TyoisFn.some(v)) return true;
-        throw new TypeError(`Expected: a value that makes 'Tyois.fn.some(v)' return true.\nActual: ${Tys.name(v)}`);
+        throw new TypeError(`Expected: a value that makes 'Tyo.is.fn.some(v)' return true.\nActual: ${Tys.name(v)}`);
     }
-    static bound() {return this._('bound',v)}
-    static native() {return this._('native',v)}
+    static bound(v) {return this._('bound',v)}
+    static native(v) {return this._('native',v)}
     static get arrow() {return TyoerArrFn}
-    static a() {return this._('a',v)}
-    static g() {return this._('g',v)}
-    static ag() {return this._('ag',v)}
-    static s() {return this._('s',v)}
+    static a(v) {return this._('a',v)}
+    static g(v) {return this._('g',v)}
+    static ag(v) {return this._('ag',v)}
+    static s(v) {return this._('s',v)}
+    static anonymous(v) {return this._('anonymous',v)}
     static _(n,v) {
         if (TyoisFn[n](v)) return true;
         throw new TypeError(`Expected: '${TyoisFn[n].toString()}' like value.\nActual: ${Tys.name(v)}`);
@@ -192,10 +191,10 @@ class TyoerFn {
 class TyoerArrFn {
     static some(v) {
         if (TyoisArrFn.some(v)) return true;
-        throw new TypeError(`Expected: a value that makes 'Tyois.fn.arrow.some(v)' return true.\nActual: ${Tys.name(v)}`);
+        throw new TypeError(`Expected: a value that makes 'Tyo.is.fn.arrow.some(v)' return true.\nActual: ${Tys.name(v)}`);
     }
-    static a() {return this._('a',v)}
-    static s() {return this._('s',v)}
+    static a(v) {return this._('a',v)}
+    static s(v) {return this._('s',v)}
     static _(n,v) {
         if (TyoisArrFn[n](v)) return true;
         throw new TypeError(`Expected: '${TyoisArrFn[n].toString()}' like value.\nActual: ${Tys.name(v)}`);
@@ -204,12 +203,12 @@ class TyoerArrFn {
 class TyoerMd {
     static some(v) {
         if (TyoisMd.some(v)) return true;
-        throw new TypeError(`Expected: a value that makes 'Tyois.md.some(v)' return true.\nActual: ${Tys.name(v)}`);
+        throw new TypeError(`Expected: a value that makes 'Tyo.is.md.some(v)' return true.\nActual: ${Tys.name(v)}`);
     }
-    static a() {return this._('a',v)}
-    static g() {return this._('g',v)}
-    static ag() {return this._('ag',v)}
-    static s() {return this._('s',v)}
+    static a(v) {return this._('a',v)}
+    static g(v) {return this._('g',v)}
+    static ag(v) {return this._('ag',v)}
+    static s(v) {return this._('s',v)}
     static _(n,v) {
         if (TyoisMd[n](v)) return true;
         throw new TypeError(`Expected: '${TyoisMd[n].toString()}' like value.\nActual: ${Tys.name(v)}`);
