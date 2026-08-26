@@ -8,20 +8,21 @@ class Typis {
     static bln(v) {return 'boolean'===typeof v}
     static int(v) {return Number.isSafeInteger(v)}
     static fin(v) {return Number.isFinite(v) && v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v;}
-    //static flt(v) {return this.fin(v) && !this.int(v);} // 1.0等少数値が0は対象外
-    //static flt(v) {return Number.isFinite(v) && v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v;}
-    static flt(v,f=1) {
-        const [MIN,MAX] = this.getFloatRange(f);
-        return Number.isFinite(v) && v <= MAX && MIN <= v;
-    }
     static big(v) {return 'bigint'===typeof v}
     static str(v) {return 'string'===typeof v}
     static sym(v) {return 'symbol'===typeof v}
+    //static flt(v) {return this.fin(v) && !this.int(v);} // 1.0等少数値が0は対象外
+    //static flt(v) {return Number.isFinite(v) && v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v;}
+//    static flt(v,f=1) {
+//        const [MIN,MAX] = this.getFloatRange(f);
+//        return Number.isFinite(v) && v <= MAX && MIN <= v;
+//    }
     /**
      * Number型における十進数からみた指定小数桁数を安全に扱える範囲を返却する
      * @param {number} f - 小数部の最長桁数（1以上の整数）
      * @returns {[number, number]} [min, max] の範囲
      */
+     /*
     function getFloatRange(f) {
         // 引数のバリデーション
         if (!Number.isInteger(f)) {throw new TypeError("小数部の桁数 f はNumber型整数であるべきです。");}
@@ -33,6 +34,7 @@ class Typis {
         const min = -max;
         return [min, max];
     }
+    */
 }
 class Typer {
     //static some(v) {return 'bln int fin big str sym'.split(' ').some(n=>this._(n,v));}
