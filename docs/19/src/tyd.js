@@ -29,11 +29,13 @@ class TydisNum {
 class Float {
     static is(v,f=1) {
         const [MIN,MAX] = this.getRange(f);
+        /*
         console.log(`MIN: `, MIN);
         console.log(`MAX: `, MAX);
         console.log(`Number.isFinite(v): `, Number.isFinite(v));
         console.log(`v <= MAX:`, Number.isFinite(v) && v <= MAX);
         console.log(`MIN <= v:`, Number.isFinite(v) && MIN <= v);
+        */
         return Number.isFinite(v) && v <= MAX && MIN <= v;
     }
     static getRange(f) {
