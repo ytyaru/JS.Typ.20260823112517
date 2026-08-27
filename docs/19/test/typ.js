@@ -18,7 +18,7 @@ describe(`Typ`, ()=>{
     describe(`is`, ()=>{
         describe(`some`, ()=>{
             describe(`false`, ()=>{
-                test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[new Boolean()],[new Number()],[new String()],[Object.create(null)]])(`(%p)`, (v)=>{
+                test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[Object.create({})]])(`(%p)`, (v)=>{
                     expect(Typ.is.some(v)).toBe(false);
                 });
             });

@@ -24,7 +24,8 @@ class TydisNum {
     static ofin(v) {return Number.isFinite(v) && Number.MAX_SAFE_INTEGER < v && v < Number.MIN_SAFE_INTEGER;} // 有限数かつ安全範囲超過。
     //static flt(v) {return Number.isFinite(v) && !Number.isInteger(v)} // 不動少数。有限数かつ非整数な値。IEEE754誤差。
     static flt(v,f=1) {return Float.is(v,f)} // 不動少数。有限数かつ非整数な値。IEEE754誤差。
-    static err(v) {return this.ofin(v) || this.flt(v)} // 誤差が発生しうる値。
+    //static err(v) {return this.ofin(v) || this.flt(v)} // 誤差が発生しうる値。
+    static err(v) {return Number.isFinite(v) && !Number.isInteger(v)} // 誤差が発生しうる値。
 }
 class Float {
     static is(v,f=1) {

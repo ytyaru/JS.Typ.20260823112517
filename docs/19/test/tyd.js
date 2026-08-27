@@ -1,12 +1,14 @@
 import { expect, test, describe } from "bun:test";
 import {Tyd} from '../src/tyd.js';
 import {Tys} from '../src/tys.js';
+import {assertThrow,C,c,fn,gfn,afn,agfn,arrFn,aarrFn,des,cal,prims,objs,dangers,cls,ins} from './test-data.js';
 /**
  * 指定した関数を実行し、期待する例外型とメッセージが完全に一致してスローされるか検証する
  * @param fn 検証対象の関数
  * @param expectedErrorClass 期待する例外のコンストラクタ（例: TydeError, CustomError など）
  * @param expectedMessage 期待する完全一致のエラーメッセージ
  */
+ /*
 function assertThrow(Err, msg, fn) {
     let err = null;
     try {fn();} catch (error) {err = error;}
@@ -68,7 +70,7 @@ const ins = {
     es5: [[function(){}],[function Fn(){}],[function fn(){this.x=0}],[function(){this.x=0}]].map(v=>[new (v[0])()]),
     native: [[Map],[Uint8Array],[Blob]].map(v=>[new (v[0])()]),
 };
-
+*/
 describe(`Tyd`, ()=>{
     describe(`is`, ()=>{
         describe(`some`, ()=>{
@@ -83,55 +85,62 @@ describe(`Tyd`, ()=>{
                 });
             });
         });
-        /*
-        describe(`bln`, ()=>{
+        describe(`und`, ()=>{
             describe(`false`, ()=>{
-                test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[0],[0n],[''],[Symbol()]])(`(%p)`, (v)=>{
-                    expect(Tyd.is.bln(v)).toBe(false);
+                test.each([[null],[0],[0.1],[NaN],[Infinity],[-Infinity],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[Object.create({})],[true],[false],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0n],[''],[Symbol()], ...objs, ...des.o, ...des.c, ...des.i, ...cls.es6, cls.es5, cls.native, ...ins.es6, ins.es5, ins.native, ...cal.fn, ...cal.md])(`(%p)`, (v)=>{
+                    expect(Tyd.is.und(v)).toBe(false);
                 });
             });
             describe(`true`, ()=>{
-                test.each([[true],[false]])(`(%p)`, (v)=>{
-                    expect(Tyd.is.bln(v)).toBe(true);
+                test.each([[undefined]])(`(%p)`, (v)=>{
+                    expect(Tyd.is.und(v)).toBe(true);
                 });
             });
         });
-        describe(`int`, ()=>{
+        describe(`nul`, ()=>{
             describe(`false`, ()=>{
-                test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[0.1],[0n],[''],[Symbol()]])(`(%p)`, (v)=>{
-                    expect(Tyd.is.int(v)).toBe(false);
+                test.each([[undefined],[0],[0.1],[NaN],[Infinity],[-Infinity],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[Object.create({})],[true],[false],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0n],[''],[Symbol()], ...objs, ...des.o, ...des.c, ...des.i, ...cls.es6, cls.es5, cls.native, ...ins.es6, ins.es5, ins.native, ...cal.fn, ...cal.md])(`(%p)`, (v)=>{
+                    expect(Tyd.is.nul(v)).toBe(false);
                 });
             });
             describe(`true`, ()=>{
-                test.each([[0],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER]])(`(%p)`, (v)=>{
-                    expect(Tyd.is.int(v)).toBe(true);
+                test.each([[null]])(`(%p)`, (v)=>{
+                    expect(Tyd.is.nul(v)).toBe(true);
                 });
             });
         });
-        describe(`finite`, ()=>{
-            describe(`false`, ()=>{
-                test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[0n],[''],[Symbol()]])(`(%p)`, (v)=>{
-                    expect(Tyd.is.fin(v)).toBe(false);
-                });
+        describe(`num`, ()=>{
+            describe(`some`, ()=>{
             });
-            describe(`true`, ()=>{
-                test.each([[0],[1.0],[0.1],[-12.3],[45.6789],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[Number.MAX_SAFE_INTEGER-0.1],[Number.MIN_SAFE_INTEGER+0.1]])(`(%p)`, (v)=>{
-                    expect(Tyd.is.fin(v)).toBe(true);
+            describe(`nan`, ()=>{
+            });
+            describe(`inf`, ()=>{
+            });
+            describe(`pinf`, ()=>{
+            });
+            describe(`ninf`, ()=>{
+            });
+            describe(`oint`, ()=>{
+            });
+            describe(`ofin`, ()=>{
+            });
+            describe(`err`, ()=>{
+            });
+            describe(`flt`, ()=>{
+                describe(`false`, ()=>{
+                    test.each([[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[900719925474099+0.1],[-900719925474099-0.1],[undefined],[null],[NaN],[Infinity],[-Infinity],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[0n],[''],[Symbol()]])(`(%p)`, (v)=>{
+                        expect(Tyd.is.num.flt(v)).toBe(false);
+                    });
+                });
+                describe(`true`, ()=>{// 整数も真になる。Typ.is.int()と重複してしまうが仕様。逆に1.0は偽で1.1は真では扱い辛い
+                    test.each([[0],[1.0],[0.1],[-12.3],[45.6789],[900719925474099-0.1],[-900719925474099+0.1]])(`(%p)`, (v)=>{
+                        expect(Tyd.is.num.flt(v)).toBe(true);
+                    });
                 });
             });
         });
-        */
-        describe(`float`, ()=>{
-            describe(`false`, ()=>{
-                test.each([[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[900719925474099+0.1],[-900719925474099-0.1],[undefined],[null],[NaN],[Infinity],[-Infinity],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[0n],[''],[Symbol()]])(`(%p)`, (v)=>{
-                    expect(Tyd.is.num.flt(v)).toBe(false);
-                });
-            });
-            describe(`true`, ()=>{// 整数も真になる。Typ.is.int()と重複してしまうが仕様。逆に1.0は偽で1.1は真では扱い辛い
-                test.each([[0],[1.0],[0.1],[-12.3],[45.6789],[900719925474099-0.1],[-900719925474099+0.1]])(`(%p)`, (v)=>{
-                    expect(Tyd.is.num.flt(v)).toBe(true);
-                });
-            });
+        describe(`obj`, ()=>{
+
         });
         /*
         describe(`big`, ()=>{
