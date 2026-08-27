@@ -49,7 +49,6 @@ class Float {
         const min = -max;
         return [min, max];
     }
-
 }
 class TydisObj {
     static some(v) {
