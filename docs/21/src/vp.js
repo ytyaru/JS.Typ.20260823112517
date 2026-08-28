@@ -16,12 +16,12 @@ class VpisBln {
 class VpisNum {
     static flt(v,f=1) {return Float.is(v,f)}
     static p2(v, e=1, sign=false) {return NumPowOf2.is(v,e,sign)}
-    static u8(v) {return this.np2(v, 8)}
-    static u16(v) {return this.np2(v, 16)}
-    static u32(v) {return this.np2(v, 32)}
-    static i8(v) {return this.np2(v, 8, true)}
-    static i16(v) {return this.np2(v, 16, true)}
-    static i32(v) {return this.np2(v, 32, true)}
+    static u8(v) {return NumPowOf2.is(v, 8)}
+    static u16(v) {return NumPowOf2.is(v, 16)}
+    static u32(v) {return NumPowOf2.is(v, 32)}
+    static i8(v) {return NumPowOf2.is(v, 8, true)}
+    static i16(v) {return NumPowOf2.is(v, 16, true)}
+    static i32(v) {return NumPowOf2.is(v, 32, true)}
     static within(v,min,max) {
         if (![v,min,max].every(x=>Number.isSafeInteger(x))) {throw new TypeError(`v,min,maxは全て安全な整数であるべきです。`)}
         return min<=v && v<=max;
@@ -31,12 +31,12 @@ class VpisNum {
 }
 class VpisBig {
     static p2(v, e=1, sign=false) {return BigPowOf2.is(v,e,sign)}
-    static u64(v) {return this.bp2(v, 64)}
-    static u128(v) {return this.bp2(v, 128)}
-    static u256(v) {return this.bp2(v, 256)}
-    static i64(v) {return this.bp2(v, 64, true)}
-    static i128(v) {return this.bp2(v, 128, true)}
-    static i256(v) {return this.bp2(v, 256, true)}
+    static u64(v) {return this.p2(v, 64)}
+    static u128(v) {return this.p2(v, 128)}
+    static u256(v) {return this.p2(v, 256)}
+    static i64(v) {return this.p2(v, 64, true)}
+    static i128(v) {return this.p2(v, 128, true)}
+    static i256(v) {return this.p2(v, 256, true)}
     static within(v,min,max) {
         if (![v,min,max].every(x=>'bigint'===typeof x)) {throw new TypeError(`v,min,maxは全てBigIntであるべきです。`)}
         return min<=v && v<=max;
@@ -44,9 +44,13 @@ class VpisBig {
 }
 class NumPowOf2 {
     static is(v, e=1, sign=false) {
-        if ('number'===typeof v) {throw new TypeError(`vはNumber型であるべきです。`)}
+        const [min,max] = this.range(v,e,sign);
+        return v <= min && max <= v;
+    }
+    static range(v, e=1, sign=false) {
+        if ('number'!==typeof v) {throw new TypeError(`vはNumber型であるべきです。`)}
         if (!Number.isSafeInteger(v)) {throw new RangeError(`vは安全な整数値であるべきです。`)}
-        if ('number'===typeof e) {throw new TypeError(`eはNumber型であるべきです。`)}
+        if ('number'!==typeof e) {throw new TypeError(`eはNumber型であるべきです。`)}
         if (!Number.isSafeInteger(e) && 0<e && e<54) {throw new RangeError(`eは1〜53の整数値であるべきです。`)}
         if ('boolean'!==typeof sign) {throw new RangeError(`signはBoolean型であるべきです。`)}
         if (sign) return [0, 2**e-1];
@@ -55,10 +59,14 @@ class NumPowOf2 {
     }
 }
 class BigPowOf2 {
-    static is(v, e=1n, sign=false) {
-        if ('bigint'===typeof v) {throw new TypeError(`vはBigInt型であるべきです。`)}
+    static is(v, e=1, sign=false) {
+        const [min,max] = this.range(v,e,sign);
+        return v <= min && max <= v;
+    }
+    static range(v, e=1, sign=false) {
+        if ('bigint'!==typeof v) {throw new TypeError(`vはBigInt型であるべきです。`)}
         if (Number.isSafeInteger(v)) {e=BigInt(e);}
-        if ('bigint'===typeof e) {throw new TypeError(`eはBigInt型かNumber型(安全な整数)であるべきです。`)}
+        if ('bigint'!==typeof e) {throw new TypeError(`eはBigInt型かNumber型(安全な整数)であるべきです。`)}
         if (53n<e) {throw new RangeError(`eは54n以上であるべきです。`)}
         if ('boolean'!==typeof sign) {throw new RangeError(`signはBoolean型であるべきです。`)}
         if (sign) return [0n, 2n**e-1n];

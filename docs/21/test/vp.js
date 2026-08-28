@@ -56,6 +56,19 @@ describe(`Vp`, ()=>{
                 });
 
             });
+            describe(`u8`, ()=>{
+                describe(`false`, ()=>{
+                    test.each([[0.1],[-12.3],[45.6789],[900719925474099-0.1],[-900719925474099+0.1],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[undefined],[null],[NaN],[Infinity],[-Infinity],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[0n],[''],[Symbol()]])(`(%p)`, (v)=>{
+                        expect(Vp.is.num.u8(v)).toBe(false);
+                    });
+                });
+                describe(`true`, ()=>{
+                    test.each([[0],[1.0]])(`(%p)`, (v)=>{
+                        expect(Vp.is.num.u8(v)).toBe(true);
+                    });
+                });
+
+            });
         });
         /*
         describe(`some`, ()=>{
