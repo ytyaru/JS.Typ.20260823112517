@@ -4,6 +4,18 @@ import {Tys} from '../src/tys.js';
 import {assertThrow,C,c,fn,gfn,afn,agfn,arrFn,aarrFn,des,cal,prims,objs,dangers,cls,ins} from './test-data.js';
 describe(`Tyd`, ()=>{
     describe(`is`, ()=>{
+        describe(`()`, ()=>{
+            describe(`false`, ()=>{
+                test.each([[true],[false],[0],[0.1],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0n],[''],[Symbol()], ...objs, ...des.o, ...des.c, ...des.i, ...cls.es6, cls.es5, cls.native, ...ins.es6, ins.es5, ins.native, ...cal.fn, ...cal.md])(`(%p)`, (v)=>{
+                    expect(Tyd.is(v)).toBe(false);
+                });
+            });
+            describe(`true`, ()=>{
+                test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[Object.create({})]])(`(%p)`, (v)=>{
+                    expect(Tyd.is(v)).toBe(true);
+                });
+            });
+        });
         describe(`some`, ()=>{
             describe(`false`, ()=>{
                 test.each([[true],[false],[0],[0.1],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0n],[''],[Symbol()], ...objs, ...des.o, ...des.c, ...des.i, ...cls.es6, cls.es5, cls.native, ...ins.es6, ins.es5, ins.native, ...cal.fn, ...cal.md])(`(%p)`, (v)=>{
@@ -41,6 +53,18 @@ describe(`Tyd`, ()=>{
             });
         });
         describe(`num`, ()=>{
+            describe(`()`, ()=>{
+                describe(`false`, ()=>{
+                    test.each([[undefined],[null],[0],[0.1],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[Object.create({})],[true],[false],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[900719925474099-0.1],[-900719925474099+0.1],[0n],[''],[Symbol()], ...objs, ...des.o, ...des.c, ...des.i, ...cls.es6, cls.es5, cls.native, ...ins.es6, ins.es5, ins.native, ...cal.fn, ...cal.md])(`(%p)`, (v)=>{
+                        expect(Tyd.is.num(v)).toBe(false);
+                    });
+                });
+                describe(`true`, ()=>{
+                    test.each([[NaN],[Infinity],[-Infinity]])(`(%p)`, (v)=>{
+                        expect(Tyd.is.num(v)).toBe(true);
+                    });
+                });
+            });
             describe(`some`, ()=>{
                 describe(`false`, ()=>{
                     test.each([[undefined],[null],[0],[0.1],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[Object.create({})],[true],[false],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[900719925474099-0.1],[-900719925474099+0.1],[0n],[''],[Symbol()], ...objs, ...des.o, ...des.c, ...des.i, ...cls.es6, cls.es5, cls.native, ...ins.es6, ins.es5, ins.native, ...cal.fn, ...cal.md])(`(%p)`, (v)=>{
@@ -143,6 +167,18 @@ describe(`Tyd`, ()=>{
             */
         });
         describe(`obj`, ()=>{
+            describe(`()`, ()=>{
+                describe(`false`, ()=>{
+                    test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[0],[0.1],[Number.MAX_SAFE_INTEGER+1.1],[Number.MIN_SAFE_INTEGER-1.1],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[900719925474099-0.1],[-900719925474099+0.1],[true],[false],[0n],[''],[Symbol()], ...objs, ...des.o, ...des.c, ...des.i, ...cls.es6, cls.es5, cls.native, ...ins.es6, ins.es5, ins.native, ...cal.fn, ...cal.md])(`(%p)`, (v)=>{
+                        expect(Tyd.is.obj(v)).toBe(false);
+                    });
+                });
+                describe(`true`, ()=>{
+                    test.each([[new Boolean()],[new Number()],[new String()],[Object.create(null)],[Object.create({})]])(`(%p)`, (v)=>{
+                        expect(Tyd.is.obj(v)).toBe(true);
+                    });
+                });
+            });
             describe(`some`, ()=>{
                 describe(`false`, ()=>{
                     test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[0],[0.1],[Number.MAX_SAFE_INTEGER+1.1],[Number.MIN_SAFE_INTEGER-1.1],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[900719925474099-0.1],[-900719925474099+0.1],[true],[false],[0n],[''],[Symbol()], ...objs, ...des.o, ...des.c, ...des.i, ...cls.es6, cls.es5, cls.native, ...ins.es6, ins.es5, ins.native, ...cal.fn, ...cal.md])(`(%p)`, (v)=>{

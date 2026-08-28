@@ -1,22 +1,5 @@
 import {Tys} from './tys.js';
-
-// --- ファクトリー関数 ---
-function FnObj(someFn, { getters = {}, methods = {} } = {}) {
-    const fn = function(...args) {
-        if (new.target) throw new ReferenceError('コンストラクタ生成禁止です。');
-        return someFn(...args);
-    };
-    fn.some = fn;
-
-    for (const [key, val] of Object.entries(methods)) {
-        fn[key] = val;
-    }
-    for (const [key, val] of Object.entries(getters)) {
-        Object.defineProperty(fn, key, { get: () => val });
-    }
-    return fn;
-}
-
+import {mkFnObj} from './mk-fn-obj.js';
 // --- Type Object is/error ---
 export class Tyo {
     static get is() { return Tyois; }
@@ -24,7 +7,7 @@ export class Tyo {
 }
 
 // --- Tyois (is) ---
-const TyoisArrFn = FnObj(
+const TyoisArrFn = mkFnObj(
     v => Tys.name(v).endsWith('ArrowFunction'),
     {
         methods: {
@@ -35,7 +18,7 @@ const TyoisArrFn = FnObj(
     }
 );
 
-const TyoisFn = FnObj(
+const TyoisFn = mkFnObj(
     v => {
         const N = Tys.name(v);
         return N.endsWith('Function') || `Bound Native`.split(' ').some(n => N.startsWith(n + 'Function<'));
@@ -57,7 +40,7 @@ const TyoisFn = FnObj(
     }
 );
 
-const TyoisCls = FnObj(
+const TyoisCls = mkFnObj(
     v => ['','ES5.','Native'].some(n => Tys.name(v).startsWith(`${n}Class<`)),
     {
         methods: {
@@ -68,7 +51,7 @@ const TyoisCls = FnObj(
     }
 );
 
-const TyoisIns = FnObj(
+const TyoisIns = mkFnObj(
     (v, C) => ['','ES5.','Native'].some(n => Tys.name(v).startsWith(`${n}Instance<`)) && (C ? v instanceof C : true),
     {
         methods: {
@@ -81,7 +64,7 @@ const TyoisIns = FnObj(
 
 const TyoisDesDA = (v, names) => names.map(n => `Descriptor<${n}>`).some(n => n === Tys.name(v));
 
-const TyoisDesD = FnObj(
+const TyoisDesD = mkFnObj(
     v => TyoisDesDA(v, 'Value Method'.split(' ')),
     {
         methods: {
@@ -91,7 +74,7 @@ const TyoisDesD = FnObj(
     }
 );
 
-const TyoisDesA = FnObj(
+const TyoisDesA = mkFnObj(
     v => TyoisDesDA(v, 'Getter Setter Accessor'.split(' ')),
     {
         methods: {
@@ -102,7 +85,7 @@ const TyoisDesA = FnObj(
     }
 );
 
-const TyoisDes = FnObj(
+const TyoisDes = mkFnObj(
     v => Tys.name(v).startsWith('Descriptor<'),
     {
         getters: {
@@ -112,7 +95,7 @@ const TyoisDes = FnObj(
     }
 );
 
-const TyoisMd = FnObj(
+const TyoisMd = mkFnObj(
     v => Tys.name(v).endsWith('Method'),
     {
         methods: {
@@ -124,7 +107,7 @@ const TyoisMd = FnObj(
     }
 );
 
-const Tyois = FnObj(
+const Tyois = mkFnObj(
     v => {
         const N = Tys.name(v);
         return TyoisFn._some(N) || ['Method'].some(n => N.endsWith(n)) || ['PlainObject','Array'].some(n => n === N) || ['Descriptor','Class','Instance'].some(n => N.startsWith(n+'<'));
@@ -146,7 +129,7 @@ const Tyois = FnObj(
 
 
 // --- Tyoer (Error) ---
-const TyoerArrFn = FnObj(
+const TyoerArrFn = mkFnObj(
     v => {
         if (TyoisArrFn.some(v)) return true;
         throw new TypeError(`Expected: a value that makes 'Tyo.is.fn.arrow.some(v)' return true.\nActual: ${Tys.name(v)}`);
@@ -160,7 +143,7 @@ const TyoerArrFn = FnObj(
     }
 );
 
-const TyoerFn = FnObj(
+const TyoerFn = mkFnObj(
     v => {
         if (TyoisFn.some(v)) return true;
         throw new TypeError(`Expected: a value that makes 'Tyo.is.fn.some(v)' return true.\nActual: ${Tys.name(v)}`);
@@ -182,7 +165,7 @@ const TyoerFn = FnObj(
     }
 );
 
-const TyoerCls = FnObj(
+const TyoerCls = mkFnObj(
     v => {
         if (TyoisCls.some(v)) return true;
         throw new TypeError(`Expected: a value that makes 'Tyo.is.cls.some(v)' return true.\nActual: ${Tys.name(v)}`);
@@ -197,7 +180,7 @@ const TyoerCls = FnObj(
     }
 );
 
-const TyoerIns = FnObj(
+const TyoerIns = mkFnObj(
     (v, C) => {
         if (TyoisIns.some(v)) return true;
         throw new TypeError(`Expected: a value that makes 'Tyo.is.ins.some(v)' return true.\nActual: ${Tys.name(v)}`);
@@ -218,7 +201,7 @@ const TyoerDesDA = (v, n, names) => {
     throw new TypeError(`Expected: a value that makes 'Tyo.is.des.${n}.some(v)' return true.\nActual: ${Tys.name(v)}`);
 };
 
-const TyoerDesD = FnObj(
+const TyoerDesD = mkFnObj(
     v => TyoerDesDA(v, 'd', 'Value Method'.split(' ')),
     {
         methods: {
@@ -229,7 +212,7 @@ const TyoerDesD = FnObj(
     }
 );
 
-const TyoerDesA = FnObj(
+const TyoerDesA = mkFnObj(
     v => TyoerDesDA(v, 'a', 'Getter Setter Accessor'.split(' ')),
     {
         methods: {
@@ -241,7 +224,7 @@ const TyoerDesA = FnObj(
     }
 );
 
-const TyoerDes = FnObj(
+const TyoerDes = mkFnObj(
     v => {
         if (TyoisDes.some(v)) return true;
         throw new TypeError(`Expected: a value that makes 'Tyo.is.des.some(v)' return true.\nActual: ${Tys.name(v)}`);
@@ -254,7 +237,7 @@ const TyoerDes = FnObj(
     }
 );
 
-const TyoerMd = FnObj(
+const TyoerMd = mkFnObj(
     v => {
         if (TyoisMd.some(v)) return true;
         throw new TypeError(`Expected: a value that makes 'Tyo.is.md.some(v)' return true.\nActual: ${Tys.name(v)}`);
@@ -270,7 +253,7 @@ const TyoerMd = FnObj(
     }
 );
 
-const Tyoer = FnObj(
+const Tyoer = mkFnObj(
     v => {
         if (Tyois.some(v)) return true;
         throw new TypeError(`Expected: a value that makes 'Tyo.is.some(v)' return true.\nActual: ${Tys.name(v)}`);
