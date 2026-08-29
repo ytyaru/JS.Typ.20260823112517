@@ -2,6 +2,7 @@ import {Tys} from './tys.js';
 import {Typ} from './typ.js';
 import {Tyo} from './tyo.js';
 import {Tyd} from './tyd.js';
+import {FnObj} from './fn-obj.js';
 class isT {
     static get p() {return Typ.is}
     static get o() {return Tyo.is}

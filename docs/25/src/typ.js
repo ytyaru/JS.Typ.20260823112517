@@ -1,8 +1,25 @@
 import {Tys} from './tys.js';
+import {FnObj} from './fn-obj.js';
+const Typis = FnObj.mk(
+    v => 'bln int fin big str sym'.split(' ').some(n => Typis[n](v)),
+    {
+        methods: {
+            bln: v => 'boolean' === typeof v,
+            int: v => Number.isSafeInteger(v),
+            fin: v => Number.isFinite(v) && v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v,
+            big: v => 'bigint' === typeof v,
+            str: v => 'string' === typeof v,
+            sym: v => 'symbol' === typeof v,
+        }
+    }
+);
+//const Typer = FnObj.mkEr(Typis, 'Typ.is.some(v)');
+const Typer = FnObj.mkEr(Typis, 'isT.p(v)');
 export class Typ {
     static get is() {return Typis}
     static get er() {return Typer}
 }
+/*
 class Typis {
     static some(v) {return 'bln int fin big str sym'.split(' ').some(n=>this[n](v));}
     static bln(v) {return 'boolean'===typeof v}
@@ -11,6 +28,28 @@ class Typis {
     static big(v) {return 'bigint'===typeof v}
     static str(v) {return 'string'===typeof v}
     static sym(v) {return 'symbol'===typeof v}
+}
+class Typer {
+    static some(v) {
+        const names = 'bln int fin big str sym';
+        const r = names.split(' ').map(n=>({name:n, is:Typis[n](v)}));
+        if (r.some(x=>x.is)) return true;
+        throw new TypeError(`Expected: a value that makes 'Typis.some(v)' return true.\nActual: ${Tys.name(v)}`);
+    }
+    static bln(v) {return this._('bln', v);}
+    static int(v) {return this._('int', v);}
+    static fin(v) {return this._('fin', v);}
+    static flt(v) {return this._('flt', v);}
+    static big(v) {return this._('big', v);}
+    static str(v) {return this._('str', v);}
+    static sym(v) {return this._('sym', v);}
+    static _(n,v) {
+        if (Typis[n](v)) return true;
+        throw new TypeError(`Expected: '${Typis[n].toString()}' like value.\nActual: ${Tys.name(v)}`);
+    }
+}
+*/
+/*
     //static flt(v) {return this.fin(v) && !this.int(v);} // 1.0等少数値が0は対象外
     //static flt(v) {return Number.isFinite(v) && v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v;}
 //    static flt(v,f=1) {
@@ -35,23 +74,4 @@ class Typis {
         return [min, max];
     }
     */
-}
-class Typer {
-    static some(v) {
-        const names = 'bln int fin big str sym';
-        const r = names.split(' ').map(n=>({name:n, is:Typis[n](v)}));
-        if (r.some(x=>x.is)) return true;
-        throw new TypeError(`Expected: a value that makes 'Typis.some(v)' return true.\nActual: ${Tys.name(v)}`);
-    }
-    static bln(v) {return this._('bln', v);}
-    static int(v) {return this._('int', v);}
-    static fin(v) {return this._('fin', v);}
-    static flt(v) {return this._('flt', v);}
-    static big(v) {return this._('big', v);}
-    static str(v) {return this._('str', v);}
-    static sym(v) {return this._('sym', v);}
-    static _(n,v) {
-        if (Typis[n](v)) return true;
-        throw new TypeError(`Expected: '${Typis[n].toString()}' like value.\nActual: ${Tys.name(v)}`);
-    }
-}
+

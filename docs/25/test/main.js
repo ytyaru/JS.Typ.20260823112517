@@ -3,6 +3,18 @@ import {isT,owT,ofT} from '../src/main.js';
 import {assertThrow,C,c,fn,gfn,afn,agfn,arrFn,aarrFn,des,cal,prims,objs,dangers,cls,ins,_obj,getDes} from './test-data.js';
 describe(`isT`, ()=>{
     describe(`p`, ()=>{
+        describe(`()`, ()=>{
+            describe(`false`, ()=>{
+                test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[Object.create({})]])(`(%p)`, (v)=>{
+                    expect(isT.p(v)).toBe(false);
+                });
+            });
+            describe(`true`, ()=>{
+                test.each([[true],[false],[0],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0.1],[0n],[''],[Symbol()]])(`(%p)`, (v)=>{
+                    expect(isT.p(v)).toBe(true);
+                });
+            });
+        });
         describe(`some`, ()=>{
             describe(`false`, ()=>{
                 test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[Object.create({})]])(`(%p)`, (v)=>{
@@ -103,10 +115,23 @@ describe(`isT`, ()=>{
         });
     });
     describe(`er`, ()=>{
+        describe(`()`, ()=>{
+            describe(`false`, ()=>{
+                test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[new Boolean()],[new Number()],[new String()],[Object.create(null)]])(`(%p)`, (v)=>{
+                    assertThrow(TypeError, `Expected: a value that makes 'isT.p(v)' return true.\nActual: ${ofT(v)}`, ()=>owT.p(v));
+                });
+            });
+            describe(`true`, ()=>{
+                test.each([[true],[false],[0],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0.1],[0n],[''],[Symbol()]])(`(%p)`, (v)=>{
+                    expect(owT.p(v)).toBe(true);
+                });
+            });
+        });
         describe(`some`, ()=>{
             describe(`false`, ()=>{
                 test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[new Boolean()],[new Number()],[new String()],[Object.create(null)]])(`(%p)`, (v)=>{
-                    assertThrow(TypeError, `Expected: a value that makes 'Typis.some(v)' return true.\nActual: ${ofT(v)}`, ()=>owT.p.some(v));
+                    //assertThrow(TypeError, `Expected: a value that makes 'Typis.some(v)' return true.\nActual: ${ofT(v)}`, ()=>owT.p.some(v));
+                    assertThrow(TypeError, `Expected: a value that makes 'isT.p(v)' return true.\nActual: ${ofT(v)}`, ()=>owT.p.some(v));
                 });
             });
             describe(`true`, ()=>{
