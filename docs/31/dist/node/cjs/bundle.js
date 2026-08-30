@@ -68,16 +68,16 @@ class Tys {
     return Object.prototype.toString.call(v).slice(8, -1);
   }
   static _num(v, name) {
-    if (Number.isNaN(v))
-      return "NaN";
-    if (v === Infinity)
-      return "Infinity";
-    if (v === -Infinity)
-      return "-Infinity";
-    if (Number.isSafeInteger(v))
-      return "Integer";
-    if (Number.isFinite(v))
-      return "Finite";
+    for (let [k, c] of Object.entries({
+      NaN: Number.isNaN(v),
+      Infinity: v === Infinity,
+      "-Infinity": v === -Infinity,
+      Integer: Number.isSafeInteger(v),
+      Finite: Number.isFinite(v)
+    })) {
+      if (c)
+        return k;
+    }
     return name;
   }
   static _obj(v, name) {

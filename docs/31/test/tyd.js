@@ -5,7 +5,8 @@ import {assertThrow,C,c,fn,gfn,afn,agfn,arrFn,aarrFn,des,cal,prims,objs,dangers,
 describe(`Tyd`, ()=>{
     describe(`is`, ()=>{
         describe(`()`, ()=>{
-            test(`ReferenceError`, ()=>assertThrow(ReferenceError, `コンストラクタ生成禁止です。`, ()=>new Tyd.is()));
+//            test(`ReferenceError`, ()=>assertThrow(ReferenceError, `コンストラクタ生成禁止です。`, ()=>new Tyd.is()));
+            test(`ReferenceError`, ()=>assertThrow(ReferenceError, `Constructors are not allowed.`, ()=>new Tyd.is()));
             describe(`false`, ()=>{
                 test.each([[true],[false],[0],[0.1],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0n],[''],[Symbol()], ...objs, ...des.o, ...des.c, ...des.i, ...cls.es6, cls.es5, cls.native, ...ins.es6, ins.es5, ins.native, ...cal.fn, ...cal.md])(`(%p)`, (v)=>{
                     expect(Tyd.is(v)).toBe(false);
@@ -55,7 +56,9 @@ describe(`Tyd`, ()=>{
         });
         describe(`num`, ()=>{
             describe(`()`, ()=>{
-                test(`ReferenceError`, ()=>assertThrow(ReferenceError, `コンストラクタ生成禁止です。`, ()=>new Tyd.is.num()));
+//                test(`ReferenceError`, ()=>assertThrow(ReferenceError, `コンストラクタ生成禁止です。`, ()=>new Tyd.is.num()));
+                test(`ReferenceError`, ()=>assertThrow(ReferenceError, `Constructors are not allowed.`, ()=>new Tyd.is.num()));
+
                 describe(`false`, ()=>{
                     test.each([[undefined],[null],[0],[0.1],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[Object.create({})],[true],[false],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[900719925474099-0.1],[-900719925474099+0.1],[0n],[''],[Symbol()], ...objs, ...des.o, ...des.c, ...des.i, ...cls.es6, cls.es5, cls.native, ...ins.es6, ins.es5, ins.native, ...cal.fn, ...cal.md])(`(%p)`, (v)=>{
                         expect(Tyd.is.num(v)).toBe(false);
@@ -170,7 +173,8 @@ describe(`Tyd`, ()=>{
         });
         describe(`obj`, ()=>{
             describe(`()`, ()=>{
-                test(`ReferenceError`, ()=>assertThrow(ReferenceError, `コンストラクタ生成禁止です。`, ()=>new Tyd.is.obj()));
+//                test(`ReferenceError`, ()=>assertThrow(ReferenceError, `コンストラクタ生成禁止です。`, ()=>new Tyd.is.obj()));
+                test(`ReferenceError`, ()=>assertThrow(ReferenceError, `Constructors are not allowed.`, ()=>new Tyd.is.obj()));
                 describe(`false`, ()=>{
                     test.each([[undefined],[null],[NaN],[Infinity],[-Infinity],[0],[0.1],[Number.MAX_SAFE_INTEGER+1.1],[Number.MIN_SAFE_INTEGER-1.1],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[900719925474099-0.1],[-900719925474099+0.1],[true],[false],[0n],[''],[Symbol()], ...objs, ...des.o, ...des.c, ...des.i, ...cls.es6, cls.es5, cls.native, ...ins.es6, ins.es5, ins.native, ...cal.fn, ...cal.md])(`(%p)`, (v)=>{
                         expect(Tyd.is.obj(v)).toBe(false);
