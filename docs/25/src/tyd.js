@@ -45,7 +45,8 @@ const Tydis = FnObj.mk(
     }
 );
 
-const Tyder = FnObj.mkEr(Tydis, 'Tyd.is.some(v)');
+//const Tyder = FnObj.mkEr(Tydis, 'Tyd.is.some(v)');
+const Tyder = FnObj.mkEr(Tydis, 'isT.d(v)');
 /*
 import {Tys} from './tys.js';
 import {FnObj} from './fn-obj.js';

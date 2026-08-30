@@ -787,7 +787,8 @@ describe(`Tyo`, ()=>{
             test(`ReferenceError`, ()=>assertThrow(ReferenceError, `コンストラクタ生成禁止です。`, ()=>new Tyo.er()));
             describe(`TypeError`, ()=>{
                 test.each([...prims, ...dangers])(`(%p)`, (v)=>{
-                    assertThrow(TypeError, `Expected: a value that makes 'Tyo.is.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er(v));
+                    //assertThrow(TypeError, `Expected: a value that makes 'Tyo.is.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er(v));
+                    assertThrow(TypeError, `Expected: a value that makes 'isT.d(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er(v));
                 });
             });
             describe(`true`, ()=>{
@@ -816,7 +817,8 @@ describe(`Tyo`, ()=>{
         describe(`some`, ()=>{
             describe(`TypeError`, ()=>{
                 test.each([...prims, ...dangers])(`(%p)`, (v)=>{
-                    assertThrow(TypeError, `Expected: a value that makes 'Tyo.is.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.some(v));
+                    //assertThrow(TypeError, `Expected: a value that makes 'Tyo.is.some(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.some(v));
+                    assertThrow(TypeError, `Expected: a value that makes 'isT.o(v)' return true.\nActual: ${Tys.name(v)}`, ()=>Tyo.er.some(v));
                 });
             });
             describe(`true`, ()=>{

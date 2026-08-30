@@ -114,7 +114,8 @@ const Tyois = FnObj.mk(
     }
 );
 
-const Tyoer = FnObj.mkEr(Tyois, 'Tyo.is.some(v)');
+//const Tyoer = FnObj.mkEr(Tyois, 'Tyo.is.some(v)');
+const Tyoer = FnObj.mkEr(Tyois, 'isT.o(v)');
 /*
 import {Tys} from './tys.js';
 import {FnObj} from './fn-obj.js';
