@@ -17,7 +17,7 @@ const entrypoint = './src/main.js';
 const rootDir = process.cwd();
 
 /**
- * 【責任】Bun.build の実行そのものを担当する共通関数
+ * 【責務】Bun.build の共通ラッパー（実行の単一化）
  */
 async function executeBuild(options: {
     entrypoints: string[];
@@ -34,7 +34,7 @@ async function executeBuild(options: {
 }
 
 /**
- * 【責任】CJSコードをグローバル（クラシックScript）用のIIFEラッパーで包み込む
+ * 【責務】CJSコードをグローバル（クラシックScript）用のIIFEラッパーで包み込む
  */
 function encapsulateAsGlobal(bundledCode: string): string {
     return `(function() {
@@ -57,40 +57,58 @@ function encapsulateAsGlobal(bundledCode: string): string {
 }
 
 /**
- * 【責任の分離】global形式専用の前処理
- * 戻り値として [entrypoint, format, cleanupFn] のタプルを返す
+ * 【責務】グローバル形式（2段階ビルドが必要な形式）のビルドを安全に遂行する
+ * （※一時ファイルは必ずOSのテンポラリ領域を使い、dist/ を絶対に汚染しない）
  */
-async function prepareGlobalBuild(target: any, minify: boolean): Promise<[string, 'iife', () => void]> {
+async function buildGlobalFormat(params: {
+    target: any;
+    minify: boolean;
+    naming: string;
+    outdir: string;
+}) {
+    const { target, minify, naming, outdir } = params;
     const tempWorkDir = join(tmpdir(), `typ-build-${Math.random().toString(36).slice(2)}`);
     mkdirSync(tempWorkDir, { recursive: true });
 
-    const tempCjsName = 'intermediate.cjs.js';
+    try {
+        const tempCjsName = 'intermediate.cjs.js';
+        
+        // Step 1: OSのテンポラリ領域でCJSとして一度バンドル
+        await executeBuild({
+            entrypoints: [entrypoint],
+            outdir: tempWorkDir,
+            target,
+            format: 'cjs',
+            minify,
+            naming: tempCjsName,
+        });
 
-    await executeBuild({
-        entrypoints: [entrypoint],
-        outdir: tempWorkDir,
-        target,
-        format: 'cjs',
-        minify,
-        naming: tempCjsName,
-    });
+        const rawCode = readFileSync(join(tempWorkDir, tempCjsName), 'utf-8');
+        
+        // Step 2: ラッパーでカプセル化
+        const wrappedCode = encapsulateAsGlobal(rawCode);
+        const wrappedInputPath = join(tempWorkDir, 'wrapped.js');
+        writeFileSync(wrappedInputPath, wrappedCode, 'utf-8');
 
-    const rawCode = readFileSync(join(tempWorkDir, tempCjsName), 'utf-8');
-    const wrappedCode = encapsulateAsGlobal(rawCode);
-    const wrappedInputPath = join(tempWorkDir, 'wrapped.js');
-    writeFileSync(wrappedInputPath, wrappedCode, 'utf-8');
-
-    const cleanup = () => {
+        // Step 3: 最終的な出力先へ iife 形式でビルド＆完全ミニファイ
+        await executeBuild({
+            entrypoints: [wrappedInputPath],
+            outdir,
+            target,
+            format: 'iife',
+            minify,
+            naming,
+        });
+    } finally {
+        // OSテンポラリ領域のクリーンアップ（dist/には一切影響させない）
         try {
             rmSync(tempWorkDir, { recursive: true, force: true });
         } catch {}
-    };
-
-    return [wrappedInputPath, 'iife', cleanup];
+    }
 }
 
 async function main() {
-    console.log('🚀 Building bundles with concise DRY pipeline...');
+    console.log('🚀 Building bundles with strict SRP and zero dist pollution...');
 
     for (const { target, formats } of builds) {
         for (const format of formats) {
@@ -98,24 +116,19 @@ async function main() {
             mkdirSync(outdir, { recursive: true });
 
             for (const { minify, naming } of variants) {
-                // ご提示いただいた記法を採用し、一行でスマートに分岐と変数確定を行う
-                const [currentEntrypoint, currentFormat, cleanupFn] = format === 'global'
-                    ? await prepareGlobalBuild(target, minify)
-                    : [entrypoint, format, null as (() => void) | null];
-
-                try {
+                if (format === 'global') {
+                    // グローバル形式のビルド責務を専用関数に完全に委譲
+                    await buildGlobalFormat({ target, minify, naming, outdir });
+                } else {
+                    // 通常形式 (esm, cjs) のビルド責務
                     await executeBuild({
-                        entrypoints: [currentEntrypoint],
+                        entrypoints: [entrypoint],
                         outdir,
                         target,
-                        format: currentFormat,
+                        format,
                         minify,
                         naming,
                     });
-                } finally {
-                    if (cleanupFn) {
-                        cleanupFn();
-                    }
                 }
             }
 
@@ -123,7 +136,7 @@ async function main() {
         }
     }
 
-    console.log('✨ All builds completed successfully!');
+    console.log('✨ All builds completed successfully without any junk files!');
 }
 
 main().catch((err) => {

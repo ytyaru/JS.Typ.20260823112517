@@ -1,55 +1,3 @@
-(function() {
-    var module = { exports: {} };
-    var exports = module.exports;
-    
-    // --- CJS Bundled Code ---
-    var __defProp = Object.defineProperty;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-function __accessProp(key) {
-  return this[key];
-}
-var __toCommonJS = (from) => {
-  var entry = (__moduleCache ??= new WeakMap).get(from), desc;
-  if (entry)
-    return entry;
-  entry = __defProp({}, "__esModule", { value: true });
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (var key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(entry, key))
-        __defProp(entry, key, {
-          get: __accessProp.bind(from, key),
-          enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
-        });
-  }
-  __moduleCache.set(from, entry);
-  return entry;
-};
-var __moduleCache;
-var __returnValue = (v) => v;
-function __exportSetter(name, newValue) {
-  this[name] = __returnValue.bind(null, newValue);
-}
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, {
-      get: all[name],
-      enumerable: true,
-      configurable: true,
-      set: __exportSetter.bind(all, name)
-    });
-};
-
-// src/main.js
-var exports_main = {};
-__export(exports_main, {
-  tof: () => tof,
-  owT: () => owT,
-  isT: () => isT
-});
-module.exports = __toCommonJS(exports_main);
-
 // src/tys.js
 class Tys {
   static name(v) {
@@ -442,18 +390,8 @@ var owT = Object.freeze({
   }
 });
 var tof = (v) => Tys.name(v);
-
-    // ------------------------
-
-    // module.exports からエクスポートされたものを動的に全取得してグローバルへ展開
-    var exported = module.exports;
-    var targetGlobal = typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : null);
-    
-    if (targetGlobal) {
-        for (var key in exported) {
-            if (Object.prototype.hasOwnProperty.call(exported, key)) {
-                targetGlobal[key] = exported[key];
-            }
-        }
-    }
-})();
+export {
+  tof,
+  owT,
+  isT
+};
