@@ -1,3 +1,6 @@
+// src/core.js
+var getTag = (v) => Object.prototype.toString.call(v).slice(8, -1);
+
 // src/tys.js
 class Tys {
   static name(v) {
@@ -9,17 +12,20 @@ class Tys {
       return "Array";
     const to = typeof v;
     if (to === "function")
-      return FnTys.name(v);
-    const name = this._name(v);
-    return to === "object" ? this._obj(v, name) : name === "Number" ? this._num(v, name) : name;
+      return FnTys2.name(v);
+    const tag = this._tag(v);
+    return to === "object" ? ObjTys2.is(v, tag) : tag === "Number" ? this._num(v, tag) : tag;
   }
-  static _name(v) {
+  static _tag(v) {
     return Object.prototype.toString.call(v).slice(8, -1);
   }
   static _num(v, name) {
     return Number.isNaN(v) ? "NaN" : v === Infinity ? "Infinity" : v === -Infinity ? "-Infinity" : Number.isSafeInteger(v) ? "Integer" : Number.isFinite(v) ? "Finite" : name;
   }
-  static _obj(v, name) {
+}
+
+class ObjTys2 {
+  static is(v, tag) {
     const proto = Object.getPrototypeOf(v);
     if (proto === null)
       return `HasNotPrototypeObject`;
@@ -29,25 +35,25 @@ class Tys {
     const des = DesTys.name(v);
     if (des)
       return des;
-    const isPlain = Object.prototype === proto;
-    if (isPlain)
+    const isPlain2 = Object.prototype === proto;
+    if (isPlain2)
       return `PlainObject`;
     const ctor = proto.constructor;
-    const isEs6Ins = this._isEs6Ins(proto, ctor);
-    const isEs5Ins = this._isEs5Ins(v, proto, ctor);
-    if (!isPlain && name !== "Object" && !isEs6Ins && !isEs5Ins)
-      return `NativeInstance<${name}>`;
+    const isEs6Ins = this._isInsEs6(proto, ctor);
+    const isEs5Ins = this._isInsEs5(v, proto, ctor);
+    if (!isPlain2 && tag !== "Object" && !isEs6Ins && !isEs5Ins)
+      return `NativeInstance<${tag}>`;
     if (isEs6Ins || isEs5Ins)
       return `${isEs5Ins ? "ES5." : ""}Instance<${ctor.name || "(Anonymous)"}>`;
     return "PrototypedObject";
   }
-  static _isEs6Ins(proto, ctor) {
+  static _isInsEs6(proto, ctor) {
     if (typeof ctor !== "function")
       return false;
-    return FnTys._isEs6Cls(ctor);
+    return FnTys2._isEs6Cls(ctor);
   }
-  static _isEs5Ins(v, proto, ctor) {
-    return typeof ctor !== "function" || (ctor === Object || ctor === Function) || (FnTys._isEs6Cls(ctor) || FnTys._isNative(ctor, Function.prototype.toString.call(ctor))) ? false : FnTys._isEs5Cls(ctor) || proto !== Object.prototype && proto !== Function.prototype;
+  static _isInsEs5(v, proto, ctor) {
+    return typeof ctor !== "function" || (ctor === Object || ctor === Function) || (FnTys2._isEs6Cls(ctor) || FnTys2._isNative(ctor, Function.prototype.toString.call(ctor))) ? false : FnTys2._isEs5Cls(ctor) || proto !== Object.prototype && proto !== Function.prototype;
   }
 }
 
@@ -74,7 +80,7 @@ class DesTys {
   }
 }
 
-class FnTys {
+class FnTys2 {
   static name(v) {
     const s = Function.prototype.toString.call(v);
     const [isEs6, isEs5] = [this._isEs6Cls(v, s), this._isEs5Cls(v, s)];
@@ -221,75 +227,134 @@ var Typis = FnObj.mk((v) => "bln int fin big str sym".split(" ").some((n) => Typ
   }
 });
 
+// src/fn-tys.js
+var getBody = (v) => Function.prototype.toString.call(v);
+var rmCmt = (s) => s.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+var isNtv = (v, s) => s.includes("[native code]");
+var isNtvCls = (v, s) => v.prototype !== undefined && typeof v.prototype === "object";
+var isBnd = (v, s) => v.name.startsWith("bound ");
+var isArw = (v, s) => !v.hasOwnProperty("prototype") && s.includes("=>");
+var isMd = (v, s) => /\bfunction\b/.test(rmCmt(s)) ? false : !s.includes("=>");
+var isEs6Cls = (v, s) => /^\s*class\b/.test(rmCmt(s || getBody(v)));
+var isEs5Cls = (v, s) => isEs5ClsSub(v, s || getBody(v), v.prototype);
+var isEs5ClsSub = (v, s, proto) => isEs6Cls(v, s) || isNtv(v, s) || isArw(v, s) || (!proto || typeof proto !== "object") || proto.constructor !== v ? false : isEs5ClsCustom(v, s, proto);
+var isEs5ClsCustom = (v, s, proto) => isEs5ClsKeys(v, s, proto, Object.getOwnPropertyNames(proto));
+var isEs5ClsKeys = (v, s, proto, keys) => isEs5ClsEnd(v.name, rmCmt(s).replace(/(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g, '""').replace(/\/([^\/\n\\]|\\.)+\/[gimsuy]*/g, "//"), keys.length > 1 || keys.length === 1 && keys[0] !== "constructor");
+var isEs5ClsEnd = (name, s, hasCustomProps) => hasCustomProps || /\bthis\./.test(s) ? true : /^[A-Z]/.test(name || "");
+var getEsClsNm = (v, s) => getEsClsNmSub(v, isEs6Cls(v, s), isEs5Cls(v, s));
+var getEsClsNmSub = (v, is6, is5) => is6 || is5 ? `${is5 ? "ES5." : ""}Class<${v.name || "(Anonymous)"}>` : null;
+var getBndNm = (v, s) => isBnd(v, s) ? `BoundFunction<${v.name.replace(/bound /, "")}>` : null;
+var getNtvNm = (v, s) => isNtv(v, s) ? `Native${isNtvCls(v) ? "Class" : "Function"}<${v.name}>` : null;
+var getArwNm = (v, s, ag) => isArw(v, s) ? `${ag}ArrowFunction` : null;
+var getMdNm = (v, s, ag) => isMd(v, s) ? `${ag}Method` : null;
+var getFnNm = (v, ag) => !ag && !v.name ? "AnonymousFunction" : `${ag}Function`;
+var getAgNm = (v, s) => isAgCtor(v.constructor?.name) ? v.constructor?.name.replace(/Function$/, "") : getAgNmS(v, rmCmt(s).trim());
+var isAgCtor = (n) => n === "AsyncGeneratorFunction" || n === "GeneratorFunction" || n === "AsyncFunction";
+var getAgNmS = (v, s) => getAgNmS2(/^\s*(?:static\s+)?async\b/.test(s), /(?:function\s*\*|\*\s*[a-zA-Z_$])/.test(s));
+var getAgNmS2 = (isA, isG) => isA && isG ? "AsyncGenerator" : isG ? "Generator" : isA ? "Async" : "";
+var getAgLikeNm = (v, s, ag) => isArw(v, s) ? getArwNm(v, s, ag) : isMd(v, s, ag) ? getMdNm(v, s, ag) : getFnNm(v, ag);
+var getNameSub = (v, s) => isEs6Cls(v, s) || isEs5Cls(v, s) ? getEsClsNm(v, s) : isBnd(v, s) ? getBndNm(v, s) : isNtv(v, s) ? getNtvNm(v, s) : getAgLikeNm(v, s, getAgNm(v, s));
+var FnTys3 = {
+  name: (v) => getNameSub(v, getBody(v)),
+  _isEs6Cls: (v) => isEs6Cls(v),
+  _isEs5Cls: (v) => isEs5Cls(v),
+  _isNative: (v) => getBody(v).includes("[native code]")
+};
+
+// src/des-tys.js
+var A = ["value", "writable", "get", "set", "configurable", "enumerable"];
+var getKeys = (v) => Object.getOwnPropertyNames(v);
+var isValidKeys = (k) => k.length && k.every((x) => A.includes(x));
+var getN = (v, l, w, g, s) => g && s ? "Accessor" : g ? "Getter" : s ? "Setter" : l && typeof v.value == "function" ? "Method" : "Value";
+var parseDes = (v, k, l = k.includes("value"), w = k.includes("writable"), g = k.includes("get") && v.get !== undefined, s = k.includes("set") && v.set !== undefined) => !((l || w) && (g || s) || g && typeof v.get != "function" || s && typeof v.set != "function" || !l && !w && !g && !s) && `Descriptor<${getN(v, l, w, g, s)}>`;
+var evalDes = (v, k) => isValidKeys(k) && parseDes(v, k);
+var DesTys2 = { name: (v) => evalDes(v, getKeys(v)) || "" };
+
+// src/tof.js
+var nNm = (v) => Number.isNaN(v) ? "NaN" : v === Infinity ? "Infinity" : v === -Infinity ? "-Infinity" : Number.isSafeInteger(v) ? "Integer" : Number.isFinite(v) ? "Finite" : false;
+var getBoxedName = (v) => [Boolean, Number, String].some((C) => v instanceof C) ? `BoxedPrimitive<${v.constructor.name}>` : null;
+var isInsEs62 = (proto, ctor) => typeof ctor !== "function" ? false : FnTys3._isEs6Cls(ctor);
+var isInsEs52 = (proto, ctor) => typeof ctor !== "function" || (ctor === Object || ctor === Function) || (FnTys3._isEs6Cls(ctor) || FnTys3._isNative(ctor)) ? false : FnTys3._isEs5Cls(ctor) || proto !== Object.prototype && proto !== Function.prototype;
+var getInstanceName = (v, proto, ctor, tag) => {
+  const isEs6 = isInsEs62(proto, ctor);
+  const isEs5 = isInsEs52(proto, ctor);
+  return isEs6 || isEs5 ? `${isEs5 ? "ES5." : ""}Instance<${ctor.name || "(Anonymous)"}>` : tag !== "Object" ? `NativeInstance<${tag}>` : null;
+};
+var getHasObjNm = (v, tag, proto, boxed, des, inst) => boxed ? boxed : des ? des : proto === Object.prototype ? "PlainObject" : inst ? inst : "PrototypedObject";
+var oNm = (v, tag, proto) => proto === null ? "HasNotPrototypeObject" : getHasObjNm(v, tag, proto, getBoxedName(v), DesTys2.name(v), getInstanceName(v, proto, proto.constructor, tag));
+var onNm = (v, to, tag) => to === "object" ? oNm(v, tag, Object.getPrototypeOf(v)) : tag === "Number" ? nNm(v, tag) : tag;
+var foNm = (v, to, tag) => to === "function" ? FnTys3.name(v) : onNm(v, to, getTag(v));
+var tof = (v) => v === null ? "Null" : v === undefined ? "Undefined" : Array.isArray(v) ? "Array" : foNm(v, typeof v);
+
 // src/tyo.js
-var TyoisArrFn = FnObj.mk((v) => Tys.name(v).endsWith("ArrowFunction"), {
+var TyoisArrFn = FnObj.mk((v) => tof(v).endsWith("ArrowFunction"), {
   methods: {
-    a: (v) => Tys.name(v) === "AsyncArrowFunction",
-    s: (v) => Tys.name(v) === "ArrowFunction"
+    a: (v) => tof(v) === "AsyncArrowFunction",
+    s: (v) => tof(v) === "ArrowFunction"
   }
 });
 var TyoisFn = FnObj.mk((v) => {
-  const N = Tys.name(v);
+  const N = tof(v);
   return N.endsWith("Function") || `Bound Native`.split(" ").some((n) => N.startsWith(n + "Function<"));
 }, {
   getters: { arrow: TyoisArrFn },
   methods: {
-    bound: (v) => Tys.name(v).startsWith(`BoundFunction<`),
-    native: (v) => Tys.name(v).startsWith(`NativeFunction<`),
-    a: (v) => Tys.name(v) === "AsyncFunction",
-    g: (v) => Tys.name(v) === "GeneratorFunction",
-    ag: (v) => Tys.name(v) === "AsyncGeneratorFunction",
-    s: (v) => Tys.name(v) === "Function",
-    anonymous: (v) => Tys.name(v) === "AnonymousFunction",
+    bound: (v) => tof(v).startsWith(`BoundFunction<`),
+    native: (v) => tof(v).startsWith(`NativeFunction<`),
+    a: (v) => tof(v) === "AsyncFunction",
+    g: (v) => tof(v) === "GeneratorFunction",
+    ag: (v) => tof(v) === "AsyncGeneratorFunction",
+    s: (v) => tof(v) === "Function",
+    anonymous: (v) => tof(v) === "AnonymousFunction",
     _some: (N) => N.endsWith("Function") || `Bound Native`.split(" ").some((n) => N.startsWith(n + "Function<"))
   }
 });
-var TyoisCls = FnObj.mk((v) => ["", "ES5.", "Native"].some((n) => Tys.name(v).startsWith(`${n}Class<`)), {
+var TyoisCls = FnObj.mk((v) => ["", "ES5.", "Native"].some((n) => tof(v).startsWith(`${n}Class<`)), {
   methods: {
-    es6: (v) => Tys.name(v).startsWith("Class<"),
-    es5: (v) => Tys.name(v).startsWith("ES5.Class<"),
-    native: (v) => Tys.name(v).startsWith("NativeClass<")
+    es6: (v) => tof(v).startsWith("Class<"),
+    es5: (v) => tof(v).startsWith("ES5.Class<"),
+    native: (v) => tof(v).startsWith("NativeClass<")
   }
 });
-var TyoisIns = FnObj.mk((v, C) => ["", "ES5.", "Native"].some((n) => Tys.name(v).startsWith(`${n}Instance<`)) && (C ? v instanceof C : true), {
+var TyoisIns = FnObj.mk((v, C) => ["", "ES5.", "Native"].some((n) => tof(v).startsWith(`${n}Instance<`)) && (C ? v instanceof C : true), {
   methods: {
-    es6: (v, C) => Tys.name(v).startsWith("Instance<") && (C ? v instanceof C : true),
-    es5: (v, C) => Tys.name(v).startsWith("ES5.Instance<") && (C ? v instanceof C : true),
-    native: (v, C) => Tys.name(v).startsWith("NativeInstance<") && (C ? v instanceof C : true)
+    es6: (v, C) => tof(v).startsWith("Instance<") && (C ? v instanceof C : true),
+    es5: (v, C) => tof(v).startsWith("ES5.Instance<") && (C ? v instanceof C : true),
+    native: (v, C) => tof(v).startsWith("NativeInstance<") && (C ? v instanceof C : true)
   }
 });
-var TyoisDesDA = (v, names) => names.map((n) => `Descriptor<${n}>`).some((n) => n === Tys.name(v));
+var TyoisDesDA = (v, names) => names.map((n) => `Descriptor<${n}>`).some((n) => n === tof(v));
 var TyoisDesD = FnObj.mk((v) => TyoisDesDA(v, "Value Method".split(" ")), {
   methods: {
-    v: (v) => Tys.name(v) === "Descriptor<Value>",
-    m: (v) => Tys.name(v) === "Descriptor<Method>"
+    v: (v) => tof(v) === "Descriptor<Value>",
+    m: (v) => tof(v) === "Descriptor<Method>"
   }
 });
 var TyoisDesA = FnObj.mk((v) => TyoisDesDA(v, "Getter Setter Accessor".split(" ")), {
   methods: {
-    g: (v) => Tys.name(v) === "Descriptor<Getter>",
-    s: (v) => Tys.name(v) === "Descriptor<Setter>",
-    a: (v) => Tys.name(v) === "Descriptor<Accessor>"
+    g: (v) => tof(v) === "Descriptor<Getter>",
+    s: (v) => tof(v) === "Descriptor<Setter>",
+    a: (v) => tof(v) === "Descriptor<Accessor>"
   }
 });
-var TyoisDes = FnObj.mk((v) => Tys.name(v).startsWith("Descriptor<"), {
+var TyoisDes = FnObj.mk((v) => tof(v).startsWith("Descriptor<"), {
   getters: { d: TyoisDesD, a: TyoisDesA }
 });
-var TyoisMd = FnObj.mk((v) => Tys.name(v).endsWith("Method"), {
+var TyoisMd = FnObj.mk((v) => tof(v).endsWith("Method"), {
   methods: {
-    a: (v) => Tys.name(v) === "AsyncMethod",
-    g: (v) => Tys.name(v) === "GeneratorMethod",
-    ag: (v) => Tys.name(v) === "AsyncGeneratorMethod",
-    s: (v) => Tys.name(v) === "Method"
+    a: (v) => tof(v) === "AsyncMethod",
+    g: (v) => tof(v) === "GeneratorMethod",
+    ag: (v) => tof(v) === "AsyncGeneratorMethod",
+    s: (v) => tof(v) === "Method"
   }
 });
 var Tyois = FnObj.mk((v) => {
-  const N = Tys.name(v);
+  const N = tof(v);
   return TyoisFn._some(N) || ["Method"].some((n) => N.endsWith(n)) || ["PlainObject", "Array"].some((n) => n === N) || ["Descriptor", "Class", "Instance"].some((n) => N.startsWith(n + "<"));
 }, {
   getters: { cls: TyoisCls, ins: TyoisIns, des: TyoisDes, fn: TyoisFn, md: TyoisMd },
   methods: {
-    obj: (v) => Tys.name(v) === "PlainObject",
+    obj: (v) => tof(v) === "PlainObject",
     ary: (v) => Array.isArray(v)
   }
 });
@@ -306,13 +371,13 @@ var TydisNum = FnObj.mk((v) => "nan inf ofin".split(" ").some((n) => TydisNum[n]
   }
 });
 var TydisObj = FnObj.mk((v) => {
-  const N = Tys.name(v);
+  const N = tof(v);
   return N.startsWith(`BoxedPrimitive<`) || "HasNotPrototypeObject PrototypedObject".split(" ").some((n) => n === N);
 }, {
   methods: {
-    boxed: (v) => Tys.name(v).startsWith(`BoxedPrimitive<`),
-    hasNotProto: (v) => Tys.name(v) === "HasNotPrototypeObject",
-    prototyped: (v) => Tys.name(v) === "PrototypedObject"
+    boxed: (v) => tof(v).startsWith(`BoxedPrimitive<`),
+    hasNotProto: (v) => tof(v) === "HasNotPrototypeObject",
+    prototyped: (v) => tof(v) === "PrototypedObject"
   }
 });
 var Tydis = FnObj.mk((v) => "und nul".split(" ").some((n) => Tydis[n](v)) || "num obj".split(" ").some((n) => Tydis[n].some(v)), {
@@ -349,9 +414,9 @@ var owT = Object.freeze({
     return owTd;
   }
 });
-var tof = (v) => Tys.name(v);
+var tof2 = (v) => Tys.name(v);
 export {
-  tof,
+  tof2 as tof,
   owT,
   isT
 };

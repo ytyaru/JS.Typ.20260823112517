@@ -1,5 +1,4 @@
-//import {Tys} from './tys.js';
-import {tof} from './tof.js';
+import {Tys} from './tys.js';
 import {FnObj} from './fn-obj.js';
 
 export class Tyd {
@@ -23,14 +22,14 @@ const TydisNum = FnObj.mk(
 
 const TydisObj = FnObj.mk(
     v => {
-        const N = tof(v);
+        const N = Tys.name(v);
         return N.startsWith(`BoxedPrimitive<`) || 'HasNotPrototypeObject PrototypedObject'.split(' ').some(n => n === N);
     },
     {
         methods: {
-            boxed: v => tof(v).startsWith(`BoxedPrimitive<`),
-            hasNotProto: v => 'HasNotPrototypeObject' === tof(v),
-            prototyped: v => 'PrototypedObject' === tof(v),
+            boxed: v => Tys.name(v).startsWith(`BoxedPrimitive<`),
+            hasNotProto: v => 'HasNotPrototypeObject' === Tys.name(v),
+            prototyped: v => 'PrototypedObject' === Tys.name(v),
         }
     }
 );
