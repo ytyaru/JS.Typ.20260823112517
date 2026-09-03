@@ -636,8 +636,15 @@ describe(`Tyo`, ()=>{
                             expect(Tyois.fn.arrow.s(v)).toBe(false);
                         });
                     });
-                    describe(`true`, ()=>{
-                        test.each([[arrFn],[()=>{}]])(`(%p)`, (v)=>{
+                    describe(`true`, ()=>{// 1*2の*でGeneratorと誤検知しないか。内部にasyncがあってもAsyncFuncと誤検知しないか。
+                        test.each([[arrFn],[()=>{}],[()=>1*2],[()=>{async()=>{}}],[()=>{
+'async*'
+"async*"
+`async*`
+/*async*/
+//async*
+(/async*/);
+async()=>{}}]])(`(%p)`, (v)=>{
                             expect(Tyois.fn.arrow.s(v)).toBe(true);
                         });
                     });
@@ -662,8 +669,15 @@ describe(`Tyo`, ()=>{
                         expect(Tyois.fn.s(v)).toBe(false);
                     });
                 });
-                describe(`true`, ()=>{//,[function(){const a=0;}]
-                    test.each([[fn],[function fn(){const a=0;}]])(`(%p)`, (v)=>{
+                describe(`true`, ()=>{//,[function(){const a=0;}]  1*2の*でGeneratorと誤検知しないか。内部にasyncがあってもAsyncFuncと誤検知しないか。
+                    test.each([[fn],[function fn(){const a=0;}],[function f(){1*2}],[function f(){async()=>{}}],[function f(){
+'async*'
+"async*"
+`async*`
+/*async*/
+//async*
+(/async*/);
+async()=>{}}]])(`(%p)`, (v)=>{
                         console.log(`name:`, Tys.name(v));
                         expect(Tyois.fn.s(v)).toBe(true);
                     });
