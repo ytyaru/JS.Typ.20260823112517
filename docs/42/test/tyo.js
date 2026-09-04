@@ -497,24 +497,28 @@ describe(`Tyo`, ()=>{
                         });
                     });
                 });
-                describe(`a`, ()=>{
+                //describe(`a`, ()=>{
+                describe(`gs`, ()=>{
                     describe(`false`, ()=>{
                         describe(`Obj系`, ()=>{
                             const data = [[{}, {value:0}],[{}, {value(){}}],[{_d:0},{get(){return this._d}}],[{_d:0}, {set(v){this._d=v;}}]].map(x=>[getDes(...x)]);
                             test.each(data)(`(%p)`, (v)=>{
-                                expect(Tyois.des.a.a(v)).toBe(false);
+                                //expect(Tyois.des.a.a(v)).toBe(false);
+                                expect(Tyois.des.a.gs(v)).toBe(false);
                             });
                         });
                         describe(`Cls系`, ()=>{
                             const data = [[C,'sg'],[C,'ss']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]);
                             test.each(data)(`(%p)`, (v)=>{
-                                expect(Tyois.des.a.a(v)).toBe(false);
+                                //expect(Tyois.des.a.a(v)).toBe(false);
+                                expect(Tyois.des.a.gs(v)).toBe(false);
                             });
                         });
                         describe(`Ins系`, ()=>{
                             const data = [[c,'g'],[c,'s']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]);
                             test.each(data)(`(%p)`, (v)=>{
-                                expect(Tyois.des.a.a(v)).toBe(false);
+                                //expect(Tyois.des.a.a(v)).toBe(false);
+                                expect(Tyois.des.a.gs(v)).toBe(false);
                             });
                         });
                     });
@@ -522,19 +526,22 @@ describe(`Tyo`, ()=>{
                         describe(`Obj系`, ()=>{
                             const data = [[{_d:0},{get(){return this._d}, set(v){this._d=v}}]].map(x=>[getDes(...x)])
                             test.each(data)(`(%p)`, (v)=>{
-                                expect(Tyois.des.a.a(v)).toBe(true);
+                                //expect(Tyois.des.a.a(v)).toBe(true);
+                                expect(Tyois.des.a.gs(v)).toBe(true);
                             });
                         });
                         describe(`Cls系`, ()=>{
                             const data = [[C,'sa']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]);
                             test.each(data)(`(%p)`, (v)=>{
-                                expect(Tyois.des.a.a(v)).toBe(true);
+                                //expect(Tyois.des.a.a(v)).toBe(true);
+                                expect(Tyois.des.a.gs(v)).toBe(true);
                             });
                         });
                         describe(`Ins系`, ()=>{
                             const data = [[c,'a']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]);
                             test.each(data)(`(%p)`, (v)=>{
-                                expect(Tyois.des.a.a(v)).toBe(true);
+                                //expect(Tyois.des.a.a(v)).toBe(true);
+                                expect(Tyois.des.a.gs(v)).toBe(true);
                             });
                         });
                     });

@@ -6,7 +6,7 @@ const TyoisArrFn = FnObj.mk(
     {
         methods: {
             a: v => 'AsyncArrowFunction' === Tys.name(v),
-            s: v => 'ArrowFunction' === Tys.name(v),
+            s: v => 'SyncArrowFunction' === Tys.name(v),
         }
     }
 );
@@ -15,6 +15,7 @@ const TyoisFn = FnObj.mk(
     v => {
         const N = Tys.name(v);
         return N.endsWith('Function') || `Bound Native`.split(' ').some(n => N.startsWith(n + 'Function<'));
+//        return N.endsWith('Function') || N === 'Function' || N.includes('Function<');
     },
     {
         getters: { arrow: TyoisArrFn },
@@ -28,15 +29,18 @@ const TyoisFn = FnObj.mk(
             s: v => 'SyncFunction' === Tys.name(v),
             anonymous: v => 'AnonymousFunction' === Tys.name(v),
             _some: N => N.endsWith('Function') || `Bound Native`.split(' ').some(n => N.startsWith(n + 'Function<')),
+//            _some: N => N.endsWith('Function') || N === 'Function' || N.includes('Function<'),
         }
     }
 );
 
 const TyoisCls = FnObj.mk(
-    v => ['','ES5.','Native'].some(n => Tys.name(v).startsWith(`${n}Class<`)),
+    //v => ['','ES5.','Native'].some(n => Tys.name(v).startsWith(`${n}Class<`)),
+    v => ['ES6.','ES5.','Native'].some(n => Tys.name(v).startsWith(`${n}Class<`)),
     {
         methods: {
-            es6: v => Tys.name(v).startsWith('Class<'),
+            //es6: v => Tys.name(v).startsWith('Class<'),
+            es6: v => Tys.name(v).startsWith('ES6.Class<'),
             es5: v => Tys.name(v).startsWith('ES5.Class<'),
             native: v => Tys.name(v).startsWith('NativeClass<'),
         }
@@ -44,16 +48,19 @@ const TyoisCls = FnObj.mk(
 );
 
 const TyoisIns = FnObj.mk(
-    (v, C) => ['','ES5.','Native'].some(n => Tys.name(v).startsWith(`${n}Instance<`)) && (C ? v instanceof C : true),
+    //(v, C) => ['','ES5.','Native'].some(n => Tys.name(v).startsWith(`${n}Instance<`)) && (C ? v instanceof C : true),
+    (v, C) => ['ES6.','ES5.','Native'].some(n => Tys.name(v).startsWith(`${n}Instance<`)) && (C ? v instanceof C : true),
     {
         methods: {
-            es6: (v, C) => Tys.name(v).startsWith('Instance<') && (C ? v instanceof C : true),
+            //es6: (v, C) => Tys.name(v).startsWith('Instance<') && (C ? v instanceof C : true),
+            es6: (v, C) => Tys.name(v).startsWith('ES6.Instance<') && (C ? v instanceof C : true),
             es5: (v, C) => Tys.name(v).startsWith('ES5.Instance<') && (C ? v instanceof C : true),
             native: (v, C) => Tys.name(v).startsWith('NativeInstance<') && (C ? v instanceof C : true),
         }
     }
 );
 
+/*
 const TyoisDesDA = (v, names) => names.map(n => `Descriptor<${n}>`).some(n => n === Tys.name(v));
 
 const TyoisDesD = FnObj.mk(
@@ -77,22 +84,56 @@ const TyoisDesA = FnObj.mk(
         }
     }
 );
+*/
+// Descriptor.Data系
+const TyoisDesD = FnObj.mk(
+    v => Tys.name(v).startsWith('Descriptor.Data.'),
+    {
+        methods: {
+            v: v => 'Descriptor.Data.Value' === Tys.name(v),
+            m: v => 'Descriptor.Data.Method' === Tys.name(v),
+        }
+    }
+);
+
+// Descriptor.Access系
+const TyoisDesA = FnObj.mk(
+    v => Tys.name(v).startsWith('Descriptor.Access.'),
+    {
+        methods: {
+            g: v => 'Descriptor.Access.Get' === Tys.name(v),
+            s: v => 'Descriptor.Access.Set' === Tys.name(v),
+            gs: v => 'Descriptor.Access.GetSet' === Tys.name(v),
+        }
+    }
+);
 
 const TyoisDes = FnObj.mk(
-    v => Tys.name(v).startsWith('Descriptor<'),
+    //v => Tys.name(v).startsWith('Descriptor<'),
+    v => Tys.name(v).startsWith('Descriptor.'),
     {
         getters: { d: TyoisDesD, a: TyoisDesA }
     }
 );
 
 const TyoisMd = FnObj.mk(
-    v => Tys.name(v).endsWith('Method'),
+//    v => Tys.name(v).endsWith('Method'),
+    v => {
+        const N = Tys.name(v);
+        // Descriptor 内の Method や、そもそも Descriptor であるものを除外する
+        return N.endsWith('Method') && !N.startsWith('Descriptor.');
+//        return (N.endsWith('Method') || N === 'Method' || N.includes('Method')) && !N.startsWith('Descriptor.');
+    },
+/*
+*/
+//    v => /^(?:Sync|Async|Generator|AsyncGenerator)?Method$/.test(Tys.name(v)),
     {
         methods: {
             a: v => 'AsyncMethod' === Tys.name(v),
             g: v => 'GeneratorMethod' === Tys.name(v),
             ag: v => 'AsyncGeneratorMethod' === Tys.name(v),
-            s: v => 'Method' === Tys.name(v),
+            s: v => 'SyncMethod' === Tys.name(v),
+            //s: v => 'Method' === Tys.name(v),
         }
     }
 );
@@ -100,7 +141,14 @@ const TyoisMd = FnObj.mk(
 export const Tyois = FnObj.mk(
     v => {
         const N = Tys.name(v);
-        return TyoisFn._some(N) || ['Method'].some(n => N.endsWith(n)) || ['PlainObject','Array'].some(n => n === N) || ['Descriptor','Class','Instance'].some(n => N.startsWith(n+'<'));
+        //return TyoisFn._some(N) || ['Method'].some(n => N.endsWith(n)) || ['PlainObject','Array'].some(n => n === N) || ['Descriptor','Class','Instance'].some(n => N.startsWith(n+'<'));
+        //return TyoisFn._some(N) || ['Method'].some(n => N.endsWith(n)) || ['PlainObject','Array'].some(n => n === N) || N.startsWith('Descriptor') || /^(?:ES5.\|ES6.\|Native)?(Class|Instance)\b/.test(N);
+        //return TyoisFn._some(N) || (N.endsWith('Method') && !N.startsWith('Descriptor.')) || ['PlainObject','Array'].some(n => n === N) || N.startsWith('Descriptor') || /^(?:ES5.\|ES6.\|Native)?(Class|Instance)\b/.test(N);
+        return TyoisFn._some(N) ||
+            (N.endsWith('Method') && !N.startsWith('Descriptor.')) ||
+            ['PlainObject','Array'].some(n => n === N) ||
+            N.startsWith('Descriptor') ||
+            ['ES6.', 'ES5.', 'Native'].some(n => N.startsWith(`${n}Class<`) || N.startsWith(`${n}Instance<`));
     },
     {
         getters: { cls: TyoisCls, ins: TyoisIns, des: TyoisDes, fn: TyoisFn, md: TyoisMd },
