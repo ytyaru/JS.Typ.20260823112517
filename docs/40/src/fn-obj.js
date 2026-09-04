@@ -17,8 +17,10 @@ P = 'Primitive',
 DGR = 'Danger',
 PT = 'rototype';
 const CINm = (i,k,C) => i+k+(C ? `<${C.name || '('+ANO+')'}>` : '');
-const CNm = (n,C) => CINm(n,CLS);
-const INm = (n,C) => CINm(n,INS);
+//const CNm = (n,C) => CINm(n,CLS);
+//const INm = (n,C) => CINm(n,INS);
+const CNm = (n,C) => CINm(n,CLS,C);
+const INm = (n,C) => CINm(n,INS,C);
 const DNm = (k,i='') => DES+`${k}${i}`;
 const DDNm = (i) => DNm('.Data',i);
 const DANm = (i) => DNm('.Access',i);
