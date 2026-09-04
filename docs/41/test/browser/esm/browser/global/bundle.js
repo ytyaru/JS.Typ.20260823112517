@@ -1,5 +1,5 @@
 (() => {
-  // ../../../../typ-build-xzdrkk6flp/wrapped.js
+  // ../../../../typ-build-e79t29hhlol/wrapped.js
   (function() {
     var module = { exports: {} };
     var exports = module.exports;
@@ -60,13 +60,27 @@
         if (to === "function")
           return FnTys.name(v);
         const name = this._name(v);
-        return to === "object" ? this._obj(v, name) : name === "Number" ? this._num(v, name) : name;
+        if (to === "object")
+          return this._obj(v, name);
+        if (name === "Number")
+          return this._num(v, name);
+        return name;
       }
       static _name(v) {
         return Object.prototype.toString.call(v).slice(8, -1);
       }
       static _num(v, name) {
-        return Number.isNaN(v) ? "NaN" : v === Infinity ? "Infinity" : v === -Infinity ? "-Infinity" : Number.isSafeInteger(v) ? "Integer" : Number.isFinite(v) ? "Finite" : name;
+        if (Number.isNaN(v))
+          return "NaN";
+        if (v === Infinity)
+          return "Infinity";
+        if (v === -Infinity)
+          return "-Infinity";
+        if (Number.isSafeInteger(v))
+          return "Integer";
+        if (Number.isFinite(v))
+          return "Finite";
+        return name;
       }
       static _obj(v, name) {
         const proto = Object.getPrototypeOf(v);
@@ -96,7 +110,13 @@
         return FnTys._isEs6Cls(ctor);
       }
       static _isEs5Ins(v, proto, ctor) {
-        return typeof ctor !== "function" || (ctor === Object || ctor === Function) || (FnTys._isEs6Cls(ctor) || FnTys._isNative(ctor, Function.prototype.toString.call(ctor))) ? false : FnTys._isEs5Cls(ctor) || proto !== Object.prototype && proto !== Function.prototype;
+        if (typeof ctor !== "function")
+          return false;
+        if (ctor === Object || ctor === Function)
+          return false;
+        if (FnTys._isEs6Cls(ctor) || FnTys._isNative(ctor, Function.prototype.toString.call(ctor)))
+          return false;
+        return FnTys._isEs5Cls(ctor) || proto !== Object.prototype && proto !== Function.prototype;
       }
     }
 
@@ -112,10 +132,21 @@
         const hasWritable = keys.includes("writable");
         const hasGet = keys.includes("get") && v.get !== undefined;
         const hasSet = keys.includes("set") && v.set !== undefined;
-        return (hasValue || hasWritable) && (hasGet || hasSet) || hasGet && typeof v.get !== "function" && v.get !== undefined || hasSet && typeof v.set !== "function" && v.set !== undefined || !hasValue && !hasWritable && !hasGet && !hasSet ? false : this._naming(v, hasValue, hasGet, hasSet);
+        if ((hasValue || hasWritable) && (hasGet || hasSet))
+          return false;
+        if (hasGet && typeof v.get !== "function" && v.get !== undefined)
+          return false;
+        if (hasSet && typeof v.set !== "function" && v.set !== undefined)
+          return false;
+        if (!hasValue && !hasWritable && !hasGet && !hasSet)
+          return false;
+        return this._naming(v, hasValue, hasGet, hasSet);
       }
       static _naming(v, hasValue, hasGet, hasSet) {
-        return hasGet || hasSet ? hasGet && hasSet ? "Accessor" : hasGet ? "Getter" : "Setter" : hasValue && typeof v.value === "function" ? "Method" : "Value";
+        if (hasGet || hasSet) {
+          return hasGet && hasSet ? "Accessor" : hasGet ? "Getter" : "Setter";
+        }
+        return hasValue && typeof v.value === "function" ? "Method" : "Value";
       }
       static name(v) {
         const type = this.is(v);
@@ -125,7 +156,7 @@
 
     class FnTys {
       static name(v) {
-        const s = this._removeComments(Function.prototype.toString.call(v)).trim();
+        const s = Function.prototype.toString.call(v);
         const [isEs6, isEs5] = [this._isEs6Cls(v, s), this._isEs5Cls(v, s)];
         if (isEs6 || isEs5)
           return `${isEs5 ? "ES5." : ""}Class<${v.name || "(Anonymous)"}>`;
@@ -140,13 +171,10 @@
         const ag = FnAgTys.name(v, s);
         return !ag && !v.name ? "AnonymousFunction" : `${ag}Function`;
       }
-      static _removeComments(s) {
-        return s.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
-      }
       static _isEs6Cls(v, s) {
         if (!s)
           s = Function.prototype.toString.call(v);
-        return /^\s*class\b/.test(s);
+        return /^\s*(?:\/\*[\s\S]*?\*\/\s*)*class\b/.test(s);
       }
       static _isEs5Cls(v, s) {
         if (!s)
@@ -161,7 +189,7 @@
           return false;
         const keys = Object.getOwnPropertyNames(proto);
         const hasCustomProps = keys.length > 1 || keys.length === 1 && keys[0] !== "constructor";
-        const cleanS = s.replace(/(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g, '""').replace(/\/([^\/\n\\]|\\.)+\/[gimsuy]*/g, "//");
+        const cleanS = s.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "").replace(/(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g, '""').replace(/\/([^\/\n\\]|\\.)+\/[gimsuy]*/g, "//");
         if (hasCustomProps || /\bthis\./.test(cleanS))
           return true;
         const name = v.name || "";
@@ -180,12 +208,17 @@
         return !v.hasOwnProperty("prototype") && s.includes("=>");
       }
       static _isMethod(v, s) {
-        return /\bfunction\b/.test(s) ? false : !s.includes("=>");
+        const cleanSrc = s.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+        if (/\bfunction\b/.test(cleanSrc))
+          return false;
+        return !s.includes("=>");
       }
     }
 
     class FnAgTys {
       static name(v, s) {
+        if (typeof v !== "function")
+          return "";
         const cName = v.constructor?.name;
         if (cName === "AsyncGeneratorFunction")
           return "AsyncGenerator";
@@ -193,9 +226,18 @@
           return "Generator";
         if (cName === "AsyncFunction")
           return "Async";
-        const isAsync = /^\s*(?:static\s+)?async\b/.test(s);
-        const isGenerator = /(?:function\s*\*|\*\s*[a-zA-Z_$])/.test(s);
-        return isAsync && isGenerator ? "AsyncGenerator" : isGenerator ? "Generator" : isAsync ? "Async" : "";
+        if (!s)
+          s = Function.prototype.toString.call(v);
+        const cleanStr = s.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "").trim();
+        const isAsync = cleanStr.startsWith("async") || cleanStr.includes("async ");
+        const isGenerator = s.includes("*");
+        if (isAsync && isGenerator)
+          return "AsyncGenerator";
+        if (isGenerator)
+          return "Generator";
+        if (isAsync)
+          return "Async";
+        return "";
       }
     }
 

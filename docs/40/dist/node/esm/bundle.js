@@ -22,7 +22,7 @@ class Tys {
   static _obj(v, name) {
     const proto = Object.getPrototypeOf(v);
     if (proto === null)
-      return `HasNotPrototypeObject`;
+      return "NonePrototypeObject";
     if ([Boolean, Number, String].some((C) => v instanceof C)) {
       return `BoxedPrimitive<${v.constructor.name}>`;
     }
@@ -38,7 +38,7 @@ class Tys {
     if (!isPlain && name !== "Object" && !isEs6Ins && !isEs5Ins)
       return `NativeInstance<${name}>`;
     if (isEs6Ins || isEs5Ins)
-      return `${isEs5Ins ? "ES5." : ""}Instance<${ctor.name || "(Anonymous)"}>`;
+      return `ES${isEs5Ins ? "5" : "6"}.Instance<${ctor.name || "(Anonymous)"}>`;
     return "PrototypedObject";
   }
   static _isEs6Ins(proto, ctor) {
@@ -66,11 +66,17 @@ class DesTys {
     return (hasValue || hasWritable) && (hasGet || hasSet) || hasGet && typeof v.get !== "function" && v.get !== undefined || hasSet && typeof v.set !== "function" && v.set !== undefined || !hasValue && !hasWritable && !hasGet && !hasSet ? false : this._naming(v, hasValue, hasGet, hasSet);
   }
   static _naming(v, hasValue, hasGet, hasSet) {
-    return hasGet || hasSet ? hasGet && hasSet ? "Accessor" : hasGet ? "Getter" : "Setter" : hasValue && typeof v.value === "function" ? "Method" : "Value";
+    return hasGet || hasSet ? this._acc(hasGet, hasSet) : this._dat(v, hasValue);
+  }
+  static _acc(hasGet, hasSet) {
+    return "Access." + (hasGet && hasSet ? "GetSet" : hasGet ? "Get" : "Set");
+  }
+  static _dat(v, hasValue) {
+    return "Data." + (hasValue && typeof v.value === "function" ? "Method" : "Value");
   }
   static name(v) {
     const type = this.is(v);
-    return type ? `Descriptor<${type}>` : "";
+    return type ? `Descriptor.${type}` : "";
   }
 }
 
@@ -79,7 +85,7 @@ class FnTys {
     const s = this._removeComments(Function.prototype.toString.call(v)).trim();
     const [isEs6, isEs5] = [this._isEs6Cls(v, s), this._isEs5Cls(v, s)];
     if (isEs6 || isEs5)
-      return `${isEs5 ? "ES5." : ""}Class<${v.name || "(Anonymous)"}>`;
+      return `ES${isEs5 ? "5" : "6"}.Class<${v.name || "(Anonymous)"}>`;
     if (this._isBound(v, s))
       return `BoundFunction<${v.name.replace(/bound /, "")}>`;
     if (this._isNative(v, s))
@@ -89,7 +95,7 @@ class FnTys {
     if (this._isMethod(v, s))
       return `${FnAgTys.name(v, s)}Method`;
     const ag = FnAgTys.name(v, s);
-    return !ag && !v.name ? "AnonymousFunction" : `${ag}Function`;
+    return `${!ag && !v.name ? "Anonymous" : ag}Function`;
   }
   static _removeComments(s) {
     return s.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
@@ -167,8 +173,8 @@ var P = "Primitive";
 var DGR = "Danger";
 var PT = "rototype";
 var CINm = (i, k, C) => i + k + (C ? `<${C.name || "(" + ANO + ")"}>` : "");
-var CNm = (n, C) => CINm(n, CLS);
-var INm = (n, C) => CINm(n, INS);
+var CNm = (n, C) => CINm(n, CLS, C);
+var INm = (n, C) => CINm(n, INS, C);
 var DNm = (k, i = "") => DES + `${k}${i}`;
 var DDNm = (i) => DNm(".Data", i);
 var DANm = (i) => DNm(".Access", i);
@@ -190,7 +196,7 @@ var TYPE_MAP = {
   "o.fn.a": AS + FN,
   "o.fn.g": GEN + FN,
   "o.fn.ag": AS + GEN + FN,
-  "o.fn.s": FN,
+  "o.fn.s": SY + FN,
   "o.fn.anonymous": ANO + FN,
   "o.fn": FN,
   "o.cls.es6": (v, C) => CNm("ES6.", C),
@@ -206,7 +212,7 @@ var TYPE_MAP = {
   "o.des.d": DDNm(),
   "o.des.a.g": DANm(".Get"),
   "o.des.a.s": DANm(".Set"),
-  "o.des.a.a": DANm(".GetSet"),
+  "o.des.a.gs": DANm(".GetSet"),
   "o.des.a": DANm(),
   "o.des": DES,
   "o.md.a": AS + MD,
@@ -225,7 +231,7 @@ var TYPE_MAP = {
   "d.num.ofin": "OverFinite",
   "d.num": DGR + "Number",
   "d.obj.boxed": "Boxed" + P,
-  "d.obj.hasNotProto": "HasNotP" + PT + O,
+  "d.obj.noneProto": "NoneP" + PT + O,
   "d.obj.prototyped": "P" + PT + "d" + O,
   "d.obj": DGR + O,
   d: DGR
@@ -329,7 +335,7 @@ var TyoisFn = FnObj.mk((v) => {
     a: (v) => Tys.name(v) === "AsyncFunction",
     g: (v) => Tys.name(v) === "GeneratorFunction",
     ag: (v) => Tys.name(v) === "AsyncGeneratorFunction",
-    s: (v) => Tys.name(v) === "Function",
+    s: (v) => Tys.name(v) === "SyncFunction",
     anonymous: (v) => Tys.name(v) === "AnonymousFunction",
     _some: (N) => N.endsWith("Function") || `Bound Native`.split(" ").some((n) => N.startsWith(n + "Function<"))
   }
@@ -359,7 +365,7 @@ var TyoisDesA = FnObj.mk((v) => TyoisDesDA(v, "Getter Setter Accessor".split(" "
   methods: {
     g: (v) => Tys.name(v) === "Descriptor<Getter>",
     s: (v) => Tys.name(v) === "Descriptor<Setter>",
-    a: (v) => Tys.name(v) === "Descriptor<Accessor>"
+    gs: (v) => Tys.name(v) === "Descriptor<Accessor>"
   }
 });
 var TyoisDes = FnObj.mk((v) => Tys.name(v).startsWith("Descriptor<"), {
@@ -401,7 +407,7 @@ var TydisObj = FnObj.mk((v) => {
 }, {
   methods: {
     boxed: (v) => Tys.name(v).startsWith(`BoxedPrimitive<`),
-    hasNotProto: (v) => Tys.name(v) === "HasNotPrototypeObject",
+    noneProto: (v) => Tys.name(v) === "NonePrototypeObject",
     prototyped: (v) => Tys.name(v) === "PrototypedObject"
   }
 });
