@@ -1,5 +1,5 @@
 (() => {
-  // ../../../../typ-build-4uo2wmvfa29/wrapped.js
+  // ../../../../typ-build-y1t3oyfj13g/wrapped.js
   (function() {
     var module = { exports: {} };
     var exports = module.exports;
@@ -198,6 +198,84 @@
         return isAsync && isGenerator ? "AsyncGenerator" : isGenerator ? "Generator" : isAsync ? "Async" : "";
       }
     }
+    var ANO = "Anonymous";
+    var NTV = "Native";
+    var FN = "Function";
+    var MD = "Method";
+    var CLS = "Class";
+    var INS = "Instance";
+    var ARW = "Arrow";
+    var AS = "Async";
+    var SY = "Sync";
+    var GEN = "Generator";
+    var DES = "Descriptor";
+    var O = "Object";
+    var P = "Primitive";
+    var PT = "rototype";
+    var CINm = (i, k, C) => i + k + (C ? `<${C.name || "(" + ANO + ")"}>` : "");
+    var CNm = (n, C) => CINm(n, CLS);
+    var INm = (n, C) => CINm(n, INS);
+    var DNm = (k, i = "") => DES + `${k}${i}`;
+    var DDNm = (i) => DNm(".Data", i);
+    var DANm = (i) => DNm(".Access", i);
+    var TYPE_MAP = {
+      "p.bln": "Boolean",
+      "p.int": "Integer",
+      "p.fin": "Finite",
+      "p.big": "BigInt",
+      "p.str": "String",
+      "p.sym": "Symbol",
+      p: P,
+      "o.obj": "Plain" + O,
+      "o.ary": "Array",
+      "o.fn.arrow.a": AS + ARW + FN,
+      "o.fn.arrow.s": SY + ARW + FN,
+      "o.fn.arrow": ARW + FN,
+      "o.fn.bound": "Bound" + FN,
+      "o.fn.native": NTV + FN,
+      "o.fn.a": AS + FN,
+      "o.fn.g": GEN + FN,
+      "o.fn.ag": AS + GEN + FN,
+      "o.fn.s": FN,
+      "o.fn.anonymous": ANO + FN,
+      "o.fn": FN,
+      "o.cls.es6": (v, C) => CNm("ES6.", C),
+      "o.cls.es5": (v, C) => CNm("ES5.", C),
+      "o.cls.native": (v, C) => CNm(NTV, C),
+      "o.cls": CLS,
+      "o.ins.es6": (v, C) => INm("ES6.", C),
+      "o.ins.es5": (v, C) => INm("ES5.", C),
+      "o.ins.native": (v, C) => INm(NTV, C),
+      "o.ins": INS,
+      "o.des.d.v": DDNm(".Value"),
+      "o.des.d.m": DDNm(".Method"),
+      "o.des.d": DDNm(),
+      "o.des.a.g": DANm(".Get"),
+      "o.des.a.s": DANm(".Set"),
+      "o.des.a.a": DANm(".GetSet"),
+      "o.des.a": DANm(),
+      "o.des": DES,
+      "o.md.a": AS + MD,
+      "o.md.g": GEN + MD,
+      "o.md.ag": AS + GEN + MD,
+      "o.md.s": SY + MD,
+      "o.md": MD,
+      o: O,
+      "d.und": "Undefined",
+      "d.nul": "Null",
+      "d.num.nan": "NaN",
+      "d.num.inf": "Infinity",
+      "d.num.pinf": "Infinity",
+      "d.num.ninf": "-Infinity",
+      "d.num.oint": "Finite",
+      "d.num.ofin": "Finite",
+      "d.num": "Number",
+      "d.obj.boxed": "Boxed" + P,
+      "d.obj.hasNotProto": "HasNotP" + PT + O,
+      "d.obj.prototyped": "P" + PT + "d" + O,
+      "d.obj": O,
+      d: "Data"
+    };
 
     class FnObj {
       static mk(someFn, { getters = {}, methods = {} } = {}) {
@@ -215,11 +293,17 @@
         }
         return fn;
       }
-      static mkEr(isObj, pathStr) {
+      static mkEr(isObj, pathStr, rawPath = null) {
+        if (rawPath === null) {
+          const m = pathStr.match(/\.([pod])\./);
+          rawPath = m ? m[1] : "";
+        }
         const someFn = (v, ...args) => {
           if (isObj(v, ...args))
             return true;
-          throw new TypeError(`Expected: a value that makes '${pathStr}' return true.
+          const resolver = TYPE_MAP[rawPath];
+          const exp = typeof resolver === "function" ? resolver(v, ...args) : resolver || pathStr;
+          throw new TypeError(`Expected: ${exp}
 Actual: ${Tys.name(v)}`);
         };
         const methods = {};
@@ -230,14 +314,17 @@ Actual: ${Tys.name(v)}`);
           const val = isObj[key2];
           if (typeof val === "function") {
             const subKeys = Object.getOwnPropertyNames(val).filter((k) => !["length", "name", "prototype", "caller", "arguments"].includes(k));
+            const nextRawPath = rawPath ? `${rawPath}.${key2}` : key2;
             if (subKeys.length > 0) {
               const subPathStr = pathStr.replace(/\.some\(v\)$/, `.${key2}.some(v)`);
-              getters[key2] = FnObj.mkEr(val, subPathStr);
+              getters[key2] = FnObj.mkEr(val, subPathStr, nextRawPath);
             } else {
               methods[key2] = (v, ...args) => {
                 if (val(v, ...args))
                   return true;
-                throw new TypeError(`Expected: '${val.toString()}' like value.
+                const resolver = TYPE_MAP[nextRawPath];
+                const exp = typeof resolver === "function" ? resolver(v, ...args) : resolver || val.toString();
+                throw new TypeError(`Expected: ${exp}
 Actual: ${Tys.name(v)}`);
               };
             }
@@ -247,7 +334,10 @@ Actual: ${Tys.name(v)}`);
           methods._ = (n, v, ...args) => {
             if (isObj[n](v, ...args))
               return true;
-            throw new TypeError(`Expected: '${isObj[n].toString()}' like value.
+            const nextRawPath = rawPath ? `${rawPath}.${n}` : n;
+            const resolver = TYPE_MAP[nextRawPath];
+            const exp = typeof resolver === "function" ? resolver(v, ...args) : resolver || isObj[n].toString();
+            throw new TypeError(`Expected: ${exp}
 Actual: ${Tys.name(v)}`);
           };
         }

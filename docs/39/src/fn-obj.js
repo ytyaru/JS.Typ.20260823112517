@@ -14,6 +14,7 @@ GEN = 'Generator',
 DES = 'Descriptor',
 O = 'Object',
 P = 'Primitive',
+DGR = 'Danger',
 PT = 'rototype';
 const CINm = (i,k,C) => i+k+(C ? `<${C.name || '('+ANO+')'}>` : '');
 const CNm = (n,C) => CINm(n,CLS);
@@ -74,11 +75,11 @@ const TYPE_MAP = {
     'd.nul': 'Null',
     'd.num.nan': 'NaN',
     'd.num.inf': 'Infinity',
-    'd.num.pinf': 'Infinity',
-    'd.num.ninf': '-Infinity',
-    'd.num.oint': 'Finite',
-    'd.num.ofin': 'Finite',
-    'd.num': 'Number',
+    'd.num.pinf': 'PositiveInfinity',
+    'd.num.ninf': 'NegativeInfinity',
+    'd.num.oint': 'OverInteger',
+    'd.num.ofin': 'OverFinite',
+    'd.num': DGR+'Number',
     'd.obj.boxed': 'Boxed'+P,
 //    'd.obj.hasNotProto': 'HasNotPrototype'+O,
 //    'd.obj.prototyped': 'Prototyped'+O,
@@ -86,8 +87,8 @@ const TYPE_MAP = {
 //    'd.obj.p'+PT+'d': 'P'+PT+'d'+O,
 //    ('d.obj.p'+PT+'d'): 'P'+PT+'d'+O,
     'd.obj.prototyped': 'P'+PT+'d'+O,
-    'd.obj': O,
-    'd': 'Data'
+    'd.obj': DGR+O,
+    'd': DGR
 };
 export class FnObj {
     static mk(someFn, { getters = {}, methods = {} } = {}) {
