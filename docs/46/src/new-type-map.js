@@ -56,22 +56,32 @@ const mkErFO = (fo, pathStr) => {
             }
         }
     }
-
     return mkFO(someFn, props);
 };
 
 // 全名, 短縮名, some系処理, 子の4引数
+//const p = mkFO('Primitive', 'p',
+//    v => 'bln int fin big str sym'.split(' ').some(n => p[n](v)), {
+//    bln: ['Boolean', v => 'boolean' === typeof v)],
+//    int: ['Integer', v => Number.isSafeInteger(v)],
+//    fin: ['Finite', v => Number.isFinite(v) && v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v),
+//    big: ['BigInt', v => 'bigint' === typeof v),
+//    str: ['String', v => 'string' === typeof v),
+//    sym: ['Symbol', v => 'symbol' === typeof v),
+//});
+const isOverNum = v => (Number.MAX_SAFE_INTEGER < v || v < Number.MIN_SAFE_INTEGER);
 const p = mkFO('Primitive', 'p',
     v => 'bln int fin big str sym'.split(' ').some(n => p[n](v)), {
     bln: ['Boolean', v => 'boolean' === typeof v)],
-    int: ['Integer', v => Number.isSafeInteger(v)],
-    fin: ['Finite', v => Number.isFinite(v) && v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v),
+    num: ['Number', v=>Number.isFinite(v) && !isOverNum(v), {
+        int: ['Integer', v => Number.isSafeInteger(v)],
+        flt: ['Float', v => Number.isFinite(v) && !isOverNum(v) && !Number.isInteger(v)),
+    }],
     big: ['BigInt', v => 'bigint' === typeof v),
     str: ['String', v => 'string' === typeof v),
     sym: ['Symbol', v => 'symbol' === typeof v),
 });
 //const isSafeNum = v => (v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v);
-const isOverNum = v => (Number.MAX_SAFE_INTEGER < v || v < Number.MIN_SAFE_INTEGER);
 const d = mkFO('Danger', 'd', // 短縮名 mkFOは短縮名が必要
     v => 'p o'.split(' ').some(n => d[n](v)), {
     p: ['Primitive', 
@@ -107,6 +117,7 @@ const isDes = (N, ns) => ns.some(n => N === `Descriptor<${n}>`);
 const isCI = (p, b, N) => N.startsWith(`${p}${b}<`);
 const isIns = (p, C, N) => isCI(p,'Instance',N) && (C ? v instanceof C : true);
 const isCls = (p, N) => isCI(p,'Class',N);
+const isFn = N => N.endsWith('Function') || `Bound Native`.split(' ').some(n => N.startsWith(n + 'Function<'));
 const o = mkFO('Object', 'o', // 短縮名 mkFOは短縮名が必要
     v => {
         const N = tof(v);
@@ -151,40 +162,26 @@ const o = mkFO('Object', 'o', // 短縮名 mkFOは短縮名が必要
 //        es5: ['ES5', v=>tof(v).startsWith('ES5.Class<')],
 //        native: ['Native', v=>tof(v).startsWith('NativeClass<')],
 //    }],
-    md: [],
-    fn: [],
+    md: ['Method', v => tof(v).endsWith('Method'), {
+        s: ['Sync', v => 'Method' === tof(v)],
+        a: ['Async', v => 'AsyncMethod' === tof(v)],
+        g: ['Generator', v => 'GeneratorMethod' === tof(v)],
+        ag: ['AsyncGenerator', v => 'AsyncGeneratorMethod' === tof(v)],
+    }],
+    fn: ['Function', v=>isFn(tof(v)), {
+        bound: ['Bound', v => tof(v).startsWith(`BoundFunction<`),
+        native: ['Native', v => tof(v).startsWith(`NativeFunction<`),
+        a: ['Async', v => 'AsyncFunction' === tof(v),
+        g: ['Generator', v => 'GeneratorFunction' === tof(v),
+        ag: ['AsyncGenerator', v => 'AsyncGeneratorFunction' === tof(v),
+        s: ['Sync', v => 'Function' === tof(v),
+        anonymous: ['Anonymous', v => 'AnonymousFunction' === tof(v),
+        arrow: ['Arrow', v=>tof(v).endsWith('ArrowFunction'), {
+            a: ['Async', v => 'AsyncArrowFunction' === tof(v)],
+            s: ['Sync', v => 'ArrowFunction' === tof(v)],
+        }]
+    }],
 });
-o.cls = mkFO(
-    v => ['', 'ES5.', 'Native'].some(n => tof(v).startsWith(`${n}Class<`)),
-    {
-        es6: v => tof(v).startsWith('Class<'),
-        es5: v => tof(v).startsWith('ES5.Class<'),
-        native: v => tof(v).startsWith('NativeClass<'),
-    }
-);
-
-o.ins = mkFO(
-    (v, C) => {
-        const N = tof(v);
-        return ['', 'ES5.', 'Native'].some(n => N.startsWith(`${n}Instance<`)) && (C ? v instanceof C : true);
-    },
-    {
-        es6: (v, C) => tof(v).startsWith('Instance<') && (C ? v instanceof C : true),
-        es5: (v, C) => tof(v).startsWith('ES5.Instance<') && (C ? v instanceof C : true),
-        native: (v, C) => tof(v).startsWith('NativeInstance<') && (C ? v instanceof C : true),
-    }
-);
-
-
-o.des.d = mkFO(
-    v => isDes(tof(v), ['Value', 'Method']),
-    {
-        v: v => 'Descriptor<Value>' === tof(v),
-        m: v => 'Descriptor<Method>' === tof(v),
-    }
-);
-
-
 /*
 const mkFO = (someFn, mds = {}) => {
     // 戻り値となる関数本体
