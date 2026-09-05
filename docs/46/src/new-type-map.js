@@ -103,6 +103,87 @@ const d = mkFO('Danger', 'd', // 短縮名 mkFOは短縮名が必要
             proto: ['Prototyped', v=>'PrototypedObject'===tof(v)]
     }],
 ]);
+const isDes = (N, ns) => ns.some(n => N === `Descriptor<${n}>`);
+const isCI = (p, b, N) => N.startsWith(`${p}${b}<`);
+const isIns = (p, C, N) => isCI(p,'Instance',N) && (C ? v instanceof C : true);
+const isCls = (p, N) => isCI(p,'Class',N);
+const o = mkFO('Object', 'o', // 短縮名 mkFOは短縮名が必要
+    v => {
+        const N = tof(v);
+        return isFn(N) || N.endsWith('Method') || ['PlainObject', 'Array'].some(n => n === N) || ['Descriptor', 'Class', 'Instance'].some(n => N.startsWith(n + '<'));
+    }, {
+    obj: ['Plain', v => 'PlainObject' === tof(v)],
+    ary: ['Array', v => Array.isArray(v)],
+    des: ['Descriptor', v=>isDes(tof(v), ['Value', 'Method', 'Getter', 'Setter', 'Accessor']), {
+        d: ['Data', v=>isDes(tof(v), ['Value', 'Method'], {
+            v: ['Value', v=>isDes(tof(v), ['Value'])],
+            m: ['Method', v=>isDes(tof(v), ['Method'])],
+        }],
+        a: ['Access', v=>isDes(tof(v), ['Getter', 'Setter', 'Accessor'], {
+            g: ['Value', v=>isDes(tof(v), ['Getter'])],
+            s: ['Method', v=>isDes(tof(v), ['Setter'])],
+            gs: ['Accessor', v=>isDes(tof(v), ['Accessor'])],
+        }],
+    }],
+    ins: ['Instance', (v,C)=>{
+        const N = tof(v);
+        return ['', 'ES5.', 'Native'].some(p=>isIns(p,C,N))
+        }, {
+        es6: ['ES6', (v,C)=>isIns('',C,tof(v))],
+        es5: ['ES5', (v,C)=>isIns('ES5.',C,tof(v))],
+        native: ['Native', (v,C)=>isIns('Native',C,tof(v))],
+    }],
+    cls: ['Class', v=>{
+        const N = tof(v);
+        return ['', 'ES5.', 'Native'].some(p=>isCls(p,N));
+        }, {
+        es6: ['ES6', v=>isCls('',tof(v))],
+        es5: ['ES5', v=>isCls('ES5.',tof(v))],
+        native: ['Native', v=>isCls('Native',tof(v))],
+    }],
+//    ins: ['Instance', (v,C)=>['', 'ES5.', 'Native'].some(n => tof(v).startsWith(`${n}Instance<`) && (C ? v instanceof C : true)), {
+//        es6: ['ES6', v=>tof(v).startsWith('Instance<') && (C ? v instanceof C : true)],
+//        es5: ['ES5', v=>tof(v).startsWith('ES5.Instance<') && (C ? v instanceof C : true)],
+//        native: ['Native', v=>tof(v).startsWith('NativeInstance<') && (C ? v instanceof C : true)],
+//    }],
+//    cls: ['Class', v=>['', 'ES5.', 'Native'].some(n => tof(v).startsWith(`${n}Class<`)), {
+//        es6: ['ES6', v=>tof(v).startsWith('Class<')],
+//        es5: ['ES5', v=>tof(v).startsWith('ES5.Class<')],
+//        native: ['Native', v=>tof(v).startsWith('NativeClass<')],
+//    }],
+    md: [],
+    fn: [],
+});
+o.cls = mkFO(
+    v => ['', 'ES5.', 'Native'].some(n => tof(v).startsWith(`${n}Class<`)),
+    {
+        es6: v => tof(v).startsWith('Class<'),
+        es5: v => tof(v).startsWith('ES5.Class<'),
+        native: v => tof(v).startsWith('NativeClass<'),
+    }
+);
+
+o.ins = mkFO(
+    (v, C) => {
+        const N = tof(v);
+        return ['', 'ES5.', 'Native'].some(n => N.startsWith(`${n}Instance<`)) && (C ? v instanceof C : true);
+    },
+    {
+        es6: (v, C) => tof(v).startsWith('Instance<') && (C ? v instanceof C : true),
+        es5: (v, C) => tof(v).startsWith('ES5.Instance<') && (C ? v instanceof C : true),
+        native: (v, C) => tof(v).startsWith('NativeInstance<') && (C ? v instanceof C : true),
+    }
+);
+
+
+o.des.d = mkFO(
+    v => isDes(tof(v), ['Value', 'Method']),
+    {
+        v: v => 'Descriptor<Value>' === tof(v),
+        m: v => 'Descriptor<Method>' === tof(v),
+    }
+);
+
 
 /*
 const mkFO = (someFn, mds = {}) => {
