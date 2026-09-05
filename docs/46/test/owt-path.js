@@ -1,27 +1,18 @@
 import { expect, test, describe } from "bun:test";
 import {isT,owT,tof} from '../src/main.js';
 import {assertThrow,C,c,fn,gfn,afn,agfn,arrFn,aarrFn,des,cal,prims,objs,dangers,cls,ins,_obj,getDes} from './test-data.js';
-//const getCode = v => Function.prototype.toString.call(v).trim();
-const mkSmM = (e,a) => `Expected: a value that makes 'isT.${e}.some(v)' return true.\nActual: ${tof(a)}`;
-const mkM = (e,a) =>  `Expected: '${e}' like value.\nActual: ${tof(a)}`;
 
 describe(`owT`, ()=>{
     describe(`Primitive系`, ()=>{
-        // Primitive
-        //test(`owT.p(null)`, ()=>assertThrow(TypeError, `Expected: a value that makes 'isT.p.some(v)' return true.\nActual: ${tof(null)}`, ()=>owT.p(null)));
-        test(`owT.p(null)`, ()=>assertThrow(TypeError, mkSmM('p',null), ()=>owT.p(null)));
-        //test(`owT.p.some(null)`, ()=>assertThrow(TypeError, `Expected: a value that makes 'isT.p.some(v)' return true.\nActual: ${tof(null)}`, ()=>owT.p.some(null)));
-        test(`owT.p.some(null)`, ()=>assertThrow(TypeError, mkSmM('p',null), ()=>owT.p.some(null)));
-        //test(`owT.p.bln(null)`, ()=>assertThrow(TypeError, `Expected: '(v) => typeof v === "boolean"'\nActual: ${tof(null)}`, ()=>owT.p.bln(null)));
-        test(`owT.p.bln(null)`, ()=>assertThrow(TypeError, mkM('(v) => typeof v === "boolean"', null), ()=>owT.p.bln(null)));
-        //test(`owT.p.int(null)`, ()=>assertThrow(TypeError, `Expected: '(v) => Number.isSafeInteger(v)'\nActual: ${tof(null)}`, ()=>owT.p.int(null)));
-        test(`owT.p.int(null)`, ()=>assertThrow(TypeError, mkM('(v) => Number.isSafeInteger(v)',null), ()=>owT.p.int(null)));
-        test(`owT.p.fin(null)`, ()=>assertThrow(TypeError, `Expected: '(v) => Number.isFinite(v) && v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v'\nActual: ${tof(null)}`, ()=>owT.p.fin(null)));
-        test(`owT.p.big(null)`, ()=>assertThrow(TypeError, `Expected: ''\nActual: ${tof(null)}`, ()=>owT.p.big(null)));
-        test(`owT.p.str(null)`, ()=>assertThrow(TypeError, `Expected: ''\nActual: ${tof(null)}`, ()=>owT.p.str(null)));
-        test(`owT.p.sym(null)`, ()=>assertThrow(TypeError, `Expected: ''\nActual: ${tof(null)}`, ()=>owT.p.sym(null)));
+        test(`owT.p(null)`, ()=>assertThrow(TypeError, `Expected: Primitive\nActual: ${tof(null)}`, ()=>owT.p(null)));
+        test(`owT.p.some(null)`, ()=>assertThrow(TypeError, `Expected: Primitive\nActual: ${tof(null)}`, ()=>owT.p.some(null)));
+        test(`owT.p.bln(null)`, ()=>assertThrow(TypeError, `Expected: Boolean\nActual: ${tof(null)}`, ()=>owT.p.bln(null)));
+        test(`owT.p.int(null)`, ()=>assertThrow(TypeError, `Expected: Integer\nActual: ${tof(null)}`, ()=>owT.p.int(null)));
+        test(`owT.p.fin(null)`, ()=>assertThrow(TypeError, `Expected: Finite\nActual: ${tof(null)}`, ()=>owT.p.fin(null)));
+        test(`owT.p.big(null)`, ()=>assertThrow(TypeError, `Expected: BigInt\nActual: ${tof(null)}`, ()=>owT.p.big(null)));
+        test(`owT.p.str(null)`, ()=>assertThrow(TypeError, `Expected: String\nActual: ${tof(null)}`, ()=>owT.p.str(null)));
+        test(`owT.p.sym(null)`, ()=>assertThrow(TypeError, `Expected: Symbol\nActual: ${tof(null)}`, ()=>owT.p.sym(null)));
     });
-    /*
     describe(`Danger系`, ()=>{
         test(`owT.d(0)`, ()=>assertThrow(TypeError, `Expected: Danger\nActual: ${tof(0)}`, ()=>owT.d(0)));
         test(`owT.d.some(0)`, ()=>assertThrow(TypeError, `Expected: Danger\nActual: ${tof(0)}`, ()=>owT.d.some(0)));
@@ -106,6 +97,6 @@ describe(`owT`, ()=>{
 
         });
     });
-    */
+
 
 });
