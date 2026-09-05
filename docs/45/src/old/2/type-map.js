@@ -1,5 +1,4 @@
-//import { Tys } from './tys.js';
-import {tof} from './tof.js';
+import { Tys } from './tys.js';
 
 const mkFO = (someFn, mds = {}) => {
     // 戻り値となる関数本体
@@ -22,8 +21,8 @@ const mkFO = (someFn, mds = {}) => {
 const mkErFO = (fo, pathStr) => {
     const someFn = (v, ...args) => {
         if (fo.some(v, ...args)) return true;
-        //throw new TypeError(`Expected: a value that makes '${pathStr}' return true.\nActual: ${tof(v)}`);
-        throw new TypeError(`Expected: a value that makes '${pathStr}(v)' return true.\nActual: ${tof(v)}`);
+        //throw new TypeError(`Expected: a value that makes '${pathStr}' return true.\nActual: ${Tys.name(v)}`);
+        throw new TypeError(`Expected: a value that makes '${pathStr}(v)' return true.\nActual: ${Tys.name(v)}`);
     };
 
     const props = {};
@@ -44,7 +43,7 @@ const mkErFO = (fo, pathStr) => {
             } else {
                 props[key] = (v, ...args) => {
                     if (val(v, ...args)) return true;
-                    throw new TypeError(`Expected: '${val.toString()}' like value.\nActual: ${tof(v)}`);
+                    throw new TypeError(`Expected: '${val.toString()}' like value.\nActual: ${Tys.name(v)}`);
                 };
             }
         }
@@ -77,84 +76,84 @@ const d = mkFO(
 
 const o = mkFO(
     v => {
-        const N = tof(v);
+        const N = Tys.name(v);
         return isFn(N) || N.endsWith('Method') || ['PlainObject', 'Array'].some(n => n === N) || ['Descriptor', 'Class', 'Instance'].some(n => N.startsWith(n + '<'));
     },
     {
-        obj: v => 'PlainObject' === tof(v),
+        obj: v => 'PlainObject' === Tys.name(v),
         ary: v => Array.isArray(v),
     }
 );
 
 o.cls = mkFO(
-    v => ['0', 'ES5.', 'Native'].some(n => tof(v).startsWith(`${n === '0' ? '' : n}Class<`)),
+    v => ['0', 'ES5.', 'Native'].some(n => Tys.name(v).startsWith(`${n === '0' ? '' : n}Class<`)),
     {
-        es6: v => tof(v).startsWith('Class<'),
-        es5: v => tof(v).startsWith('ES5.Class<'),
-        native: v => tof(v).startsWith('NativeClass<'),
+        es6: v => Tys.name(v).startsWith('Class<'),
+        es5: v => Tys.name(v).startsWith('ES5.Class<'),
+        native: v => Tys.name(v).startsWith('NativeClass<'),
     }
 );
 
 o.ins = mkFO(
     (v, C) => {
-        const N = tof(v);
+        const N = Tys.name(v);
         return ['', 'ES5.', 'Native'].some(n => N.startsWith(`${n}Instance<`)) && (C ? v instanceof C : true);
     },
     {
-        es6: (v, C) => tof(v).startsWith('Instance<') && (C ? v instanceof C : true),
-        es5: (v, C) => tof(v).startsWith('ES5.Instance<') && (C ? v instanceof C : true),
-        native: (v, C) => tof(v).startsWith('NativeInstance<') && (C ? v instanceof C : true),
+        es6: (v, C) => Tys.name(v).startsWith('Instance<') && (C ? v instanceof C : true),
+        es5: (v, C) => Tys.name(v).startsWith('ES5.Instance<') && (C ? v instanceof C : true),
+        native: (v, C) => Tys.name(v).startsWith('NativeInstance<') && (C ? v instanceof C : true),
     }
 );
 
-o.des = mkFO(v => tof(v).startsWith('Descriptor<'));
+o.des = mkFO(v => Tys.name(v).startsWith('Descriptor<'));
 const isDes = (N, ns) => ns.some(n => N === `Descriptor<${n}>`);
 
 o.des.d = mkFO(
-    v => isDes(tof(v), ['Value', 'Method']),
+    v => isDes(Tys.name(v), ['Value', 'Method']),
     {
-        v: v => 'Descriptor<Value>' === tof(v),
-        m: v => 'Descriptor<Method>' === tof(v),
+        v: v => 'Descriptor<Value>' === Tys.name(v),
+        m: v => 'Descriptor<Method>' === Tys.name(v),
     }
 );
 
 o.des.a = mkFO(
-    v => isDes(tof(v), ['Getter', 'Setter', 'Accessor']),
+    v => isDes(Tys.name(v), ['Getter', 'Setter', 'Accessor']),
     {
-        g: v => 'Descriptor<Getter>' === tof(v),
-        s: v => 'Descriptor<Setter>' === tof(v),
-        a: v => 'Descriptor<Accessor>' === tof(v),
+        g: v => 'Descriptor<Getter>' === Tys.name(v),
+        s: v => 'Descriptor<Setter>' === Tys.name(v),
+        a: v => 'Descriptor<Accessor>' === Tys.name(v),
     }
 );
 
 o.fn = mkFO(
-    v => isFn(tof(v)),
+    v => isFn(Tys.name(v)),
     {
-        bound: v => tof(v).startsWith(`BoundFunction<`),
-        native: v => tof(v).startsWith(`NativeFunction<`),
-        a: v => 'AsyncFunction' === tof(v),
-        g: v => 'GeneratorFunction' === tof(v),
-        ag: v => 'AsyncGeneratorFunction' === tof(v),
-        s: v => 'Function' === tof(v),
-        anonymous: v => 'AnonymousFunction' === tof(v),
+        bound: v => Tys.name(v).startsWith(`BoundFunction<`),
+        native: v => Tys.name(v).startsWith(`NativeFunction<`),
+        a: v => 'AsyncFunction' === Tys.name(v),
+        g: v => 'GeneratorFunction' === Tys.name(v),
+        ag: v => 'AsyncGeneratorFunction' === Tys.name(v),
+        s: v => 'Function' === Tys.name(v),
+        anonymous: v => 'AnonymousFunction' === Tys.name(v),
     }
 );
 
 o.fn.arrow = mkFO(
-    v => tof(v).endsWith('ArrowFunction'),
+    v => Tys.name(v).endsWith('ArrowFunction'),
     {
-        a: v => 'AsyncArrowFunction' === tof(v),
-        s: v => 'ArrowFunction' === tof(v),
+        a: v => 'AsyncArrowFunction' === Tys.name(v),
+        s: v => 'ArrowFunction' === Tys.name(v),
     }
 );
 
 o.md = mkFO(
-    v => tof(v).endsWith('Method'),
+    v => Tys.name(v).endsWith('Method'),
     {
-        s: v => 'Method' === tof(v),
-        a: v => 'AsyncMethod' === tof(v),
-        g: v => 'GeneratorMethod' === tof(v),
-        ag: v => 'AsyncGeneratorMethod' === tof(v),
+        s: v => 'Method' === Tys.name(v),
+        a: v => 'AsyncMethod' === Tys.name(v),
+        g: v => 'GeneratorMethod' === Tys.name(v),
+        ag: v => 'AsyncGeneratorMethod' === Tys.name(v),
     }
 );
 
@@ -172,13 +171,13 @@ d.num = mkFO(
 
 d.obj = mkFO(
     v => {
-        const N = tof(v);
+        const N = Tys.name(v);
         return N.startsWith(`BoxedPrimitive<`) || 'NonePrototypeObject PrototypedObject'.split(' ').some(n => n === N);
     },
     {
-        boxed: v => tof(v).startsWith(`BoxedPrimitive<`),
-        noneProto: v => 'NonePrototypeObject' === tof(v),
-        prototyped: v => 'PrototypedObject' === tof(v),
+        boxed: v => Tys.name(v).startsWith(`BoxedPrimitive<`),
+        noneProto: v => 'NonePrototypeObject' === Tys.name(v),
+        prototyped: v => 'PrototypedObject' === Tys.name(v),
     }
 );
 
