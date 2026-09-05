@@ -1,5 +1,5 @@
 (() => {
-  // ../../../../typ-build-jr323opdenc/wrapped.js
+  // ../../../../typ-build-0dd0mzfqqok/wrapped.js
   (function() {
     var module = { exports: {} };
     var exports = module.exports;
@@ -116,18 +116,11 @@
     class FnTys {
       static name(v) {
         const s = getCode(v);
-        const [isEs6, isEs5] = [this._isEs6Cls(v, s), this._isEs5Cls(v, s)];
-        if (isEs6 || isEs5)
-          return `${isEs5 ? "ES5." : ""}Class<${v.name || "(Anonymous)"}>`;
-        if (this.#isBound(v, s))
-          return `BoundFunction<${v.name.replace(/bound /, "")}>`;
-        if (this._isNative(v, s))
-          return `Native${this.#isNativeClass(v) ? "Class" : "Function"}<${v.name}>`;
-        if (this.#isArrow(v, s))
-          return `${FnAgTys.name(v, s)}ArrowFunction`;
-        if (this.#isMethod(v, s))
-          return `${FnAgTys.name(v, s)}Method`;
-        const ag = FnAgTys.name(v, s);
+        const isEs6 = this._isEs6Cls(v, s);
+        const isEs5 = this._isEs5Cls(v, s);
+        return isEs6 || isEs5 ? `${isEs5 ? "ES5." : ""}Class<${v.name || "(Anonymous)"}>` : this.#isBound(v, s) ? `BoundFunction<${v.name.replace(/bound /, "")}>` : this._isNative(v, s) ? `Native${this.#isNativeClass(v) ? "Class" : "Function"}<${v.name}>` : this.#isArrow(v, s) ? `${FnAgTys.name(v, s)}ArrowFunction` : this.#isMethod(v, s) ? `${FnAgTys.name(v, s)}Method` : this.#getFnNm(v, FnAgTys.name(v, s));
+      }
+      static #getFnNm(v, ag) {
         return `${!ag && !v.name ? "Anonymous" : ag}Function`;
       }
       static _isEs6Cls(v, s) {
@@ -246,18 +239,24 @@ Actual: ${tof(v)}`);
       obj: (v) => tof(v) === "PlainObject",
       ary: (v) => Array.isArray(v)
     });
-    o.cls = mkFO((v) => ["", "ES5.", "Native"].some((n) => tof(v).startsWith(`${n}Class<`)), {
-      es6: (v) => tof(v).startsWith("Class<"),
-      es5: (v) => tof(v).startsWith("ES5.Class<"),
-      native: (v) => tof(v).startsWith("NativeClass<")
+    var isCI = (p2, b, N) => N.startsWith(`${p2}${b}<`);
+    var isCls = (p2, N) => isCI(p2, "Class", N);
+    o.cls = mkFO((v) => {
+      const N = tof(v);
+      return ["", "ES5.", "Native"].some((p2) => isCls(p2, N));
+    }, {
+      es6: (v) => isCls("", tof(v)),
+      es5: (v) => isCls("ES5.", tof(v)),
+      native: (v) => isCls("Native", tof(v))
     });
+    var isIns = (v, C, p2, N) => isCI(p2, "Instance", N) && (C ? v instanceof C : true);
     o.ins = mkFO((v, C) => {
       const N = tof(v);
-      return ["", "ES5.", "Native"].some((n) => N.startsWith(`${n}Instance<`)) && (C ? v instanceof C : true);
+      return ["", "ES5.", "Native"].some((p2) => isIns(v, C, p2, N));
     }, {
-      es6: (v, C) => tof(v).startsWith("Instance<") && (C ? v instanceof C : true),
-      es5: (v, C) => tof(v).startsWith("ES5.Instance<") && (C ? v instanceof C : true),
-      native: (v, C) => tof(v).startsWith("NativeInstance<") && (C ? v instanceof C : true)
+      es6: (v, C) => isIns(v, C, "", tof(v)),
+      es5: (v, C) => isIns(v, C, "ES5.", tof(v)),
+      native: (v, C) => isIns(v, C, "Native", tof(v))
     });
     o.des = mkFO((v) => tof(v).startsWith("Descriptor<"));
     var isDes = (N, ns) => ns.some((n) => N === `Descriptor<${n}>`);
