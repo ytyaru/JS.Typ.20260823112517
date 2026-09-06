@@ -6,35 +6,6 @@
 // up,downは通常分解能単位で増減するが、引数n次第では分解能*nで増減できる。
 // しかしそれだと誤差を許容して概算値を表示することができない。
 // そこでStepFloatは分解能の単位でない誤差まみれの浮動小数点数を許容し、値の取得roundedの時に分解能の単位で丸めた数を返却するように実装する。
-class Range {// StepFloatRange
-    #min; #max;
-    constructor(e, scale, min, max) {
-//        this.#e = e;
-//        this.#scale = 2 ** e;
-//        this.#resolution = 1 / this.#scale;
-        const MIN = Number.MIN_SAFE_INTEGER / scale; 
-        const MAX = Number.MAX_SAFE_INTEGER / scale;
-        this.#valid(min,'min');
-        this.#valid(max,'max');
-//        if ('number'!==typeof min || Number.NaN(min)) {throw new TypeError(`minはNaN以外のNumberであるべきです。`)}
-//        if ('number'!==typeof max || Number.NaN(max)) {throw new TypeError(`maxはNaN以外のNumberであるべきです。`)}
-        if (max <= min) {throw new RangeError(`min,maxは1以上の差がある小大関係であるべきです。`)}
-//        if (Number.isFinite(min) && min < MIN) {throw new Range(`minが下限値を超過しています。分解能指数eが${e}の時minの最小値は${MIN}です。これ以上の数値にしてください。下限値を指定したい時は-Infinityにしてください。`)}
-//        if (Number.isFinite(max) && MAX < max) {throw new Range(`maxが上限値を超過しています。分解能指数eが${e}の時maxの最小値は${MAX}です。これ以下の数値にしてください。上限値を指定したい時はInfinityにしてください。`)}
-        this.#range(e,min,min<MIN,'min','下',MIN);
-        this.#range(e,max,MAX<max,'max','上',MAX);
-        this.#min = (-Infinity===min ? MIN : min);
-        this.#max = ( Infinity===max ? MAX : max);
-    }
-    #valid(v,n) {if ('number'!==typeof v || Number.isNaN(v)) {throw new TypeError(`${n}はNaN以外のNumberであるべきです。`)}}
-    #range(e,v,c,n,l,M) {if (Number.isFinite(v) && c) {throw new RangeError(`${n}が${l}限値を超過しています。分解能指数eが${e}の時${n}の最${'min'===n ? '小' : '大'}値は${M}です。これ以${'min'===n ? '上' : '下'}の数値にしてください。${l}限値を指定したい時は${'min'===n ? '-' : ''}Infinityにしてください。`)}}
-    within(v) {return this.#min <= v && v <= this.#max;}
-    get min() {return this.#min}
-    get max() {return this.#max}
-//    get e() {return this.#e}
-//    get scale() {return this.#scale}
-//    get resolution() {return this.#scale}
-}
 class StepFloat {
     static Overflow = Object.freeze({
         throw: (self, isDown, nextV) => { 
@@ -45,6 +16,7 @@ class StepFloat {
         zero: (self, isDown, nextV) => self._.v = 0,
         reverse: (self, isDown, nextV) => self._.v = isDown ? self.max : self.min,
     });
+
     constructor(e, over = StepFloat.Overflow.throw, min=-Infinity, max=Infinity) {// e:分解能指数(1/2**e)
         if (!(Number.isSafeInteger(e) && (1 <= e && e <= 52))) {
             throw new RangeError(`eは1〜52までの整数値であるべきです。指定値: ${e}`);
@@ -53,57 +25,55 @@ class StepFloat {
             throw new Error(`overはStepFloat.Overflowのいずれかであるべきです。`);
         }
         const scale = 2 ** e;
-        /*
         const MIN = Number.MIN_SAFE_INTEGER / scale; 
         const MAX = Number.MAX_SAFE_INTEGER / scale;
-        if ('number'!==typeof min || Number.NaN(min)) {throw new TypeError(`minはNaN以外のNumberであるべきです。`)}
-        if ('number'!==typeof max || Number.NaN(max)) {throw new TypeError(`maxはNaN以外のNumberであるべきです。`)}
+        if ('number'!==typeof min) {throw new TypeError(`minはNumberであるべきです。`)}
+        if ('number'!==typeof max) {throw new TypeError(`maxはNumberであるべきです。`)}
         if (max <= min) {throw new RangeError(`min,maxは1以上の差がある小大関係であるべきです。`)}
-        if (Number.isFinite(min) && min < MIN) {throw new Range(`minが下限値を超過しています。分解能指数eが${e}の時minの最小値は${MIN}です。これ以上の数値にしてください。下限値を指定したい時は-Infinityにしてください。`)}
-        if (Number.isFinite(max) && MAX < max) {throw new Range(`maxが上限値を超過しています。分解能指数eが${e}の時maxの最小値は${MAX}です。これ以上の数値にしてください。上限値を指定したい時はInfinityにしてください。`)}
-        min = (-Infinity===min ? MIN : min);
-        max = ( Infinity===max ? MAX : max);
-        */
+        if (Number.isFinite(min) && min < MIN) {throw new Range(`minが下限値を超過しています。分解能指数eが${e}の時minの最小値は${MIN}です。これ以上の数値にしてください。`)}
+        if (Number.isFinite(max) && MAX < max) {throw new Range(`maxが上限値を超過しています。分解能指数eが${e}の時maxの最小値は${MAX}です。これ以上の数値にしてください。`)}
+        min = (Number.isFinite(min) ? min : MIN); // -Infitniy, NaN の場合最小値
+        max = (Number.isFinite(max) ? max : MAX); //  Infitniy, NaN の場合最大値
+//        min = (-Infinity===min ? MIN : min);
+//        max = ( Infinity===max ? MAX : max);
+//        min = (Number.isFinite(min) && min <= MIN) ? min : MIN;
+//        max = (Number.isFinite(max) && max <= MAX) ? max : MAX
         this._ = {
             e,
             scale,
             resolution: 1 / scale, 
             v: 0, 
-            rng: new Range(e, scale, min, max),
+            min, 
+            max,
             over,
-//            min, 
-//            max,
         };
     }
-    get min() { return this._.rng.min; }
-    get max() { return this._.rng.max; }
+
+    get min() { return this._.min; }
+    get max() { return this._.max; }
     get resolution() { return this._.resolution; }
     get isIgnore() { return this._.over === StepFloat.Overflow.ignore; }
     get v() { return this._.v; }
     set v(x) {
         // 1. 数値型かどうかの基本的なチェック
         if (!Number.isFinite(x)) {throw new TypeError(`代入値はNumber.isFinite(x)が真を返す値のみ有効です。`);}
-        // 2. 分解能（2のe乗の目盛り）に沿っているかどうかの厳密なチェック
-        // max以下の値なので、掛け算してもMAX_SAFE_INTEGERを超えず、誤差なく整数判定可能
-        if (!Number.isInteger(x * (this._.scale))) {throw new TypeError(`代入値 ${x} は、現在の分解能 (1 / 2**${this._.e} = ${this.resolution}) の単位に合致しません。`);}
-        /*
-        // 3. 範囲内（min〜max）かどうかのチェック
-        if (!this._.rng.within(x)) {
+        // 2. 範囲内（min〜max）かどうかのチェック
+        if (!this.within(x)) {
 //            throw new RangeError(`代入値が許容範囲を超えています。範囲: ${this.min} 〜 ${this.max}, 入力値: ${x}`);
             // this._.over(this, isDown, nextV)
              this._.over(this, (x < this._.v), x);
-             return;
         }
+        // 3. 分解能（2のe乗の目盛り）に沿っているかどうかの厳密なチェック
+        // max以下の値なので、掛け算してもMAX_SAFE_INTEGERを超えず、誤差なく整数判定可能
+        if (!Number.isInteger(x * (this._.scale))) {throw new TypeError(`代入値 ${x} は、現在の分解能 (1 / 2**${this._.e} = ${this.resolution}) の単位に合致しません。`);}
         this._.v = x;
-        */
-        this._.v = this._.rng.within(x) ? x : this._.over(this, (x < this._.v), x);
     }
-//    within(v) { return this._.min <= v && v <= this._.max; }
+    within(v) { return this._.min <= v && v <= this._.max; }
 
     #count(isDown = false, n=1) {
         if (!Number.isSafeInteger(n)) {throw new TypeError(`nは1以上の安全な整数値であるべきです。`)}
         const nextV = this._.v + (this._.resolution * (isDown ? -n : n));
-        return this._.rng.within(nextV) ? (this._.v = nextV) : this._.over(this, isDown, nextV);
+        return this.within(nextV) ? (this._.v = nextV) : this._.over(this, isDown, nextV);
     }
     up(n=1) { return this.#count(false, n); }
     down(n=1) { return this.#count(true, n); }
