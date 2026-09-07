@@ -1,5 +1,6 @@
 const getTag = v => Object.prototype.toString.call(v).slice(8, -1);
 
+const isSafeNum = v => v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v;
 const MAP = {
     und: { fn: v => v === undefined, default: undefined },
     bln: { fn: v => typeof v === "boolean", default: false },
@@ -14,7 +15,8 @@ const MAP = {
         default: 0,
         children: {
             int: { fn: v => Number.isSafeInteger(v), full: "Integer" },
-            fin: { fn: v => Number.isFinite(v) && !Number.isSafeInteger(v), full: "Finite" },
+            //fin: { fn: v => Number.isFinite(v) && !Number.isSafeInteger(v), full: "Finite" },
+            fin: { fn: v => Number.isFinite(v) && isSafeNum(v), full: "Finite" },
             nan: { fn: v => Number.isNaN(v), full: "NaN", default: NaN },
             inf: {
                 fn: v => !Number.isFinite(v) && !Number.isNaN(v),
@@ -25,7 +27,8 @@ const MAP = {
                     n: { fn: v => -Infinity === v, full: "Negative", default: -Infinity }
                 }
             },
-            over: { fn: v => typeof v === "number" && !Number.isSafeInteger(v) && Number.isFinite(v), full: "Overflow", default: Number.MAX_SAFE_INTEGER + 1 }
+            over: { fn: v => Number.isFinite(v) && !isSafeNum(v), full: "Overflow", default: Number.MAX_SAFE_INTEGER + 1 }
+            //over: { fn: v => typeof v === "number" && !Number.isSafeInteger(v) && Number.isFinite(v), full: "Overflow", default: Number.MAX_SAFE_INTEGER + 1 }
         }
     }
 };
