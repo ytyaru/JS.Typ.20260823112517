@@ -1,4 +1,10 @@
+import {tis} from './tis.js';
 export const tof = v => {
+    const is = tis(v);
+    const tag = Object.prototype.toString.call(v).slice(8, -1);
+    return is.nul || is.und || Array.isArray(v) ? tag : is.num ? isNum(v) : is.fn ? FnTys.name(v) : is.obj ? ObjTys.name(v, tag) : tag;
+//    return is.nul ? 'Null' : is.und ? 'Undefined' : is.num ? isNum(v) : Array.isArray(v) ? 'Array' : is.fn ? FnTys.name(v) : is.obj ? ObjTys.name(v, tag) : tag;
+    /*
     if (null===v) return 'Null';
     if (undefined===v) return 'Undefined';
     if (Array.isArray(v)) return 'Array';
@@ -8,11 +14,13 @@ export const tof = v => {
     const name = Object.prototype.toString.call(v).slice(8, -1);
     //return 'object'===to ? this._obj(v, name) : 'Number'===name ? this._num(v, name) : name;
     return 'object'===to ? ObjTys.name(v, name) : 'Number'===name ? isNum(v, name) : name;
+    */
 }
 //const getTag = v => Object.prototype.toString.call(v).slice(8, -1);
 const getCode = v => Function.prototype.toString.call(v).replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '').trim();
 // "number"でなく以下のようにする。
-const isNum = (v, name) => Number.isNaN(v) ? 'NaN' : Infinity===v ? 'Infinity' : -Infinity===v ? '-Infinity' : Number.isSafeInteger(v) ? 'Integer' : Number.isFinite(v) ? 'Finite' : name;
+//const isNum = (v, name) => Number.isNaN(v) ? 'NaN' : Infinity===v ? 'Infinity' : -Infinity===v ? '-Infinity' : Number.isSafeInteger(v) ? 'Integer' : Number.isFinite(v) ? 'Finite' : name;
+const isNum = v => Number.isNaN(v) ? 'NaN' : Infinity===v ? 'Infinity' : -Infinity===v ? '-Infinity' : Number.isSafeInteger(v) ? 'Integer' : Number.isFinite(v) ? 'Finite' : null;
 class ObjTys {
     static name(v, name) {
         const proto = Object.getPrototypeOf(v);
@@ -31,14 +39,16 @@ class ObjTys {
         if (isEs6Ins || isEs5Ins) return `${isEs5Ins ? 'ES5.' : ''}Instance<${ctor.name || '(Anonymous)'}>`
         return 'PrototypedObject';
     }
-    static #isEs6Ins(proto, ctor) {return (typeof ctor !== 'function') ? false : FnTys._isEs6Cls(ctor, getCode(ctor))}
+    static #isEs6Ins(proto, ctor) {return !tis.fn(ctor) ? false : FnTys._isEs6Cls(ctor, getCode(ctor))}
+//    static #isEs6Ins(proto, ctor) {return (typeof ctor !== 'function') ? false : FnTys._isEs6Cls(ctor, getCode(ctor))}
 //    static #isEs6Ins(proto, ctor) {
 //        if (typeof ctor !== 'function') return false;
 //        return FnTys._isEs6Cls(ctor);
 //    }
     static #isEs5Ins(proto, ctor) {
         //return typeof ctor !== 'function' || (ctor === Object || ctor === Function) || (FnTys._isEs6Cls(ctor) || FnTys._isNative(ctor, Function.prototype.toString.call(ctor))) ? false : (FnTys._isEs5Cls(ctor) || (proto !== Object.prototype && proto !== Function.prototype));
-        return typeof ctor !== 'function' || (ctor === Object || ctor === Function) || (FnTys._isEs6Cls(ctor) || FnTys._isNative(ctor, getCode(ctor))) ? false : (FnTys._isEs5Cls(ctor) || (proto !== Object.prototype && proto !== Function.prototype));
+        //return typeof ctor !== 'function' || (ctor === Object || ctor === Function) || (FnTys._isEs6Cls(ctor) || FnTys._isNative(ctor, getCode(ctor))) ? false : (FnTys._isEs5Cls(ctor) || (proto !== Object.prototype && proto !== Function.prototype));
+        return !tis.fn(ctor) || (ctor === Object || ctor === Function) || (FnTys._isEs6Cls(ctor) || FnTys._isNative(ctor, getCode(ctor))) ? false : (FnTys._isEs5Cls(ctor) || (proto !== Object.prototype && proto !== Function.prototype));
     }
 }
 class DesTys {
@@ -63,15 +73,18 @@ class DesTys {
         // データ記述子とアクセサ記述子の混在不可ルール
             ((hasValue || hasWritable) && (hasGet || hasSet))
         // 型チェック
-        || (hasGet && typeof v.get !== 'function' && v.get !== undefined)
-        || (hasSet && typeof v.set !== 'function' && v.set !== undefined)
+        || (hasGet && !tis.fn(v.get) && v.get !== undefined)
+        || (hasSet && !tis.fn(v.set) && v.set !== undefined)
+//        || (hasGet && typeof v.get !== 'function' && v.get !== undefined)
+//        || (hasSet && typeof v.set !== 'function' && v.set !== undefined)
         // いずれのキーも無ければディスクリプタではない
         || (!hasValue && !hasWritable && !hasGet && !hasSet)
         ) ? '' : `Descriptor<${this.#naming(v, hasValue, hasGet, hasSet)}>`;
         //) ? false : this._naming(v, hasValue, hasGet, hasSet);
     }
     static #naming(v, hasValue, hasGet, hasSet) {
-        return (hasGet || hasSet) ? ((hasGet && hasSet) ? 'Accessor' : (hasGet ? 'Getter' : 'Setter')) : ((hasValue && typeof v.value === 'function') ? 'Method' : 'Value');
+        return (hasGet || hasSet) ? ((hasGet && hasSet) ? 'Accessor' : (hasGet ? 'Getter' : 'Setter')) : ((hasValue && tis.fn(v.value)) ? 'Method' : 'Value');
+//        return (hasGet || hasSet) ? ((hasGet && hasSet) ? 'Accessor' : (hasGet ? 'Getter' : 'Setter')) : ((hasValue && typeof v.value === 'function') ? 'Method' : 'Value');
     }
     /*
     static _naming(v, hasValue, hasGet, hasSet) {
@@ -123,7 +136,8 @@ class FnTys {// クラスと関数を分け、関数を更に細分化する
         if (this._isEs6Cls(v,s) || this._isNative(v,s) || this.#isArrow(v,s)) return false;
         
         const proto = v.prototype;
-        if (!proto || typeof proto !== 'object') return false;
+        //if (!proto || typeof proto !== 'object') return false;
+        if (!proto || !tis.obj(proto)) return false;
         
         const isCtorSelf = proto.constructor === v;
         if (!isCtorSelf) return false;
@@ -143,7 +157,8 @@ class FnTys {// クラスと関数を分け、関数を更に細分化する
     static _isNative(v,s) {return s.includes('[native code]');}
     static #isNativeClass(v) {
         // 組込コンストラクタ（Map, Array, Dateなど）は prototype を持ち、それがオブジェクトである
-        return v.prototype !== undefined && typeof v.prototype === 'object';
+        //return v.prototype !== undefined && typeof v.prototype === 'object';
+        return v.prototype !== undefined && tis.obj(v.prototype);
     }
     static #isBound(v,s) {return v.name.startsWith('bound ');}
     static #isArrow(v,s) {

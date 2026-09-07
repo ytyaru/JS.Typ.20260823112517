@@ -1,15 +1,22 @@
+import {tis} from './tis.js';
 import {tof} from './tof.js';
 import {mkFO} from './fn-obj.js';
 const isFn = N => N.endsWith('Function') || `Bound Native`.split(' ').some(n => N.startsWith(n + 'Function<'));
 const p = mkFO(
     v => 'bln int fin big str sym'.split(' ').some(n => p[n](v)),
     {
-        bln: v => 'boolean' === typeof v,
-        int: v => Number.isSafeInteger(v),
-        fin: v => Number.isFinite(v) && v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v,
-        big: v => 'bigint' === typeof v,
-        str: v => 'string' === typeof v,
-        sym: v => 'symbol' === typeof v,
+        bln: v => tis.bln(v),
+        int: v => tis.num.int(v),
+        fin: v => tis.num.fin(v),
+        big: v => tis.big(v),
+        str: v => tis.str(v),
+        sym: v => tis.sym(v),
+//        bln: v => 'boolean' === typeof v,
+//        int: v => Number.isSafeInteger(v),
+//        fin: v => Number.isFinite(v) && v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v,
+//        big: v => 'bigint' === typeof v,
+//        str: v => 'string' === typeof v,
+//        sym: v => 'symbol' === typeof v,
     }
 );
 const d = mkFO(
