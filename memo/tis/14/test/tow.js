@@ -86,8 +86,10 @@ describe("tow exhaustive test suite", () => {
         assertThrowsTypeError(() => tow.num.int(Number.MAX_SAFE_INTEGER + 1), "num.int", Number.MAX_SAFE_INTEGER + 1);
         assertThrowsTypeError(() => tow.num.int(Number.MIN_SAFE_INTEGER - 1), "num.int", Number.MIN_SAFE_INTEGER - 1);
 
-        assertThrowsTypeError(() => tow.num.fin(NaN), "num.fin", NaN);
-        assertThrowsTypeError(() => tow.num.fin(Infinity), "num.fin", Infinity);
+        //assertThrowsTypeError(() => tow.num.fin(NaN), "num.fin", NaN);
+//        assertThrowsTypeError(() => tow.num.fin(Infinity), "num.fin", Infinity);
+        assertThrowsTypeError(() => tow.num.bin(NaN), "num.bin", NaN);
+        assertThrowsTypeError(() => tow.num.bin.flt(NaN), "num.bin.flt", NaN);
 
         assertThrowsTypeError(() => tow.num.nan(100), "num.nan", 100);
         assertThrowsTypeError(() => tow.num.nan(Infinity), "num.nan", Infinity);
@@ -103,8 +105,11 @@ describe("tow exhaustive test suite", () => {
         assertThrowsTypeError(() => tow.num.inf.n(100), "num.inf.n", 100);
         assertThrowsTypeError(() => tow.num.inf.n(NaN), "num.inf.n", NaN);
 
-        assertThrowsTypeError(() => tow.num.over(100), "num.over", 100);
-        assertThrowsTypeError(() => tow.num.over(Infinity), "num.over", Infinity);
-        assertThrowsTypeError(() => tow.num.over(NaN), "num.over", NaN);
+        assertThrowsTypeError(() => tow.num.bin.over(100), "num.bin.over", 100);
+        assertThrowsTypeError(() => tow.num.bin.over(Infinity), "num.bin.over", Infinity);
+        assertThrowsTypeError(() => tow.num.bin.over(NaN), "num.bin.over", NaN);
+//        assertThrowsTypeError(() => tow.num.over(100), "num.over", 100);
+//        assertThrowsTypeError(() => tow.num.over(Infinity), "num.over", Infinity);
+//        assertThrowsTypeError(() => tow.num.over(NaN), "num.over", NaN);
     });
 });

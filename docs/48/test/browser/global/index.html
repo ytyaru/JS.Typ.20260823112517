@@ -1,0 +1,48 @@
+<script src="../../../dist/browser/global/bundle.min.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', async()=>{
+console.log('簡易テスト。assert errorが出て無ければ合格！');
+// Primitive系
+console.assert(true===isT.p(0));
+console.assert(true===isT.p.bln(false));
+console.assert(true===isT.p.fin(0.1));
+console.assert(true===isT.p.int(0));
+console.assert(true===isT.p.str('a'));
+console.assert(true===isT.p.sym(Symbol()));
+// denger系（型判定が困難。同一型として扱うべきでない型破綻した危険な値）
+console.assert(true===isT.d(new Boolean()));
+console.assert(true===isT.d.nul(null));
+console.assert(true===isT.d.und(undefined));
+console.assert(true===isT.d.num(NaN));
+console.assert(true===isT.d.num.nan(NaN));
+console.assert(true===isT.d.num.inf(Infinity));
+console.assert(true===isT.d.num.pinf(Infinity));
+console.assert(true===isT.d.num.ninf(-Infinity));
+console.assert(true===isT.d.num.oint(Number.MAX_SAFE_INTEGER+1));
+console.assert(true===isT.d.num.ofin(Number.MAX_SAFE_INTEGER+1.1));
+console.assert(true===isT.d.obj(new Number()));
+console.assert(true===isT.d.obj.boxed(new String()));
+console.assert(true===isT.d.obj.hasNotProto(Object.create(null)));
+console.assert(true===isT.d.obj.prototyped(Object.create({})));
+// Object系
+console.assert(true===isT.o.ary([]));
+console.assert(true===isT.o.obj({}));
+console.assert(true===isT.o.cls(class{}));
+console.assert(true===isT.o.ins(new (class{})));
+console.assert(true===isT.o.fn(function(){}));
+console.assert(true===isT.o.md((class{static sm(){}}).sm));
+// 型破綻値（isTで対処不能）
+console.log('document.all:', tof(document.all));
+console.log('document.allはundefinedを返す。なのにundefined===document.allは偽を返す:', document.all, undefined===document.all, undefined==document.all);
+//console.log('window.event:', tof(window.event));
+//console.log('window.event===undefined:', undefined===window.event, window.event);
+console.log('document.allは、isT o,d,p どの型にも当てはまらない異常値である。その理由は整合性の取れた型状態ではないから。オブジェクトでありながらundefinedを返却する。そんな異常状態だから。これは型判定システムにおいて、どの型であるかを定義できない。故にすべてのAPIがfalseを返却する。');
+console.assert(false===isT.o(document.all));
+console.assert(false===isT.d(document.all));
+console.assert(false===isT.p(document.all));
+
+//console.assert(true===isT.o.ary([]));
+
+});
+</script>
+

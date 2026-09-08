@@ -15,8 +15,6 @@ const MAP = {
         default: 0,
         children: {
             int: { fn: v => Number.isSafeInteger(v), full: "Integer" },
-            //fin: { fn: v => Number.isFinite(v) && !Number.isSafeInteger(v), full: "Finite" },
-            fin: { fn: v => Number.isFinite(v) && isSafeNum(v), full: "Finite" },
             nan: { fn: v => Number.isNaN(v), full: "NaN", default: NaN },
             inf: {
                 fn: v => !Number.isFinite(v) && !Number.isNaN(v),
@@ -27,8 +25,17 @@ const MAP = {
                     n: { fn: v => -Infinity === v, full: "Negative", default: -Infinity }
                 }
             },
-            over: { fn: v => Number.isFinite(v) && !isSafeNum(v), full: "Overflow", default: Number.MAX_SAFE_INTEGER + 1 }
-            //over: { fn: v => typeof v === "number" && !Number.isSafeInteger(v) && Number.isFinite(v), full: "Overflow", default: Number.MAX_SAFE_INTEGER + 1 }
+            bin: {
+                fn: v => Number.isFinite(v) && !Number.isSafeInteger(v),
+                full: "Binary",
+                default: 0.5,
+                children: {
+                    flt: { fn: v => Number.isFinite(v) && isSafeNum(v), full: "Float", default: 0 },
+                    over: { fn: v => Number.isFinite(v) && !isSafeNum(v), full: "Over", default: Number.MAX_SAFE_INTEGER + 1 }
+                }
+            },
+//            over: { fn: v => Number.isFinite(v) && !isSafeNum(v), full: "Overflow", default: Number.MAX_SAFE_INTEGER + 1 }
+//            fin: { fn: v => Number.isFinite(v) && isSafeNum(v), full: "Finite" },
         }
     }
 };

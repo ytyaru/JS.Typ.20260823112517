@@ -19,10 +19,15 @@ describe("tof", () => {
             [tis.und,'und','Undefined'],[tis.nul,'nul','Null'],[tis.bln,'bln','Boolean'],
             [tis.big,'big','BigInt'],[tis.str,'str','String'],[tis.sym,'sym','Symbol'],
             [tis.fn,'fn','Function'],[tis.obj,'obj','Object'],[tis.num,'num','Number'],
-            [tis.num.int,'num.int','Number.Integer'],[tis.num.fin,'num.fin','Number.Finite'],
+            [tis.num.int,'num.int','Number.Integer'],
+//            [tis.num.fin,'num.fin','Number.Finite'],
             [tis.num.nan,'num.nan','Number.NaN'],[tis.num.inf,'num.inf','Number.Infinity'],
             [tis.num.inf.p,'num.inf.p','Number.Infinity.Positive'],[tis.num.inf.n,'num.inf.n','Number.Infinity.Negative'],
-            [tis.num.over,'num.over','Number.Overflow']])('', (node, abbr, full)=>{
+            //[tis.num.over,'num.over','Number.Overflow']
+            [tis.num.bin,'num.bin','Number.Binary'],
+            [tis.num.bin.flt,'num.bin.flt','Number.Binary.Float'],
+            [tis.num.bin.over,'num.bin.over','Number.Binary.Over'],
+            ])('', (node, abbr, full)=>{
             const o = tof(node);
             expect(isTypeTreeNode(node)).toBe(true);
             expect(o.abbr).toBe(abbr);
