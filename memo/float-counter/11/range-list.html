@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>StepFloat 分解能指数ごとの範囲一覧表</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            color: #333;
+        }
+        h2 {
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 6px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 15px;
+            font-family: monospace; /* 数値の桁を揃えるため */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: right;
+        }
+        th:nth-child(1), td:nth-child(1),
+        th:nth-child(2), td:nth-child(2),
+        th:nth-child(3), td:nth-child(3) {
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>StepFloat 分解能指数ごとの範囲一覧表</h2>
+    
+    <table id="range-table">
+        <thead>
+            <tr>
+                <th>e</th>
+                <th>flact</th>
+                <th>ratio</th>
+                <th>min</th>
+                <th>max</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- JavaScriptで動的生成 -->
+        </tbody>
+    </table>
+
+    <script type="module">
+        import { StepFloat } from './float.js';
+
+        const tbody = document.querySelector('#range-table tbody');
+
+        // e = 1 から 52 までを自動生成
+        for (let e = 1; e <= 52; e++) {
+            const scale = 2 ** e;
+            const resolution = 1 / scale;
+            
+            // StepFloat の内部ロジックと同様の安全な限界値計算
+            const min = Number.MIN_SAFE_INTEGER / scale;
+            const max = Number.MAX_SAFE_INTEGER / scale;
+
+            const tr = document.createElement('tr');
+            
+            tr.innerHTML = `
+                <td>${e}</td>
+                <td>1/${scale}</td>
+                <td>${resolution}</td>
+                <td>${min.toLocaleString()}</td>
+                <td>${max.toLocaleString()}</td>
+            `;
+            
+            tbody.appendChild(tr);
+        }
+    </script>
+
+</body>
+</html>
