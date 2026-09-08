@@ -92,7 +92,7 @@ class SafeFloat {
 }
 class StepFloat extends SafeFloat {
     constructor(e, over = SafeFloat.Overflow.throw, v = undefined, min = -Infinity, max = Infinity) {
-        super(true, e, over, min, max);
+        super(true, e, over, v, min, max);
     }
 }
 class RoundFloat extends SafeFloat {
@@ -112,7 +112,7 @@ class RoundFloat extends SafeFloat {
         }
     });
     constructor(e, method = RoundFloat.Method.round, over = SafeFloat.Overflow.throw, v = undefined, min = -Infinity, max = Infinity) {
-        super(false, e, over, min, max);
+        super(false, e, over, v, min, max);
         if (!Object.values(RoundFloat.Method).includes(method)) {
             throw new Error(`methodはRoundFloat.Methodのいずれかであるべきです。`);
         }
