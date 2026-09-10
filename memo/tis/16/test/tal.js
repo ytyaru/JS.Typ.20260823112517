@@ -3,21 +3,40 @@ import { tal,tet } from "../src/tal.js";
 import { tis } from "../src/tis.js";
 import { tow } from "../src/tow.js";
 import { baseTypeCases, numSubCases } from "./test-data.js";
+import { assertThrow } from "./test-helper.js";
 describe('tet', () => {
     test.each([['is'],['ow']])('has API(%p)',(n)=>{
         expect(tet).toHaveProperty(n);
         expect('function'===typeof tet[n]).toBe(true);
     });
-    test('bin', ()=>expect(tet.is('bln')).toBe(tis.bln));
-    test('num.inf.p', ()=>expect(tet.is('num.inf.p')).toBe(tis.num.inf.p));
+    describe('is', () => {
+        test('bin', ()=>expect(tet.is('bln')).toBe(tis.bln));
+        test('num.inf.p', ()=>expect(tet.is('num.inf.p')).toBe(tis.num.inf.p));
+    });
+    describe('ow', () => {
+        test('bin', ()=>expect(tet.ow('bln')).toBe(tow.bln));
+        test('num.inf.p', ()=>expect(tet.ow('num.inf.p')).toBe(tow.num.inf.p));
+    });
 });
 describe('tal', () => {
     test.each([['is'],['ow']])('has API(%p)',(n)=>{
         expect(tal).toHaveProperty(n);
         expect('function'===typeof tal[n]).toBe(true);
     });
-    test('bin', ()=>expect(tet.ow('bln')).toBe(tow.bln));
-    test('num.inf.p', ()=>expect(tet.ow('num.inf.p')).toBe(tow.num.inf.p));
+    describe('is', () => {
+        test('bin', ()=>expect(tal.is('bln'), 0).toBe(tis.bln(0)));
+        test('bin', ()=>expect(tal.is('bln', false)).toBe(tis.bln(false)));
+        test('num.inf.p', ()=>expect(tal.is('num.inf.p', 0)).toBe(tis.num.inf.p(0)));
+        test('num.inf.p', ()=>expect(tal.is('num.inf.p', Infinity)).toBe(tis.num.inf.p(Infinity)));
+    });
+    describe('ow', () => {
+        test('bin', ()=>expect(tal.ow('bln',false)).toBe(tow.bln(false)));
+//        test('bin', ()=>expect(()=>tal.ow('bln',0)).toBeThrow(TypeError));//tow.bln(false))
+        assertThrow(()=>tal.ow('bln',0), 'bln', 0);
+        test('num.inf.p', ()=>expect(tal.ow('num.inf.p',Infinity)).toBe(tow.num.inf.p(Infinity)));
+//        test('num.inf.p', ()=>expect(()=>tal.ow('num.inf.p',0)).toBeThrow(TypeError));
+        assertThrow(()=>tal.ow('num.inf.p',0), 'num.inf.p', 0);
+    });
 });
 /*
 describe("tet exhaustive test suite", () => {
