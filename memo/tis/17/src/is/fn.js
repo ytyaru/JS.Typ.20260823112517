@@ -39,6 +39,21 @@ class Cls {
     }
 }
 class Fn {// クラスと関数を分け、関数を更に細分化する
+    static N = Object.freeze({
+        a: 'Arrow',
+        A: 'Anonymouse',
+//        a: 'Async',
+//        g: 'Generator',
+//        s: 'Sync',
+        b: 'Bound',
+        c: 'Class',
+        i: 'Instance',
+        n: 'Native',
+        f: 'Function',
+        m: 'Method',
+        es5: 'ES5',
+        es6: 'ES6',
+    });
     static getCode(v){
         return Function.prototype.toString.call(v)
             .replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '').trim() // コメント削除

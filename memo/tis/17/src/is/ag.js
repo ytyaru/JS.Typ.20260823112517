@@ -1,7 +1,10 @@
+const a = 'Async';
+const g = 'Generator';
 export class Ag {
     static N = Object.freeze({
-        a: 'Async',
-        g: 'Generator',
+        a,
+        g,
+        ag: a + g,
         s: 'Sync',
         f: 'Function',
         m: 'Method',
