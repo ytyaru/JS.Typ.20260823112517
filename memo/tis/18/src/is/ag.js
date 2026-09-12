@@ -30,5 +30,6 @@ export class Ag {
         const g = /(?:function\s*\*|\*\s*[a-zA-Z_$])/.test(s);
         return this.#flg(a,g);
     }
-    static #flg(a,g) { return {a, g, s:!a && !g, ag:a && g} }
+    //static #flg(a,g) { return {a, g, s:!a && !g, ag:a && g} }
+    static #flg(a,g) { return {a:a && !(a && g), g:g && !(a && g), s:!a && !g, ag:a && g} }
 }
