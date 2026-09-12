@@ -39,20 +39,18 @@ export class Obj {
         const is = null!==v && 'object'===typeof v;
         if (!is) return {is}
         const proto = Object.getPrototypeOf(v);
-        const boxed = this.#boxed(v);
+        const boxed = this.#boxed(is,v);
+        const plain = is && Object.prototype===proto;
         return {
             is: 'object'===typeof v,
             nul: null===v,
-            plain: Object.prototype===proto,
-            none: null===proto,
-            proto: ,
-            boxed: this.#boxed(v),
-            des: Des.getFlag(v),
-            ins: Ins.getFlag(v),
+            plain: is && Object.prototype===proto,
+            none: is && null===proto,
+            proto: is && ,
+            boxed: this.#boxed(is,v),
+            des: Des.getFlag(is,v),
+            ins: Ins.getFlag(is,v),
         };
-    }
-    static #get(v) { return 
-
     }
     static getFlag(v) {
         const proto = Object.getPrototypeOf(v);
@@ -97,16 +95,16 @@ class Des {
         g, s, gs:g+s,
     });
 
-    static getFlag(v) {
+    static getFlag(is,v) {
 //    static is(v) {
 //        if (v === null || typeof v !== 'object') return false;
 
         const keys = Object.getOwnPropertyNames(v);
-        if (keys.length === 0) return false;
+//        if (keys.length === 0) return false;
 
         // 許可される全キー
         const allowedKeys = ['value', 'writable', 'get', 'set', 'configurable', 'enumerable'];
-        if (!keys.every(key => allowedKeys.includes(key))) return false;
+//        if (!keys.every(key => allowedKeys.includes(key))) return false;
 
         // 存在チェック。getter/setterは片方だけ作成されると、作成されなかったほうが勝手に作成され値がundefinedになる仕様に対応した。但しvalueはundefinedという値が代入されうるため存在確認として使わない。
         const hasValue = keys.includes('value');
@@ -114,10 +112,11 @@ class Des {
         const hasGet = keys.includes('get') && v.get !== undefined;
         const hasSet = keys.includes('set') && v.set !== undefined;
 
-        return this.#get(((hasValue || hasWritable) && (hasGet || hasSet))
-            || (hasGet && !tis.fn(v.get) && v.get !== undefined)
-            || (hasSet && !tis.fn(v.set) && v.set !== undefined)
-            || (!hasValue && !hasWritable && !hasGet && !hasSet)
+        const i = (!is || (keys.length === 0) || (!keys.every(key => allowedKeys.includes(key)))) ? false : true; 
+        return this.#get((i && ((hasValue || hasWritable) && (hasGet || hasSet)))
+            || (i && (hasGet && !tis.fn(v.get) && v.get !== undefined))
+            || (i && (hasSet && !tis.fn(v.set) && v.set !== undefined))
+            || (i && (!hasValue && !hasWritable && !hasGet && !hasSet))
             );
         /*
         return (
