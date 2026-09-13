@@ -18,7 +18,7 @@ export class Ag {
     }
     
     static getFlag(v, s) {
-        const n = v.constructor?.name;
+        const n = v?.constructor?.name;
         return Ag.N.a + Ag.N.g + Ag.N.f === n ? this.#flg(true, true)
             : Ag.N.g + Ag.N.f === n ? this.#flg(false, true)
             : Ag.N.a + Ag.N.f === n ? this.#flg(true, false)
