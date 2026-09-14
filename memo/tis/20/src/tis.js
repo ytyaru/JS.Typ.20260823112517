@@ -1,5 +1,7 @@
+import {Ag} from './is/ag.js';
+import {Fn} from './is/fn.js';
+import {Obj,Des,Ins} from './is/obj.js';
 const getTag = v => Object.prototype.toString.call(v).slice(8, -1);
-
 const isSafeNum = v => v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v;
 //const Ps = 'boolean number string bigint symbol'.split(' ');
 //const Os = 'object function'.split(' ');
@@ -34,8 +36,8 @@ const MAP = {
                     //anonymous: {fn:v=>Fn.getFlag(v).fn.s.a, full:Fn.N.A},
                     s: {fn:v=>Fn.getFlag(v).fn.s.n, full:Ag.N.s,
                         children: {
-                            n: {fn:v=>Fn.getFlag(v).fn.s.n, full:Fn.N.f}
-                            a: {fn:v=>Fn.getFlag(v).fn.s.a, full:Ag.N.A}
+                            n: {fn:v=>Fn.getFlag(v).fn.s.n, full:Fn.N.f},
+                            a: {fn:v=>Fn.getFlag(v).fn.s.a, full:Ag.N.A},
                         }
                     },
                     a: {fn:v=>Fn.getFlag(v).fn.a, full:Ag.N.a},
@@ -96,24 +98,26 @@ const MAP = {
                 over: { fn:v => Number.isFinite(v) && !isSafeNum(v), full: "Over", default: Number.MAX_SAFE_INTEGER + 1 }
             }
         },
-        o: {
+        obj: {
             fn: v => 'object'===typeof v,
             full:'Object',
             children: {
                 none: {fn:v=>Obj.getFlag(v).none, full:'NonePrototype'},
                 proto: {fn:v=>Obj.getFlag(v).proto, full:'Prototyped'},
-                boxed: {fn:v=>Obj.getFlag(v).boxed.is, full:'BoxedPrimitive'},
+                boxed: {fn:v=>Obj.getFlag(v).boxed.is, full:'BoxedPrimitive', 
+                    children: {
+                        bln: {fn:v=>Obj.getFlag(v).boxed.bln, full:'Boolean'},
+                        num: {fn:v=>Obj.getFlag(v).boxed.num, full:'Number'},
+                        str: {fn:v=>Obj.getFlag(v).boxed.str, full:'String'},
+                    },
+                },
             }
-        }
-        obj: {
-            fn: v => 'object'===typeof v,
-
         }
     },
     g: {
         fn: v => 'number'===typeof v, default: 0, full: 'Group',
         children: {
-            nun: {fn:v=>Number.isNaN(v) || [null,undefined].some(x=>x===v), full:'NullUndefinedNaN'}
+            nun: {fn:v=>Number.isNaN(v) || [null,undefined].some(x=>x===v), full:'NullUndefinedNaN'},
             p: {
                 fn: v=> {
                     const t = typeof v;
@@ -121,8 +125,8 @@ const MAP = {
                         || 'boolean number string bigint symbol'.split(' ').some(n=>n===t);
                 },
                 full: 'Primitive',
-                default: 0,
-            }
+                default: null,
+            },
             o: {
                 fn: v=> {
                     const t = typeof v;

@@ -53,10 +53,10 @@ class Fn {// クラスと関数を分け、関数を更に細分化する
         es6: 'ES6',
     });
     static getCode(v){
-        return Function.prototype.toString.call(v)
+        return 'function'===typeof v ? Function.prototype.toString.call(v)
             .replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '').trim() // コメント削除
             .replace(/(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g, '""') // 文字列リテラル（'' , "" , ``）を空文字に置換
-            .replace(/\/([^\/\n\\]|\\.)+\/[gimsuy]*/g, '//'); // 正規表現リテラルを除外
+            .replace(/\/([^\/\n\\]|\\.)+\/[gimsuy]*/g, '//') : ''; // 正規表現リテラルを除外
     }
     static getFlag(v) {
         const is = 'function'===typeof v;
