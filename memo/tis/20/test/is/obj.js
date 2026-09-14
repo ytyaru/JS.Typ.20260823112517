@@ -148,26 +148,102 @@ describe('Obj', () => {
             });
         });
         describe('boxed', () => {
-            describe('true', () => {
-                test.each([new Number()].map(x=>[x]))('%p', v=>{
-                    expect(Obj.getFlag(v).boxed.is).toBe(true);
+            describe('is', () => {
+                describe('true', () => {
+                    test.each([new Number(), new Boolean(), new String()].map(x=>[x]))('%p', v=>{
+                        expect(Obj.getFlag(v).boxed.is).toBe(true);
+                    });
+                });
+                describe('false', () => {
+                    test.each([null,[],{},c,es5Cls,Object.create({}),new Date(),Object.create(null),undefined,NaN,0,0n,false,'',Symbol(),C,bound,native,arrow.s,arrow.a,es5.s.n,es5.s.a,es5.a,es5.g,es5.ag].map(x=>[x]))('%p', v=>{
+                        expect(Obj.getFlag(v).boxed.is).toBe(false);
+                    });
                 });
             });
-            describe('false', () => {
-                test.each([null,[],{},c,es5Cls,Object.create({}),new Date(),Object.create(null),undefined,NaN,0,0n,false,'',Symbol(),C,bound,native,arrow.s,arrow.a,es5.s.n,es5.s.a,es5.a,es5.g,es5.ag].map(x=>[x]))('%p', v=>{
-                    expect(Obj.getFlag(v).boxed.is).toBe(false);
+            describe('bln', () => {
+                describe('true', () => {
+                    test.each([new Boolean()].map(x=>[x]))('%p', v=>{
+                        expect(Obj.getFlag(v).boxed.bln).toBe(true);
+                    });
+                });
+                describe('false', () => {
+                    test.each([new Number(),new String(),null,[],{},c,es5Cls,Object.create({}),new Date(),Object.create(null),undefined,NaN,0,0n,false,'',Symbol(),C,bound,native,arrow.s,arrow.a,es5.s.n,es5.s.a,es5.a,es5.g,es5.ag].map(x=>[x]))('%p', v=>{
+                        expect(Obj.getFlag(v).boxed.bln).toBe(false);
+                    });
+                });
+            });
+            describe('num', () => {
+                describe('true', () => {
+                    test.each([new Number()].map(x=>[x]))('%p', v=>{
+                        expect(Obj.getFlag(v).boxed.num).toBe(true);
+                    });
+                });
+                describe('false', () => {
+                    test.each([new Boolean(), new String(), null,[],{},c,es5Cls,Object.create({}),new Date(),Object.create(null),undefined,NaN,0,0n,false,'',Symbol(),C,bound,native,arrow.s,arrow.a,es5.s.n,es5.s.a,es5.a,es5.g,es5.ag].map(x=>[x]))('%p', v=>{
+                        expect(Obj.getFlag(v).boxed.num).toBe(false);
+                    });
+                });
+            });
+            describe('str', () => {
+                describe('true', () => {
+                    test.each([new String()].map(x=>[x]))('%p', v=>{
+                        expect(Obj.getFlag(v).boxed.str).toBe(true);
+                    });
+                });
+                describe('false', () => {
+                    test.each([new Boolean(), new Number(), null,[],{},c,es5Cls,Object.create({}),new Date(),Object.create(null),undefined,NaN,0,0n,false,'',Symbol(),C,bound,native,arrow.s,arrow.a,es5.s.n,es5.s.a,es5.a,es5.g,es5.ag].map(x=>[x]))('%p', v=>{
+                        expect(Obj.getFlag(v).boxed.str).toBe(false);
+                    });
                 });
             });
         });
         describe('ins', () => {
-            describe('true', () => {
-                test.each([c,es5Cls,new Date()].map(x=>[x]))('%p', v=>{
-                    expect(Obj.getFlag(v).ins.is).toBe(true);
+            describe('is', () => {
+                describe('true', () => {
+                    test.each([c,es5Cls,new Date()].map(x=>[x]))('%p', v=>{
+                        expect(Obj.getFlag(v).ins.is).toBe(true);
+                    });
+                });
+                describe('false', () => {
+                    test.each([null,[],{},new Number(),Object.create({}),Object.create(null),undefined,NaN,0,0n,false,'',Symbol(),C,bound,native,arrow.s,arrow.a,es5.s.n,es5.s.a,es5.a,es5.g,es5.ag].map(x=>[x]))('%p', v=>{
+                        expect(Obj.getFlag(v).ins.is).toBe(false);
+                    });
                 });
             });
-            describe('false', () => {
-                test.each([null,[],{},new Number(),Object.create({}),Object.create(null),undefined,NaN,0,0n,false,'',Symbol(),C,bound,native,arrow.s,arrow.a,es5.s.n,es5.s.a,es5.a,es5.g,es5.ag].map(x=>[x]))('%p', v=>{
-                    expect(Obj.getFlag(v).ins.is).toBe(false);
+            describe('es6', () => {
+                describe('true', () => {
+                    test.each([c].map(x=>[x]))('%p', v=>{
+                        expect(Obj.getFlag(v).ins.es6).toBe(true);
+                    });
+                });
+                describe('false', () => {
+                    test.each([es5Cls,new Date(),null,[],{},new Number(),Object.create({}),Object.create(null),undefined,NaN,0,0n,false,'',Symbol(),C,bound,native,arrow.s,arrow.a,es5.s.n,es5.s.a,es5.a,es5.g,es5.ag].map(x=>[x]))('%p', v=>{
+                        expect(Obj.getFlag(v).ins.es6).toBe(false);
+                    });
+                });
+            });
+            describe('es5', () => {
+                describe('true', () => {
+                    test.each([es5Cls].map(x=>[x]))('%p', v=>{
+                        expect(Obj.getFlag(v).ins.es5).toBe(true);
+                    });
+                });
+                describe('false', () => {
+                    test.each([c,new Date(),null,[],{},new Number(),Object.create({}),Object.create(null),undefined,NaN,0,0n,false,'',Symbol(),C,bound,native,arrow.s,arrow.a,es5.s.n,es5.s.a,es5.a,es5.g,es5.ag].map(x=>[x]))('%p', v=>{
+                        expect(Obj.getFlag(v).ins.es5).toBe(false);
+                    });
+                });
+            });
+            describe('native', () => {
+                describe('true', () => {
+                    test.each([new Date()].map(x=>[x]))('%p', v=>{
+                        expect(Obj.getFlag(v).ins.native).toBe(true);
+                    });
+                });
+                describe('false', () => {
+                    test.each([c,es5Cls,null,[],{},new Number(),Object.create({}),Object.create(null),undefined,NaN,0,0n,false,'',Symbol(),C,bound,native,arrow.s,arrow.a,es5.s.n,es5.s.a,es5.a,es5.g,es5.ag].map(x=>[x]))('%p', v=>{
+                        expect(Obj.getFlag(v).ins.native).toBe(false);
+                    });
                 });
             });
         });
@@ -229,7 +305,6 @@ describe('Obj', () => {
                         });
                     });
                 });
-
             });
             describe('a', () => {
                 describe('is', () => {
@@ -401,12 +476,43 @@ describe('Obj', () => {
                             });
                         });
                     });
-
                 });
                 describe('hasS', () => {
-
+                    describe('true', () => {
+                        describe(`Obj系`, ()=>{// false: [{}, {value:0}], [{}, {value(){}}], 
+                            test.each([[{_d:0}, {set(v){this._d=v;}}], [{_d:0}, {get(){return this._d}, set(v){this._d=v}}]].map(x=>[getDes(...x)]))(`(%p)`, (v)=>{
+                                expect(Obj.getFlag(v).des.a.hasS).toBe(true);
+                            });
+                        });
+                        describe(`Cls系`, ()=>{
+                            test.each([[C,'ss'],[C,'sgs']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]))(`(%p)`, (v)=>{
+                                expect(Obj.getFlag(v).des.a.hasS).toBe(true);
+                            });
+                        });
+                        describe(`Ins系`, ()=>{
+                            test.each([[c,'is'],[c,'igs']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]))(`(%p)`, (v)=>{
+                                expect(Obj.getFlag(v).des.a.hasS).toBe(true);
+                            });
+                        });
+                    });
+                    describe('false', () => {
+                        describe(`Obj系`, ()=>{
+                            test.each([[{}, {value:0}], [{}, {value(){}}], [{_d:0}, {get(){return this._d}}]].map(x=>[getDes(...x)]))(`(%p)`, (v)=>{
+                                expect(Obj.getFlag(v).des.a.hasS).toBe(false);
+                            });
+                        });
+                        describe(`Cls系`, ()=>{
+                            test.each([[C,'sg']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]))(`(%p)`, (v)=>{
+                                expect(Obj.getFlag(v).des.a.hasS).toBe(false);
+                            });
+                        });
+                        describe(`Ins系`, ()=>{
+                            test.each([[c,'ig']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]))(`(%p)`, (v)=>{
+                                expect(Obj.getFlag(v).des.a.hasS).toBe(false);
+                            });
+                        });
+                    });
                 });
-
             });
         });
     });
