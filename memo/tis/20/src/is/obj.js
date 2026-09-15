@@ -34,6 +34,7 @@ const g = 'Get';
 const s = 'Set';
 class Des {
     static N = Object.freeze({
+        D: 'Descriptor',
         v: 'Value',
         m: Fn.N.m,
         d: 'Data',

@@ -5,6 +5,10 @@ const getTag = v => Object.prototype.toString.call(v).slice(8, -1);
 const isSafeNum = v => v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v;
 //const Ps = 'boolean number string bigint symbol'.split(' ');
 //const Os = 'object function'.split(' ');
+const dObj = v => {
+    const o = Obj.getFlag(v);
+    return !o.nul && o.is && (o.none || o.proto || o.boxed.is)
+};
 const MAP = {
     und: { fn: v => v === undefined, default: undefined },
     bln: { fn: v => typeof v === "boolean", default: false },
@@ -68,14 +72,16 @@ const MAP = {
             native: {fn:v=>Obj.getFlag(v).ins.native, full:Fn.N.n},
         }
     },
-    des: {fn: v => Obj.getFlag(v).des.is, default: null,
+    des: {fn: v => Obj.getFlag(v).des.is, full:Des.N.D, default: null,
         children: {
             d: {
+                fn: v => Obj.getFlag(v).des.d, full:Des.N.d, 
                 is: {fn:v=>Obj.getFlag(v).des.d, full:Des.N.d},
                 v: {fn:v=>Obj.getFlag(v).des.d.v, full:Des.N.v},
                 m: {fn:v=>Obj.getFlag(v).des.d.m, full:Des.N.m},
             },
             a: {
+                fn: v => Obj.getFlag(v).des.a, full:Des.N.a, 
                 is: {fn:v=>Obj.getFlag(v).des.a, full:Des.N.a},
                 g: {fn:v=>Obj.getFlag(v).des.a.g, full:Des.N.g},
                 s: {fn:v=>Obj.getFlag(v).des.a.s, full:Des.N.s},
@@ -83,7 +89,8 @@ const MAP = {
             },
         }
     },
-    d: {
+//    d: {fn: v => [undefined,null,Infinity,-Infinity].some(x=>x===v) || Number.isNaN(v) || (Number.isFinite(v) && (!Number.isSafeInteger(v) || !isSafeNum(v))) || tis.d.obj(v), full:Des.N.a, 
+    d: {fn: v => [undefined,null,Infinity,-Infinity].some(x=>x===v) || Number.isNaN(v) || (Number.isFinite(v) && (!Number.isSafeInteger(v) || !isSafeNum(v))) || dObj(v), full:Des.N.a, 
         num: {fn: v => 'number'===typeof v, full:'Danger', default: 0,
             children: {
                 int: { fn: v => Number.isSafeInteger(v), full: "Integer" },
@@ -99,7 +106,12 @@ const MAP = {
             }
         },
         obj: {
-            fn: v => 'object'===typeof v,
+            //fn: v => null!==v && 'object'===typeof v && (|| || ||),
+//            fn: v => {
+//                const o = Obj.getFlag(v);
+//                return !o.nul && o.is && (o.none || o.proto || o.boxed.is)
+//            },
+            fn: dObj,
             full:'Object',
             children: {
                 none: {fn:v=>Obj.getFlag(v).none, full:'NonePrototype'},
@@ -115,7 +127,8 @@ const MAP = {
         }
     },
     g: {
-        fn: v => 'number'===typeof v, default: 0, full: 'Group',
+        //fn: v => 'number'===typeof v, default: 0, full: 'Group',
+        fn: v => true, default: 0, full: 'Group',
         children: {
             nun: {fn:v=>Number.isNaN(v) || [null,undefined].some(x=>x===v), full:'NullUndefinedNaN'},
             p: {
