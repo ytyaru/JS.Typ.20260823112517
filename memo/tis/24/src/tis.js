@@ -27,14 +27,17 @@ const MAP = {
     nul: { fn: v => v === null, default: null },
     //ary: { fn: v => Array.isArray(v), default: [] },
 //    ary: { fn: (v,T) => Array.isArray(v) && ('function'===typeof T ? v.every(x=>T(x)) : true), default: [] },
-
     ary: {fn:v=>Array.isArray(v), default: [], // とにかく値が配列であれば内容がどんな状態であれ真を返す
         children: {
-            empty: {fn:v=>Array.isArray(v) && 0===v.length} // 配列かつ内容が空
-            filled: {fn:(v,P)=>Array.isArray(v) && 0<v.length && ('function'===typeof T ? v.every(x=>T(x)) : true)}, // 配列かつ内容が一つ以上ある
-            gen: {fn:(v,P)=>Array.isArray(v) && (0===v.length ? true : ('function'===typeof T ? v.every(x=>T(x)) : true)}, // 内容が空または一つ以上ある時は全要素が第二引数の判定式で真を返すこと
+            empty: {fn:v=>Array.isArray(v) && 0===v.length, full:'Empty'}, // 配列かつ内容が空
+            filled: {fn:(v,T)=>Array.isArray(v) && 0<v.length && ('function'===typeof T ? v.every(x=>T(x)) : true), full:'Filled'}, // 配列かつ内容が一つ以上ある
+//            gen: {fn:(v,T)=>Array.isArray(v) && (0===v.length ? true : ('function'===typeof T ? v.every(x=>T(x)) : true), full:'Generics'}, // 内容が空または一つ以上ある時は全要素が第二引数の判定式で真を返すこと
+//            gen: {fn:(v,T)=>Array.isArray(v) && (0===v.length ? true : ('function'===typeof T ? v.every(x=>T(x)) : true)), full:'Generics'}, // 内容が空または一つ以上ある時は全要素が第二引数の判定式で真を返すこと
+            gen: {fn:(v,T)=>{
+                if ('function'!==typeof T) {throw new TypeError(`tis.ary.gen requires a validation function as the second argument.`)}
+                return Array.isArray(v) && (0===v.length ? true : v.every(x=>T(x)))}, full:'Generics'}, // 内容が空または一つ以上ある時は全要素が第二引数の判定式で真を返す時真を返す
         }
-    }
+    },
     obj: { fn: v => 'PlainObject'===tnm(v), full:'PlainObject', default:{} },
     run: {fn:v=>{const T = tnm(v); return ['Function','Method'].some(n=>T.endsWith(n))}, 
         full:'Run', default: null, children: {

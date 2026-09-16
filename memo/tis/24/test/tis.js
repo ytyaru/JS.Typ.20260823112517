@@ -3,7 +3,7 @@ import { tis } from "../src/tis.js";
 //import { Fn, Cls } from "../src/is/fn.js";
 //import { Obj, Des, Ins, } from "../src/is/obj.js";
 //import { baseTypeCases, numSubCases } from "./test-data.js";
-//import {assertThrow,C,c,fn,gfn,afn,agfn,arrFn,aarrFn,des,cal,prims,objs,dangers,cls,ins,_obj,getDes} from "./test-data-type.js";
+import {assertThrow,C,c,fn,gfn,afn,agfn,arrFn,aarrFn,des,cal,prims,objs,dangers,cls,ins,_obj,getDes} from "./test-data-type.js";
 const data = {
     top: [
         { key: 'und', name: 'Undefined', value: undefined, extra: ['d'] },
@@ -107,23 +107,66 @@ describe('tis', () => {
     describe('ary', () => {
         describe('(v)', () => {
             describe('true', () => {
-                test.each([[]].map(x=>[x]))('%p',v=>expect(tis.ary(v)).toBe(true));
+                test.each([[],[0],[''],[0,'',[]]].map(x=>[x]))('%p',v=>expect(tis.ary(v)).toBe(true));
             });
             describe('false', () => {
                 test.each([undefined,null,true,0,0.1,NaN,Infinity,0n,Symbol(),'',{},new Number()].map(x=>[x]))('%p',v=>expect(tis.ary(v)).toBe(false));
             });
         });
-        describe('(v,C)', () => {
+        describe('empty', () => {
             describe('true', () => {
-                test.each([[0],[0,-9]].map(x=>[x]))('%p',v=>expect(tis.ary(v,tis.int)).toBe(true));
+                test.each([[]].map(x=>[x]))('%p',v=>expect(tis.ary.empty(v)).toBe(true));
             });
             describe('false', () => {
-                test.each([[],[''],[0,''],['',0],['',0n],[0,0n]].map(x=>[x]))('%p',v=>expect(tis.ary(v,tis.int)).toBe(false));
+                test.each([[0],undefined,null,true,0,0.1,NaN,Infinity,0n,Symbol(),'',{},new Number()].map(x=>[x]))('%p',v=>expect(tis.ary.empty(v)).toBe(false));
+            });
+
+        });
+        describe('filled', () => {
+            describe('(v)', () => {
+                describe('true', () => {
+                    test.each([[0]].map(x=>[x]))('%p',v=>expect(tis.ary.filled(v)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[],undefined,null,true,0,0.1,NaN,Infinity,0n,Symbol(),'',{},new Number()].map(x=>[x]))('%p',v=>expect(tis.ary.filled(v)).toBe(false));
+                });
+            });
+            describe('(v,C)', () => {
+                describe('true', () => {
+                    test.each([[0],[0,-9]].map(x=>[x]))('%p',v=>expect(tis.ary.filled(v,tis.int)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[],[''],[0,''],['',0],['',0n],[0,0n]].map(x=>[x]))('%p',v=>expect(tis.ary.filled(v,tis.int)).toBe(false));
+                });
+            });
+        });
+        describe('gen', () => {
+            describe('(v)', () => {
+                describe('true', () => {
+                    test.each([[],[0],[0,-9]].map(x=>[x]))('%p',v=>expect(tis.ary.gen(v,tis.int)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[''],[0,''],['',0],['',0n],[0,0n]].map(x=>[x]))('%p',v=>expect(tis.ary.gen(v,tis.int)).toBe(false));
+                });
+            });
+            describe('(v,C)', () => {
+                describe('true', () => {
+                    test.each([[],[0],[0,-9]].map(x=>[x]))('%p',v=>expect(tis.ary.gen(v,tis.int)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[''],[0,''],['',0],['',0n],[0,0n]].map(x=>[x]))('%p',v=>expect(tis.ary.gen(v,tis.int)).toBe(false));
+                });
             });
         });
     });
     describe('obj', () => {
-
+        describe('true', () => {
+            test.each([{}].map(x=>[x]))('%p',v=>expect(tis.obj(v)).toBe(true));
+        });
+        describe('false', () => {
+            test.each([C,c,(new (function(){})()),new Date(),Object.create(null),Object.create({}),[],new Number(),undefined,null,true,0,0.1,NaN,Infinity,0n,Symbol(),''].map(x=>[x]))('%p',v=>expect(tis.obj(v)).toBe(false));
+            test.each([...des.c, ...des.i, ...des.o])('%p',v=>expect(tis.obj(v)).toBe(false));
+        });
     });
     describe('run', () => {
 
