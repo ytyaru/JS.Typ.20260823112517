@@ -1,5 +1,5 @@
 (() => {
-  // ../../../../../typ-build-3v8obdd0szc/wrapped.js
+  // ../../../../../typ-build-bqenb2yebov/wrapped.js
   (function() {
     var module = { exports: {} };
     var exports = module.exports;
@@ -50,51 +50,111 @@
       defV: () => defV
     });
     module.exports = __toCommonJS(exports_main);
-    var a = "Async";
-    var g = "Generator";
+    var N = {
+      t: { o: "object", f: "function" },
+      o: "Object",
+      f: "Function",
+      n: "Native",
+      es6: "ES6",
+      es5: "ES5",
+      c: "Class",
+      i: "Instance",
+      m: "Method",
+      s: "Sync",
+      a: "Async",
+      g: "Generator",
+      ag: "AsyncGenerator",
+      A: "Anonymous",
+      N: {
+        i: "Integer",
+        f: "Finite",
+        I: "Infinity",
+        n: "NaN"
+      },
+      d: "Descriptor",
+      D: {
+        v: "Value",
+        a: "Accessor",
+        g: "Getter",
+        s: "Setter"
+      }
+    };
+    var tnm = (v) => {
+      const t = typeof v;
+      const tag = Object.prototype.toString.call(v).slice(8, -1);
+      if ([null, undefined].some((x) => x === v) || Array.isArray(v))
+        return tag;
+      return [null, undefined].some((x) => x === v) || Array.isArray(v) ? tag : t === "function" ? FnTys.name(v) : t === "object" ? ObjTys.name(v, tag) : Number.isNaN(v) ? "NaN" : v === Infinity ? "Infinity" : v === -Infinity ? "-Infinity" : Number.isSafeInteger(v) ? "Integer" : Number.isFinite(v) ? "Finite" : tag;
+    };
+    var getCode = (v) => Function.prototype.toString.call(v).replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "").replace(/(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g, '""').replace(/\/([^\/\n\\]|\\.)+\/[gimsuy]*/g, "//").trim();
 
-    class Ag {
-      static N = Object.freeze({
-        a,
-        g,
-        ag: a + g,
-        s: "Sync",
-        f: "Function",
-        m: "Method"
-      });
-      static getName(f, isSyncOff) {
-        return f.ag ? Ag.N.a + Ag.N.g : f.s ? isSyncOff ? "" : Ag.N.s : f.a ? Ag.N.a : Ag.N.g;
+    class ObjTys {
+      static name(v, tag) {
+        const proto = Object.getPrototypeOf(v);
+        if (proto === null)
+          return "NonePrototypeObject";
+        if ([Boolean, Number, String].some((C) => v instanceof C)) {
+          return `BoxedPrimitive<${v.constructor.name}>`;
+        }
+        const des = DesTys.name(v);
+        if (des)
+          return des;
+        const isPlain = Object.prototype === proto;
+        if (isPlain)
+          return `PlainObject`;
+        const ctor = proto.constructor;
+        const isEs6Ins = this.#isEs6Ins(proto, ctor);
+        const isEs5Ins = this.#isEs5Ins(proto, ctor);
+        if (!isPlain && tag !== "Object" && !isEs6Ins && !isEs5Ins)
+          return `NativeInstance<${tag}>`;
+        if (isEs6Ins || isEs5Ins)
+          return `${isEs5Ins ? "ES5." : ""}Instance<${ctor.name || "(Anonymous)"}>`;
+        return "PrototypedObject";
       }
-      static getFlag(v, s2) {
-        const n = v?.constructor?.name;
-        return Ag.N.a + Ag.N.g + Ag.N.f === n ? this.#flg(true, true) : Ag.N.g + Ag.N.f === n ? this.#flg(false, true) : Ag.N.a + Ag.N.f === n ? this.#flg(true, false) : this.#isAgC(s2);
+      static #isEs6Ins(proto, ctor) {
+        return typeof ctor !== "function" ? false : FnTys._isEs6Cls(ctor, getCode(ctor));
       }
-      static #isAgC(s2) {
-        const a2 = /^\s*(?:static\s+)?async\b/.test(s2);
-        const g22 = /(?:function\s*\*|\*\s*[a-zA-Z_$])/.test(s2);
-        return this.#flg(a2, g22);
-      }
-      static #flg(a2, g22) {
-        return { a: a2 && !(a2 && g22), g: g22 && !(a2 && g22), s: !a2 && !g22, ag: a2 && g22 };
+      static #isEs5Ins(proto, ctor) {
+        const f = typeof ctor === "function";
+        const s = f ? getCode(ctor) : "";
+        return !f || (ctor === Object || ctor === Function) || (FnTys._isEs6Cls(ctor, s) || FnTys._isNative(ctor, s)) ? false : FnTys._isEs5Cls(ctor, s) || proto !== Object.prototype && proto !== Function.prototype;
       }
     }
 
-    class Cls2 {
-      static getFlag(is, v, s2) {
-        const es6 = is && this.isEs6(v, s2);
-        const es5 = is && this.isEs5(v, s2);
-        const native = is && Fn.isNative(v, s2) && this.isNative(v);
-        return { is: es6 || es5 || native, es6, es5, native };
+    class DesTys {
+      static name(v) {
+        const keys = Object.getOwnPropertyNames(v);
+        if (keys.length === 0)
+          return false;
+        const allowedKeys = ["value", "writable", "get", "set", "configurable", "enumerable"];
+        if (!keys.every((key2) => allowedKeys.includes(key2)))
+          return false;
+        const hasValue = keys.includes("value");
+        const hasWritable = keys.includes("writable");
+        const hasGet = keys.includes("get") && v.get !== undefined;
+        const hasSet = keys.includes("set") && v.set !== undefined;
+        return (hasValue || hasWritable) && (hasGet || hasSet) || hasGet && typeof v.get !== "function" && v.get !== undefined || hasSet && typeof v.set !== "function" && v.set !== undefined || !hasValue && !hasWritable && !hasGet && !hasSet ? "" : `Descriptor<${this.#naming(v, hasValue, hasGet, hasSet)}>`;
       }
-      static isEs6(v, s2) {
-        if (!s2)
-          s2 = Function.prototype.toString.call(v);
-        return /^\s*class\b/.test(s2);
+      static #naming(v, hasValue, hasGet, hasSet) {
+        return hasGet || hasSet ? hasGet && hasSet ? "Accessor" : hasGet ? "Getter" : "Setter" : hasValue && typeof v.value === "function" ? "Method" : "Value";
       }
-      static isEs5(v, s2) {
-        if (!s2)
-          s2 = Function.prototype.toString.call(v);
-        if (Cls2.isEs6(v, s2) || Fn.isNative(v, s2) || Fn.isArrow(v, s2))
+    }
+
+    class FnTys {
+      static name(v) {
+        const s = getCode(v);
+        const isEs6 = this._isEs6Cls(v, s);
+        const isEs5 = this._isEs5Cls(v, s);
+        return isEs6 || isEs5 ? `${isEs5 ? "ES5." : ""}Class<${v.name || "(Anonymous)"}>` : this.#isBound(v, s) ? `BoundFunction<${v.name.replace(/bound /, "")}>` : this._isNative(v, s) ? `Native${this.#isNativeClass(v) ? "Class" : "Function"}<${v.name}>` : this.#isArrow(v, s) ? `${FnAgTys.name(v, s)}ArrowFunction` : this.#isMethod(v, s) ? `${FnAgTys.name(v, s)}Method` : this.#getFnNm(v, FnAgTys.name(v, s));
+      }
+      static #getFnNm(v, ag) {
+        return `${!ag && !v.name ? "Anonymous" : ag}Function`;
+      }
+      static _isEs6Cls(v, s) {
+        return /^\s*class\b/.test(s);
+      }
+      static _isEs5Cls(v, s) {
+        if (this._isEs6Cls(v, s) || this._isNative(v, s) || this.#isArrow(v, s))
           return false;
         const proto = v.prototype;
         if (!proto || typeof proto !== "object")
@@ -104,194 +164,43 @@
           return false;
         const keys = Object.getOwnPropertyNames(proto);
         const hasCustomProps = keys.length > 1 || keys.length === 1 && keys[0] !== "constructor";
-        if (hasCustomProps || /\bthis\./.test(s2))
+        if (hasCustomProps || /\bthis\./.test(s))
           return true;
         const name = v.name || "";
         return /^[A-Z]/.test(name);
       }
-      static isNative(v) {
+      static _isNative(v, s) {
+        return s.includes("[native code]");
+      }
+      static #isNativeClass(v) {
         return v.prototype !== undefined && typeof v.prototype === "object";
       }
-    }
-
-    class Fn {
-      static N = Object.freeze({
-        a: "Arrow",
-        A: "Anonymouse",
-        b: "Bound",
-        c: "Class",
-        i: "Instance",
-        n: "Native",
-        f: "Function",
-        m: "Method",
-        es5: "ES5",
-        es6: "ES6"
-      });
-      static getCode(v) {
-        return typeof v === "function" ? Function.prototype.toString.call(v).replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "").trim().replace(/(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g, '""').replace(/\/([^\/\n\\]|\\.)+\/[gimsuy]*/g, "//") : "";
+      static #isBound(v, s) {
+        return v.name.startsWith("bound ");
       }
-      static getFlag(v) {
-        const is = typeof v === "function";
-        const s2 = is ? this.getCode(v) : "";
-        const cls = Cls2.getFlag(is, v, s2);
-        if (!is)
-          return { is, cls, ...this.#getFnMd(v, false, cls, false, false, false, false, false, false) };
-        const bound = !cls.is && v.name?.startsWith("bound ");
-        const native = !cls.is && !bound && s2.includes("[native code]");
-        const arrow = !cls.is && !bound && !native && !v.hasOwnProperty("prototype") && s2.includes("=>");
-        const md = !cls.is && !bound && !native && !arrow && /\bfunction\b/.test(s2) ? false : !s2.includes("=>");
-        const es5 = !cls.is && !native && !bound && !arrow && !md;
-        const ag = Ag.getFlag(v);
-        return { is: is && !cls.is, cls, ...this.#getFnMd(v, is && !cls.is, cls, bound, native, arrow, es5, md, ag) };
+      static #isArrow(v, s) {
+        return !v.hasOwnProperty("prototype") && s.includes("=>");
       }
-      static #getFnMd(v, is, cls, bound, native, arrow, es5, md, ag) {
-        return {
-          fn: this.#getFn(v, is, cls, bound, native, arrow, es5, ag),
-          md: this.#getMd(md, ag)
-        };
-      }
-      static #getFn(v, is, cls, bound, native, arrow, es5, ag) {
-        return {
-          is: is && !cls.is,
-          bound,
-          native,
-          arrow: {
-            is: arrow,
-            a: arrow && ag.a,
-            s: arrow && !ag.a
-          },
-          es5: {
-            is: es5,
-            s: {
-              is: es5 && ag.s,
-              n: es5 && !!v.name && ag.s,
-              a: es5 && !v.name && ag.s
-            },
-            a: es5 && ag.a,
-            g: es5 && ag.g,
-            ag: es5 && ag.a && ag.g
-          }
-        };
-      }
-      static #getMd(md, ag) {
-        return {
-          is: md,
-          s: md && ag.s,
-          a: md && ag.a,
-          g: md && ag.g,
-          ag: md && ag.ag
-        };
-      }
-      static isNative(v, s2) {
-        return s2.includes("[native code]");
-      }
-      static isArrow(v, s2) {
-        return !v.hasOwnProperty("prototype") && s2.includes("=>");
+      static #isMethod(v, s) {
+        return /\bfunction\b/.test(s) ? false : !s.includes("=>");
       }
     }
 
-    class Obj {
-      static getTag(v) {
-        return Object.prototype.toString.call(v).slice(8, -1);
-      }
-      static getFlag(v) {
-        const is = v !== null && typeof v === "object";
-        const ary = Array.isArray(v);
-        const proto = is ? Object.getPrototypeOf(v) : null;
-        const plain = is && Object.prototype === proto;
-        const none = is && proto === null;
-        const boxed = this.#boxed(v, is);
-        const des = Des.getFlag(v, is);
-        const ins = Ins.getFlag(v, is, proto, plain, this.getTag(v), ary, boxed);
-        return this.#get(v, is, ary, is && Object.prototype === proto && !none && !boxed.is && !des.is && !ins.is, none, boxed, des, ins);
-      }
-      static #get(v, is, ary, plain, none, boxed, des, ins) {
-        return {
-          is,
-          ary,
-          plain,
-          none,
-          proto: is && !ary && !plain && !none && !boxed.is && !des.is && !ins.is,
-          boxed,
-          des,
-          ins
-        };
-      }
-      static #boxed(v, is) {
-        return {
-          is: is && [Boolean, Number, String].some((C) => v instanceof C),
-          bln: is && v instanceof Boolean,
-          num: is && v instanceof Number,
-          str: is && v instanceof String
-        };
-      }
-    }
-    var g2 = "Get";
-    var s = "Set";
-
-    class Des {
-      static N = Object.freeze({
-        D: "Descriptor",
-        v: "Value",
-        m: Fn.N.m,
-        d: "Data",
-        a: "Access",
-        g: g2,
-        s,
-        gs: g2 + s
-      });
-      static getFlag(v, is) {
-        const keys = is ? Object.getOwnPropertyNames(v) : [];
-        const allowedKeys = ["value", "writable", "get", "set", "configurable", "enumerable"];
-        const hasValue = keys.includes("value");
-        const hasWritable = keys.includes("writable");
-        const hasGet = keys.includes("get") && v.get !== undefined;
-        const hasSet = keys.includes("set") && v.set !== undefined;
-        const i = !is || keys.length === 0 || !keys.every((key2) => allowedKeys.includes(key2)) ? false : true;
-        const isData = (hasValue || hasWritable) && !hasGet && !hasSet;
-        const isAccess = (hasGet || hasSet) && !hasValue && !hasWritable;
-        const isEmpty = !hasValue && !hasWritable && !hasGet && !hasSet;
-        return this.#get(v, i && (isData || isAccess || isEmpty || hasGet && typeof v.get !== "function" && v.get !== undefined || hasSet && typeof v.set !== "function" && v.set !== undefined), hasValue, hasGet, hasSet);
-      }
-      static #get(v, is, hasValue, hasGet, hasSet) {
-        return {
-          is,
-          d: {
-            is: is && !(hasGet || hasSet),
-            v: is && hasValue && typeof v.value !== "function",
-            m: is && hasValue && typeof v.value === "function"
-          },
-          a: {
-            is: is && (hasGet || hasSet),
-            hasG: is && hasGet,
-            hasS: is && hasSet,
-            g: is && hasGet && !hasSet,
-            s: is && hasSet && !hasGet,
-            gs: is && (hasGet && hasSet)
-          }
-        };
-      }
-    }
-
-    class Ins {
-      static getFlag(v, is, proto, plain, tag, ary, boxed) {
-        const es6 = is && this.isEs6(proto, proto?.constructor);
-        const es5 = is && this.isEs5(proto, proto?.constructor);
-        const native = is && !plain && !ary && !boxed.is && tag !== "Object" && !es6 && !es5;
-        return { is: es6 || es5 || native, es6, es5, native };
-      }
-      static isEs6(proto, ctor) {
-        return typeof ctor !== "function" ? false : Cls2.isEs6(ctor, Fn.getCode(ctor));
-      }
-      static isEs5(proto, ctor) {
-        return typeof ctor !== "function" || (ctor === Object || ctor === Function) || (Cls2.isEs6(ctor) || Fn.isNative(ctor, Fn.getCode(ctor))) ? false : Cls2.isEs5(ctor) || proto !== Object.prototype && proto !== Function.prototype;
+    class FnAgTys {
+      static name(v, s) {
+        const cName = v.constructor?.name;
+        if (["AsyncGenerator", "Generator", "Async"].some((n) => `${n}Function` === cName))
+          return cName.replace(/Function$/, "");
+        const isAsync = /^\s*(?:static\s+)?async\b/.test(s);
+        const isGenerator = /(?:function\s*\*|\*\s*[a-zA-Z_$])/.test(s);
+        return isAsync && isGenerator ? "AsyncGenerator" : isGenerator ? "Generator" : isAsync ? "Async" : "";
       }
     }
     var getTag = (v) => Object.prototype.toString.call(v).slice(8, -1);
-    var isSafeNum = (v) => v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v;
+    var isSafeNum = (v) => typeof v === "number" && v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v;
     var dObj = (v) => {
-      const o = Obj.getFlag(v);
-      return !o.nul && o.is && (o.none || o.proto || o.boxed.is);
+      const N2 = tnm(v);
+      return N2.startsWith("BoxedPrimitive<") || ["NonePrototype", "Prototyped"].some((n) => N2 === `${n}Object`);
     };
     var MAP = {
       und: { fn: (v) => v === undefined, default: undefined },
@@ -302,78 +211,114 @@
       int: { fn: (v) => Number.isSafeInteger(v), full: "Integer", default: 0 },
       fin: { fn: (v) => Number.isFinite(v) && isSafeNum(v), full: "Finite", default: 0 },
       nul: { fn: (v) => v === null, default: null },
-      obj: { fn: (v) => Obj.getFlag(v).plain, full: "PlainObject", default: {} },
-      ary: { fn: (v) => Array.isArray(v), default: [] },
-      run: { fn: (v) => Fn.getFlag(v).is, default: null, full: "Run", children: {
-        fn: {
-          bound: { fn: (v) => Fn.getFlag(v).fn.bound, full: Fn.N.b },
-          native: { fn: (v) => Fn.getFlag(v).fn.native, full: Fn.N.n },
-          arrow: {
-            fn: (v) => Fn.getFlag(v).fn.arrow,
+      ary: {
+        fn: (v) => Array.isArray(v),
+        default: [],
+        children: {
+          empty: { fn: (v) => Array.isArray(v) && v.length === 0, full: "Empty" },
+          filled: { fn: (v, T) => Array.isArray(v) && 0 < v.length && (typeof T === "function" ? v.every((x) => T(x)) : true), full: "Filled" },
+          gen: { fn: (v, T) => {
+            if (typeof T !== "function") {
+              throw new TypeError(`tis.ary.gen requires a validation function as the second argument.`);
+            }
+            return Array.isArray(v) && (v.length === 0 ? true : v.every((x) => T(x)));
+          }, full: "Generics" }
+        }
+      },
+      obj: { fn: (v) => tnm(v) === "PlainObject", full: "PlainObject", default: {} },
+      run: {
+        fn: (v) => {
+          const T = tnm(v);
+          return ["Function", "Method"].some((n) => T.endsWith(n));
+        },
+        full: "Run",
+        default: null,
+        children: {
+          fn: {
+            fn: (v) => tnm(v).endsWith("Function"),
             default: null,
-            full: Fn.N.a,
-            children: {
-              s: { fn: (v) => Fn.getFlag(v).fn.arrow.s, full: Ag.N.s },
-              a: { fn: (v) => Fn.getFlag(v).fn.arrow.a, full: Ag.N.a }
+            full: "Function",
+            bound: { fn: (v) => tnm(v) === "BoundFunction", full: "Bound" },
+            native: { fn: (v) => tnm(v) === "NativeFunction", full: "Native" },
+            arrow: {
+              fn: (v) => tnm(v).endsWith("ArrowFunction"),
+              full: "Arrow",
+              children: {
+                s: { fn: (v) => tnm(v) === "ArrowFunction", full: "Sync" },
+                a: { fn: (v) => tnm(v) === "AsyncArrowFunction", full: "Async" }
+              }
+            },
+            es5: {
+              fn: (v) => tnm(v).endsWith("Function") && !["Bound", "Native", "Arrow"].some((n) => v.startsWith(n)),
+              full: "ES5",
+              default: null,
+              s: { fn: (v) => tnm(v) === "Function", full: "Sync", children: {
+                n: { fn: (v) => tnm(v) === "Function", full: "Named" },
+                a: { fn: (v) => tnm(v) === "AnonymousFunction", full: "Anonymous" }
+              } },
+              a: { fn: (v) => tnm(v) === "AsyncFunction", full: "Async" },
+              g: { fn: (v) => tnm(v) === "GeneratorFunction", full: "Generator" },
+              ag: { fn: (v) => tnm(v) === "AsyncGeneratorFunction", full: "AsyncGenerator" }
             }
           },
-          es5: {
-            fn: (v) => !Cls.getFlag(v, Fn.getCode(v)).fn.is,
+          md: {
+            fn: (v) => tnm(v).endsWith("Method"),
             default: null,
-            full: Fn.N.f,
-            s: { fn: (v) => Fn.getFlag(v).fn.s.n, full: Ag.N.s, children: {
-              n: { fn: (v) => Fn.getFlag(v).fn.s.n, full: Fn.N.f },
-              a: { fn: (v) => Fn.getFlag(v).fn.s.a, full: Ag.N.A }
-            } },
-            a: { fn: (v) => Fn.getFlag(v).fn.a, full: Ag.N.a },
-            g: { fn: (v) => Fn.getFlag(v).fn.g, full: Ag.N.g },
-            ag: { fn: (v) => Fn.getFlag(v).fn.ag, full: Ag.N.ag }
+            full: "Method",
+            s: { fn: (v) => tnm(v) === "Method", full: "Sync" },
+            a: { fn: (v) => tnm(v) === "AsyncMethod", full: "Async" },
+            g: { fn: (v) => tnm(v) === "GeneratorMethod", full: "Generator" },
+            ag: { fn: (v) => tnm(v) === "AsyncGeneratorMethod", full: "AsyncGenerator" }
           }
-        },
-        md: {
-          fn: (v) => Fn.getFlag(v).md.is,
-          default: null,
-          full: Fn.N.m,
-          s: { fn: (v) => Fn.getFlag(v).method.s, full: Ag.N.s },
-          a: { fn: (v) => Fn.getFlag(v).method.a, full: Ag.N.a },
-          g: { fn: (v) => Fn.getFlag(v).method.g, full: Ag.N.g },
-          ag: { fn: (v) => Fn.getFlag(v).method.ag, full: Ag.N.ag }
         }
+      },
+      cls: { fn: (v, P2) => tnm(v).includes("Class<") && (P2 ? v.prototype instanceof P2 : true), full: N.c, default: null, children: {
+        es6: { fn: (v, P2) => v.startsWith("Class<") && (P2 ? v.prototype instanceof P2 : true), full: N.es6 },
+        es5: { fn: (v, P2) => v.startsWith("ES5.Class<") && (P2 ? v.prototype instanceof P2 : true), full: N.es5 },
+        native: { fn: (v, P2) => v.startsWith(`NativeClass<`) && (P2 ? v.prototype instanceof P2 : true), full: N.n }
       } },
-      cls: { fn: (v) => Fn.getFlag(v, Fn.getCode(v)).cls.is, default: null, children: {
-        es6: { fn: (v) => Fn.getFlag(v, Fn.getCode(v)).cls.es6, full: Fn.N.es6 },
-        es5: { fn: (v) => Fn.getFlag(v, Fn.getCode(v)).cls.es5, full: Fn.N.es5 },
-        native: { fn: (v) => Fn.getFlag(v, Fn.getCode(v)).cls.native, full: Fn.N.n }
+      ins: { fn: (v, P2) => tnm(v).includes("Instance<") && (P2 ? v instanceof P2 : true), full: N.i, default: null, children: {
+        es6: { fn: (v, P2) => v.startsWith("Instance<") && (P2 ? v instanceof P2 : true), full: N.es6 },
+        es5: { fn: (v, P2) => v.startsWith("ES5.Instance<") && (P2 ? v instanceof P2 : true), full: N.es5 },
+        native: { fn: (v) => v.startsWith("NativeInstance<") && (P ? v instanceof P : true), full: N.n }
       } },
-      ins: { fn: (v) => Obj.getFlag(v).ins.is, default: null, children: {
-        es6: { fn: (v) => Obj.getFlag(v).ins.es6, full: Fn.N.es6 },
-        es5: { fn: (v) => Obj.getFlag(v).ins.es5, full: Fn.N.es5 },
-        native: { fn: (v) => Obj.getFlag(v).ins.native, full: Fn.N.n }
-      } },
-      des: { fn: (v) => Obj.getFlag(v).des.is, full: Des.N.D, default: null, children: {
+      des: { fn: (v) => tnm(v).startsWith(`${N.d}<`), full: N.d, default: null, children: {
         d: {
-          fn: (v) => Obj.getFlag(v).des.d,
-          full: Des.N.d,
-          is: { fn: (v) => Obj.getFlag(v).des.d, full: Des.N.d },
-          v: { fn: (v) => Obj.getFlag(v).des.d.v, full: Des.N.v },
-          m: { fn: (v) => Obj.getFlag(v).des.d.m, full: Des.N.m }
+          fn: (v) => {
+            const N2 = tnm(v);
+            return ["Value", "Method"].some((n) => `${N2.d}<${n}>` === N2);
+          },
+          full: "Data",
+          v: { fn: (v) => `${N.d}<${N.D.v}>` === tnm(v), full: N.D.v },
+          m: { fn: (v) => `${N.d}<${N.m}>` === tnm(v), full: N.D.m }
         },
         a: {
-          fn: (v) => Obj.getFlag(v).des.a,
-          full: Des.N.a,
-          is: { fn: (v) => Obj.getFlag(v).des.a, full: Des.N.a },
-          g: { fn: (v) => Obj.getFlag(v).des.a.g, full: Des.N.g },
-          s: { fn: (v) => Obj.getFlag(v).des.a.s, full: Des.N.s },
-          gs: { fn: (v) => Obj.getFlag(v).des.a.gs, full: Des.N.gs }
+          fn: (v) => {
+            const N2 = tnm(v);
+            return [N2.D.g, N2.D.s, N2.D.a].some((n) => `${N2.d}<${n}>` === N2);
+          },
+          full: "Access",
+          children: {
+            g: { fn: (v) => `${N.d}<${N.D.g}>` === tnm(v), full: "Get" },
+            s: { fn: (v) => `${N.d}<${N.D.s}>` === tnm(v), full: "Set" },
+            gs: { fn: (v) => `${N.d}<${N.D.a}>` === tnm(v), full: "GetSet" },
+            hasG: { fn: (v) => {
+              const N2 = tnm(v);
+              return [N2.D.g, N2.D.a].some((n) => `${N2.d}<${n}>` === N2);
+            }, full: "HasGet" },
+            hasS: { fn: (v) => {
+              const N2 = tnm(v);
+              return [N2.D.s, N2.D.a].some((n) => `${N2.d}<${n}>` === N2);
+            }, full: "HasSet" }
+          }
         }
       } },
       d: {
         fn: (v) => [undefined, null, Infinity, -Infinity].some((x) => x === v) || Number.isNaN(v) || Number.isFinite(v) && (!Number.isSafeInteger(v) || !isSafeNum(v)) || dObj(v),
-        full: Des.N.a,
-        num: { fn: (v) => typeof v === "number", full: "Danger", default: 0, children: {
-          int: { fn: (v) => Number.isSafeInteger(v), full: "Integer" },
+        full: "Danger",
+        num: { fn: (v) => typeof v === "number", full: "Number", default: 0, children: {
           nan: { fn: (v) => Number.isNaN(v), full: "NaN", default: NaN },
-          inf: { fn: (v) => !Number.isFinite(v) && !Number.isNaN(v), full: "Infinity", default: Infinity, children: {
+          inf: { fn: (v) => typeof v === "number" && !Number.isFinite(v) && !Number.isNaN(v), full: "Infinity", default: Infinity, children: {
             p: { fn: (v) => v === Infinity, full: "Positive", default: Infinity },
             n: { fn: (v) => v === -Infinity, full: "Negative", default: -Infinity }
           } },
@@ -381,17 +326,13 @@
           over: { fn: (v) => Number.isFinite(v) && !isSafeNum(v), full: "Over", default: Number.MAX_SAFE_INTEGER + 1 }
         } },
         obj: { fn: dObj, full: "Object", children: {
-          none: { fn: (v) => Obj.getFlag(v).none, full: "NonePrototype" },
-          proto: { fn: (v) => Obj.getFlag(v).proto, full: "Prototyped" },
-          boxed: {
-            fn: (v) => Obj.getFlag(v).boxed.is,
-            full: "BoxedPrimitive",
-            children: {
-              bln: { fn: (v) => Obj.getFlag(v).boxed.bln, full: "Boolean" },
-              num: { fn: (v) => Obj.getFlag(v).boxed.num, full: "Number" },
-              str: { fn: (v) => Obj.getFlag(v).boxed.str, full: "String" }
-            }
-          }
+          none: { fn: (v) => tnm(v) === "NonePrototypeObject", full: "NonePrototype" },
+          proto: { fn: (v) => tnm(v) === "PrototypedObject", full: "Prototyped" },
+          boxed: { fn: (v) => tnm(v).startsWith("BoxedPrimitive<"), full: "BoxedPrimitive", children: {
+            bln: { fn: (v) => tnm(v) === `BoxedPrimitive<Boolean>`, full: "Boolean" },
+            num: { fn: (v) => tnm(v) === `BoxedPrimitive<Number>`, full: "Number" },
+            str: { fn: (v) => tnm(v) === `BoxedPrimitive<String>`, full: "String" }
+          } }
         } }
       },
       g: { fn: (v) => true, default: 0, full: "Group", children: {
@@ -431,8 +372,8 @@
     var buildNodes = (defMap, parentNode = null) => {
       const nodes = {};
       for (const [abbr, def] of Object.entries(defMap)) {
-        const typeTreeNode = function(v) {
-          return def.fn(v);
+        const typeTreeNode = function(...args) {
+          return def.fn(...args);
         };
         typeTreeNode._ = {
           name: {
