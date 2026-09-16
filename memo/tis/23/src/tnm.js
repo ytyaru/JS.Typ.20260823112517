@@ -67,9 +67,6 @@ class ObjTys {
 }
 class DesTys {
     static name(v) {
-//    static is(v) {
-//        if (v === null || typeof v !== 'object') return false;
-
         const keys = Object.getOwnPropertyNames(v);
         if (keys.length === 0) return false;
 
@@ -110,12 +107,8 @@ class FnTys {// クラスと関数を分け、関数を更に細分化する
             : this.#getFnNm(v,FnAgTys.name(v,s));
     }
     static #getFnNm(v,ag) {return `${(!ag && !v.name ? 'Anonymous' : ag)}Function`}
-    static _isEs6Cls(v,s) {
-//        if (!s) s = Function.prototype.toString.call(v); // Instance判定時に呼び出す時用に必要
-        return /^\s*class\b/.test(s);
-    }
+    static _isEs6Cls(v,s) {return /^\s*class\b/.test(s);}
     static _isEs5Cls(v,s) {
-//        if (!s) s = Function.prototype.toString.call(v);
         if (this._isEs6Cls(v,s) || this._isNative(v,s) || this.#isArrow(v,s)) return false;
         
         const proto = v.prototype;
@@ -126,64 +119,23 @@ class FnTys {// クラスと関数を分け、関数を更に細分化する
 
         const keys = Object.getOwnPropertyNames(proto);
         const hasCustomProps = keys.length > 1 || (keys.length === 1 && keys[0] !== 'constructor');
-        
-        // 文字列リテラル、コメント、テンプレートリテラル内を除外した「実行コード部分」を抽出
-//        const cleanS = s.replace(/(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g, '""') // 文字列リテラル（'' , "" , ``）を空文字に置換
-//            .replace(/\/([^\/\n\\]|\\.)+\/[gimsuy]*/g, '//'); // 正規表現リテラルを除外
-
-//        if (hasCustomProps || /\bthis\./.test(cleanS)) return true;
         if (hasCustomProps || /\bthis\./.test(s)) return true;
 
         const name = v.name || '';
         return /^[A-Z]/.test(name);
     }
     static _isNative(v,s) {return s.includes('[native code]');}
-    static #isNativeClass(v) {
-        // 組込コンストラクタ（Map, Array, Dateなど）は prototype を持ち、それがオブジェクトである
-        return v.prototype !== undefined && typeof v.prototype === 'object';
-    }
+    static #isNativeClass(v) {return v.prototype !== undefined && typeof v.prototype === 'object';}
     static #isBound(v,s) {return v.name.startsWith('bound ');}
-    static #isArrow(v,s) {
-        // アロー関数は prototype プロパティを持たない特徴を利用
-        // ※ただし一部のBuiltinやメソッドと競合しないよう補助的に判定
-        return !v.hasOwnProperty('prototype') && s.includes('=>');
-    }
-    static #isMethod(v,s) {
-        /*
-        // コメント等を除外した実質的なコード文字列を作成
-        const cleanSrc = s.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '');
-
-        // 1. 通常の関数や非同期関数（async function）には必ず 'function' 単語が含まれます。
-        //    これらが含まれている場合は絶対メソッドではないので false を返します。
-        if (/\bfunction\b/.test(cleanSrc)) return false;
-
-        // 2. 'function' を含まない、かつアロー関数（=>）でもない関数は、仕様上「メソッド」しか残りません。
-        return !s.includes('=>');
-        */
-        return /\bfunction\b/.test(s) ? false : !s.includes('=>');
-    }
+    static #isArrow(v,s) {return !v.hasOwnProperty('prototype') && s.includes('=>');}
+    static #isMethod(v,s) {return /\bfunction\b/.test(s) ? false : !s.includes('=>');}
 }
 class FnAgTys {
     static name(v, s) {
-//        if (typeof v !== 'function') return '';
-
         const cName = v.constructor?.name;
         if (['AsyncGenerator','Generator','Async'].some(n=>`${n}Function`===cName)) return cName.replace(/Function$/,'')
-//        if (cName === 'AsyncGeneratorFunction') return 'AsyncGenerator';
-//        if (cName === 'GeneratorFunction') return 'Generator';
-//        if (cName === 'AsyncFunction') return 'Async';
-
-//        if (!s) s = Function.prototype.toString.call(v);
-//        const cleanStr = FnTys._removeComments(s).trim();
-
-        //const isAsync = /^\s*(?:static\s+)?async\b/.test(cleanStr);
         const isAsync = /^\s*(?:static\s+)?async\b/.test(s);
-        
-        // 修正: 単なる .includes('*') をやめ、ジェネレータ特有の構文位置を正規表現で判定
-        // 例: function* , function *, *methodName
-        //const isGenerator = /(?:function\s*\*|\*\s*[a-zA-Z_$])/.test(cleanStr);
         const isGenerator = /(?:function\s*\*|\*\s*[a-zA-Z_$])/.test(s);
-
         return isAsync && isGenerator ? 'AsyncGenerator' : isGenerator ? 'Generator' : isAsync ? 'Async' : '';
     }
 }
