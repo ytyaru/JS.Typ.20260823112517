@@ -62,6 +62,7 @@ export class Ass {
     }
 
     static #failMessage(err, expectedMessage, args) {
+        // ── 拡張: 期待値が関数の場合、テスト引数を渡して動的にメッセージを生成
         let targetExpect = expectedMessage;
         if (typeof expectedMessage === "function") {
             targetExpect = expectedMessage(...args);
@@ -77,42 +78,38 @@ export class Ass {
             if (err.message !== targetExpect) {
                 throw new TestFailureError(`エラーメッセージが一致しません。
 期待値: ${targetExpect}
-          実際値: ${err.message}`);
+実際値: ${err.message}`);
             }
         }
     }
 }
 
 /**
- * テスト宣言まで一括で行うクラス（バグ修正版）
+ * テスト宣言まで一括で行うクラス（単発・複数データ駆動の自動判別）
  */
 export class Err {
-    // 💡 正しく自作の Ass クラスのメソッドを渡すように修正
     static test(title, fn, ExpectedError, expectedMessage, cases = null) {
-        this.#execute(Ass.test.bind(Ass), title, fn, ExpectedError, expectedMessage, cases);
+        this.#execute(test.test, title, fn, ExpectedError, expectedMessage, cases);
     }
 
     static same(title, fn, ExpectedError, expectedMessage, cases = null) {
-        this.#execute(Ass.same.bind(Ass), title, fn, ExpectedError, expectedMessage, cases);
+        this.#execute(test.same, title, fn, ExpectedError, expectedMessage, cases);
     }
 
     static realm(title, fn, ExpectedError, expectedMessage, cases = null) {
-        this.#execute(Ass.realm.bind(Ass), title, fn, ExpectedError, expectedMessage, cases);
+        this.#execute(test.realm, title, fn, ExpectedError, expectedMessage, cases);
     }
 
+    // ── 内部で単発（test）と複数データ（test.each）をエレガントに自動切替 ──
     static #execute(assMethod, title, fn, ExpectedError, expectedMessage, cases) {
-        if (Array.isArray(cases)) {
+        // cases がネスト配列（[ [], [] ]）であれば test.each として処理
+        if (Array.isArray(cases) && cases.every(Array.isArray)) {
             test.each(cases)(title, (...args) => {
-                // 💡 判定バグを修正: 配列の最初の要素が配列であるか（二次元配列か）で判定
-                const isNestedArray = Array.isArray(cases[0]);
-                
-                // 二次元配列 [ [], [] ] なら個別の引数にバラして渡す。
-                // それ以外（オブジェクト配列やプリミティブ配列）なら、第1引数（args[0]）にその要素が丸ごと入っている
-                const targetFn = isNestedArray ? () => fn(...args) : () => fn(args[0]);
-
-                assMethod(targetFn, ExpectedError, expectedMessage, ...args);
+                // テスト対象の関数（fn）にデータを流し込みつつ、アサーションへも args を伝播
+                assMethod(() => fn(...args), ExpectedError, expectedMessage, ...args);
             });
         } else {
+            // 通常の単発テスト
             test(title, () => assMethod(fn, ExpectedError, expectedMessage));
         }
     }

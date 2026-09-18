@@ -7,9 +7,6 @@ class TestFailureError extends Error {
     }
 }
 
-/**
- * 純粋な例外検証（アサーション）を行うクラス
- */
 export class Ass {
     static test(fn, ExpectedError, expectedMessage, ...args) {
         const err = this.#run(fn);
@@ -77,42 +74,51 @@ export class Ass {
             if (err.message !== targetExpect) {
                 throw new TestFailureError(`エラーメッセージが一致しません。
 期待値: ${targetExpect}
-          実際値: ${err.message}`);
+実際値: ${err.message}`);
             }
         }
     }
 }
 
-/**
- * テスト宣言まで一括で行うクラス（バグ修正版）
- */
 export class Err {
-    // 💡 正しく自作の Ass クラスのメソッドを渡すように修正
-    static test(title, fn, ExpectedError, expectedMessage, cases = null) {
+    // 💡 cases = null から 未指定（undefined）での判定へ変更
+    static test(title, fn, ExpectedError, expectedMessage, cases) {
         this.#execute(Ass.test.bind(Ass), title, fn, ExpectedError, expectedMessage, cases);
     }
 
-    static same(title, fn, ExpectedError, expectedMessage, cases = null) {
+    static same(title, fn, ExpectedError, expectedMessage, cases) {
         this.#execute(Ass.same.bind(Ass), title, fn, ExpectedError, expectedMessage, cases);
     }
 
-    static realm(title, fn, ExpectedError, expectedMessage, cases = null) {
+    static realm(title, fn, ExpectedError, expectedMessage, cases) {
         this.#execute(Ass.realm.bind(Ass), title, fn, ExpectedError, expectedMessage, cases);
     }
 
     static #execute(assMethod, title, fn, ExpectedError, expectedMessage, cases) {
-        if (Array.isArray(cases)) {
-            test.each(cases)(title, (...args) => {
-                // 💡 判定バグを修正: 配列の最初の要素が配列であるか（二次元配列か）で判定
-                const isNestedArray = Array.isArray(cases[0]);
-                
-                // 二次元配列 [ [], [] ] なら個別の引数にバラして渡す。
-                // それ以外（オブジェクト配列やプリミティブ配列）なら、第1引数（args[0]）にその要素が丸ごと入っている
-                const targetFn = isNestedArray ? () => fn(...args) : () => fn(args[0]);
+        // 💡 undefined でない（＝データが渡されている）場合
+        if (cases !== undefined) {
+            if (!Array.isArray(cases)) {
+                throw new Error(`[Err API 不正利用] "${title}": casesには配列を渡す必要があります。`);
+            }
+            if (cases.length === 0) {
+                throw new Error(`[Err API 不正利用] "${title}": cases配列が空です。テストデータが1件もありません。`);
+            }
 
-                assMethod(targetFn, ExpectedError, expectedMessage, ...args);
+            // 二次元配列の場合の、中身が配列であるかどうかの境界値バリデーション
+            // ※「最初の要素が配列であるか」で判定し、二次元配列であると確定した場合のみチェック
+            if (Array.isArray(cases[0]) && cases.some(c => !Array.isArray(c) || c.length === 0)) {
+                throw new Error(`[Err API 不正利用] "${title}": cases内のネスト配列に空、または配列でない要素が含まれています。`);
+            }
+
+            // ── 【データ駆動テスト実行】 ──
+            test.each(cases)(title, (...args) => {
+                // 💡 複雑な場合分け（推測）をすべて排除。
+                // test.each から渡ってくる引数 (...args) を、そのまま fn と assMethod に直通させるだけで、
+                // 二次元配列・オブジェクト配列・プリミティブ配列すべてが完全に論理的整合します。
+                assMethod(() => fn(...args), ExpectedError, expectedMessage, ...args);
             });
         } else {
+            // 通常の単発テスト
             test(title, () => assMethod(fn, ExpectedError, expectedMessage));
         }
     }

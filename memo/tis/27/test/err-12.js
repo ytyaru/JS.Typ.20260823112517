@@ -7,38 +7,35 @@ class TestFailureError extends Error {
     }
 }
 
-/**
- * 純粋な例外検証（アサーション）を行うクラス
- */
 export class Ass {
     static test(fn, ExpectedError, expectedMessage, ...args) {
-        const err = this.#run(fn);
-        this.#failThrow(err, ExpectedError);
+        const err = Ass.#run(fn);
+        Ass.#failThrow(err, ExpectedError);
         const expectedName = new ExpectedError().name;
 
         if (!(err instanceof ExpectedError) && err.name !== expectedName) {
-            throw new TestFailureError(`エラーの型も名前も一致しません。
+            throw new TestFailureError(`エラーの型または名前が一致しません。
 期待値: Class [${ExpectedError.name}] (name: "${expectedName}")
 実際値: Class [${err.constructor?.name}] (name: "${err.name}")`);
         }
-        this.#failMessage(err, expectedMessage, args);
+        Ass.#failMessage(err, expectedMessage, args);
     }
 
     static same(fn, ExpectedError, expectedMessage, ...args) {
-        const err = this.#run(fn);
-        this.#failThrow(err, ExpectedError);
+        const err = Ass.#run(fn);
+        Ass.#failThrow(err, ExpectedError);
 
         if (!(err instanceof ExpectedError)) {
             throw new TestFailureError(`型判定に失敗しました。Realmが異なるか、別の型です。
 期待値: ${ExpectedError.name}
 実際値: ${err.constructor?.name || "Unknown"}`);
         }
-        this.#failMessage(err, expectedMessage, args);
+        Ass.#failMessage(err, expectedMessage, args);
     }
 
     static realm(fn, ExpectedError, expectedMessage, ...args) {
-        const err = this.#run(fn);
-        this.#failThrow(err, ExpectedError);
+        const err = Ass.#run(fn);
+        Ass.#failThrow(err, ExpectedError);
         const expectedName = new ExpectedError().name;
 
         if (err.name !== expectedName) {
@@ -46,7 +43,7 @@ export class Ass {
 期待値: ${expectedName}
 実際値: ${err.name}`);
         }
-        this.#failMessage(err, expectedMessage, args);
+        Ass.#failMessage(err, expectedMessage, args);
     }
 
     static #run(fn) {
@@ -77,39 +74,42 @@ export class Ass {
             if (err.message !== targetExpect) {
                 throw new TestFailureError(`エラーメッセージが一致しません。
 期待値: ${targetExpect}
-          実際値: ${err.message}`);
+実際値: ${err.message}`);
             }
         }
     }
 }
 
-/**
- * テスト宣言まで一括で行うクラス（バグ修正版）
- */
 export class Err {
-    // 💡 正しく自作の Ass クラスのメソッドを渡すように修正
-    static test(title, fn, ExpectedError, expectedMessage, cases = null) {
-        this.#execute(Ass.test.bind(Ass), title, fn, ExpectedError, expectedMessage, cases);
+    static test(title, fn, ExpectedError, expectedMessage, cases) {
+        // 💡 修正: this.#execute ではなく Err.#execute に変更し、thisの剥がれを根本解決
+        Err.#execute(Ass.test, title, fn, ExpectedError, expectedMessage, cases);
     }
 
-    static same(title, fn, ExpectedError, expectedMessage, cases = null) {
-        this.#execute(Ass.same.bind(Ass), title, fn, ExpectedError, expectedMessage, cases);
+    static same(title, fn, ExpectedError, expectedMessage, cases) {
+        // 💡 修正: Err.#execute に変更
+        Err.#execute(Ass.same, title, fn, ExpectedError, expectedMessage, cases);
     }
 
-    static realm(title, fn, ExpectedError, expectedMessage, cases = null) {
-        this.#execute(Ass.realm.bind(Ass), title, fn, ExpectedError, expectedMessage, cases);
+    static realm(title, fn, ExpectedError, expectedMessage, cases) {
+        // 💡 修正: Err.#execute に変更
+        Err.#execute(Ass.realm, title, fn, ExpectedError, expectedMessage, cases);
     }
 
     static #execute(assMethod, title, fn, ExpectedError, expectedMessage, cases) {
-        if (Array.isArray(cases)) {
-            test.each(cases)(title, (...args) => {
-                // 💡 判定バグを修正: 配列の最初の要素が配列であるか（二次元配列か）で判定
-                const isNestedArray = Array.isArray(cases[0]);
-                
-                // 二次元配列 [ [], [] ] なら個別の引数にバラして渡す。
-                // それ以外（オブジェクト配列やプリミティブ配列）なら、第1引数（args[0]）にその要素が丸ごと入っている
-                const targetFn = isNestedArray ? () => fn(...args) : () => fn(args[0]);
+        if (cases !== undefined) {
+            if (!Array.isArray(cases)) {
+                throw new Error(`[Err API 不正利用] "${title}": casesには配列を渡す必要があります。`);
+            }
+            if (cases.length === 0) {
+                throw new Error(`[Err API 不正利用] "${title}": cases配列が空です。テストデータが1件もありません。`);
+            }
+            if (Array.isArray(cases) && cases.some(c => !Array.isArray(c) || c.length === 0)) {
+                throw new Error(`[Err API 不正利用] "${title}": cases内のネスト配列に空、または配列でない要素が含まれています。`);
+            }
 
+            test.each(cases)(title, (...args) => {
+                const targetFn = Array.isArray(cases) ? () => fn(...args) : () => fn(args);
                 assMethod(targetFn, ExpectedError, expectedMessage, ...args);
             });
         } else {
@@ -117,4 +117,3 @@ export class Err {
         }
     }
 }
-

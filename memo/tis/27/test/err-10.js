@@ -7,9 +7,6 @@ class TestFailureError extends Error {
     }
 }
 
-/**
- * 純粋な例外検証（アサーション）を行うクラス
- */
 export class Ass {
     static test(fn, ExpectedError, expectedMessage, ...args) {
         const err = this.#run(fn);
@@ -77,17 +74,13 @@ export class Ass {
             if (err.message !== targetExpect) {
                 throw new TestFailureError(`エラーメッセージが一致しません。
 期待値: ${targetExpect}
-          実際値: ${err.message}`);
+実際値: ${err.message}`);
             }
         }
     }
 }
 
-/**
- * テスト宣言まで一括で行うクラス（バグ修正版）
- */
 export class Err {
-    // 💡 正しく自作の Ass クラスのメソッドを渡すように修正
     static test(title, fn, ExpectedError, expectedMessage, cases = null) {
         this.#execute(Ass.test.bind(Ass), title, fn, ExpectedError, expectedMessage, cases);
     }
@@ -101,18 +94,31 @@ export class Err {
     }
 
     static #execute(assMethod, title, fn, ExpectedError, expectedMessage, cases) {
-        if (Array.isArray(cases)) {
-            test.each(cases)(title, (...args) => {
-                // 💡 判定バグを修正: 配列の最初の要素が配列であるか（二次元配列か）で判定
-                const isNestedArray = Array.isArray(cases[0]);
-                
-                // 二次元配列 [ [], [] ] なら個別の引数にバラして渡す。
-                // それ以外（オブジェクト配列やプリミティブ配列）なら、第1引数（args[0]）にその要素が丸ごと入っている
-                const targetFn = isNestedArray ? () => fn(...args) : () => fn(args[0]);
+        if (cases !== null) {
+            // ── 【テスト実行以前のエラー】 ──
+            // 容赦なく生の例外を投げ、テストスイート全体を中断させて修正を促す
+            if (!Array.isArray(cases)) {
+                throw new Error(`[Err API 不正利用] "${title}": casesには配列を渡す必要があります。`);
+            }
+            if (cases.length === 0) {
+                throw new Error(`[Err API 不正利用] "${title}": cases配列が空です。テストデータが1件もありません。`);
+            }
 
+            // 💡 修正：最初の要素が配列かどうかを厳密にチェック
+            const isNestedArray = Array.isArray(cases[0]);
+
+            if (isNestedArray && cases.some(c => !Array.isArray(c) || c.length === 0)) {
+                throw new Error(`[Err API 不正利用] "${title}": cases内のネスト配列に空、または配列でない要素が含まれています。`);
+            }
+
+            // ── 【通常のデータ駆動テスト実行】 ──
+            test.each(cases)(title, (...args) => {
+                // isNestedArray が真（二次元配列）なら [...args] として展開、偽（オブジェクト等）なら args をそのまま渡す
+                const targetFn = isNestedArray ? () => fn(...args) : () => fn(args);
                 assMethod(targetFn, ExpectedError, expectedMessage, ...args);
             });
         } else {
+            // 通常の単発テスト
             test(title, () => assMethod(fn, ExpectedError, expectedMessage));
         }
     }
