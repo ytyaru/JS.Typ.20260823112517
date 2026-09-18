@@ -1,6 +1,5 @@
 import { describe, test, expect } from "bun:test";
-import { Err, Ass, TestFailureError, TestDefinitionError } from "./err.js"; 
-//import { Err, Ass, TestFailureError } from "./err.js";
+import { Err, Ass, TestFailureError } from "./err.js";
 //import { vm } from "node:vm"; // node:vm モジュールをインポート
 //import vm from "node:vm"; // 💡 修正: 正しいインポート形式へ変更
 
@@ -312,55 +311,6 @@ describe("自作アサーションクラス Ass の厳格なテスト", () => {
 期待値: ${pattern}
 実際値: ミスマッチなメッセージ`);
     });
-
-/*
-    test("【API引数の検証】不正な引数を渡したとき、TestDefinitionError を投げること", () => {
-        let errFn = null;
-        try { Ass.same("関数ではない文字列", CustomTestError, "メッセージ"); } catch (e) { errFn = e; }
-        expect(errFn).not.toBeNull();
-        expect(errFn).toBeInstanceOf(TestDefinitionError); 
-        expect(errFn.name).toBe("TestDefinitionError");    
-        expect(errFn.message).toBe("[Ass.same] 引数エラー: 第1引数(fn)には検証対象の関数を渡す必要があります。 実際値: string"); 
-
-        let errCls = null;
-        try { Ass.same(() => {}, Object, "メッセージ"); } catch (e) { errCls = e; }
-        expect(errCls).not.toBeNull();
-        expect(errCls).toBeInstanceOf(TestDefinitionError); 
-        expect(errCls.name).toBe("TestDefinitionError");    
-        expect(errCls.message).toBe("[Ass.same] 引数エラー: 第2引数(ExpectedError)にはErrorクラス、またはそれを継承した例外型を指定する必要があります。 実際値: Object"); 
-
-        let errMsg = null;
-        try { Ass.same(() => {}, CustomTestError, 12345); } catch (e) { errMsg = e; }
-        expect(errMsg).not.toBeNull();
-        expect(errMsg).toBeInstanceOf(TestDefinitionError); 
-        expect(errMsg.name).toBe("TestDefinitionError");    
-        expect(errMsg.message).toBe("[Ass.same] 引数エラー: 第3引数(expectedMessage)には文字列、正規表現、または関数を指定する必要があります。 実際値: number"); 
-    });
-    */
-    // 💡 修正対象となる、テストファイル内の該当箇所（メッセージ部分のみを同期）
-    test("不正な引数を渡したとき、TestDefinitionError を投げること", () => {
-        let errFn = null;
-        try { Ass.same("関数ではない文字列", CustomTestError, "メッセージ"); } catch (e) { errFn = e; }
-        expect(errFn).not.toBeNull();
-        expect(errFn).toBeInstanceOf(TestDefinitionError); 
-        expect(errFn.name).toBe("TestDefinitionError");    
-        expect(errFn.message).toBe("第1引数(fn)は関数であるべきです。実際値: string"); 
-
-        let errCls = null;
-        try { Ass.same(() => {}, Object, "メッセージ"); } catch (e) { errCls = e; }
-        expect(errCls).not.toBeNull();
-        expect(errCls).toBeInstanceOf(TestDefinitionError); 
-        expect(errCls.name).toBe("TestDefinitionError");    
-        expect(errCls.message).toBe("第2引数(ExpectedError)はError例外型であるべきです。実際値: Object"); 
-
-        let errMsg = null;
-        try { Ass.same(() => {}, CustomTestError, 12345); } catch (e) { errMsg = e; }
-        expect(errMsg).not.toBeNull();
-        expect(errMsg).toBeInstanceOf(TestDefinitionError); 
-        expect(errMsg.name).toBe("TestDefinitionError");    
-        expect(errMsg.message).toBe("第3引数(expectedMessage)は文字列、正規表現、または関数であるべきです。実際値: number"); 
-    });
-
 });
 
 function dummyFunc(...args) {

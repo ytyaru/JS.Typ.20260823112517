@@ -1,23 +1,15 @@
 import { test } from "bun:test";
 
 export class TestFailureError extends Error {
+//class TestFailureError extends Error {
     constructor(message) {
         super(message);
         this.name = "TestFailureError";
     }
 }
 
-export class TestDefinitionError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "TestDefinitionError";
-    }
-}
-
 export class Ass {
     static test(fn, ExpectedError, expectedMessage, ...args) {
-        Ass.#validateArgs(fn, ExpectedError, expectedMessage);
-        
         const err = Ass.#run(fn);
         Ass.#failThrow(err, ExpectedError);
         const expectedName = new ExpectedError().name;
@@ -31,8 +23,6 @@ export class Ass {
     }
 
     static same(fn, ExpectedError, expectedMessage, ...args) {
-        Ass.#validateArgs(fn, ExpectedError, expectedMessage);
-
         const err = Ass.#run(fn);
         Ass.#failThrow(err, ExpectedError);
 
@@ -45,8 +35,6 @@ export class Ass {
     }
 
     static realm(fn, ExpectedError, expectedMessage, ...args) {
-        Ass.#validateArgs(fn, ExpectedError, expectedMessage);
-
         const err = Ass.#run(fn);
         Ass.#failThrow(err, ExpectedError);
         const expectedName = new ExpectedError().name;
@@ -57,20 +45,6 @@ export class Ass {
 実際値: ${err.name}`);
         }
         Ass.#failMessage(err, expectedMessage, args);
-    }
-
-    // 💡 解決: 動的な名前取得もリテラルも全廃。簡潔な事実のみを伝える
-    static #validateArgs(fn, ExpectedError, expectedMessage) {
-        if (typeof fn !== "function") {
-            throw new TestDefinitionError(`第1引数(fn)は関数であるべきです。実際値: ${typeof fn}`);
-        }
-        if (typeof ExpectedError !== "function" || !(ExpectedError.prototype instanceof Error || ExpectedError === Error)) {
-            throw new TestDefinitionError(`第2引数(ExpectedError)はError例外型であるべきです。実際値: ${ExpectedError?.name || typeof ExpectedError}`);
-        }
-        const msgType = typeof expectedMessage;
-        if (msgType !== "string" && msgType !== "function" && !(expectedMessage instanceof RegExp)) {
-            throw new TestDefinitionError(`第3引数(expectedMessage)は文字列、正規表現、または関数であるべきです。実際値: ${msgType}`);
-        }
     }
 
     static #run(fn) {
@@ -123,24 +97,28 @@ export class Err {
     static #execute(assMethod, title, fn, ExpectedError, expectedMessage, cases) {
         if (cases !== undefined) {
             if (!Array.isArray(cases)) {
-                throw new TestDefinitionError(`[Err API 不正利用] "${title}": casesには配列を渡す必要があります。`);
+                throw new Error(`[Err API 不正利用] "${title}": casesには配列を渡す必要があります。`);
             }
             if (cases.length === 0) {
-                throw new TestDefinitionError(`[Err API 不正利用] "${title}": cases配列が空です。テストデータが1件もありません。`);
+                throw new Error(`[Err API 不正利用] "${title}": cases配列が空です。テストデータが1件もありません。`);
             }
 
+            // 💡 修正：外側の配列ではなく、「最初の要素」が配列かどうかで二次元配列かを厳密に判定
             const isNestedArray = Array.isArray(cases[0]);
 
+            // 二次元配列と確定している場合のみ、中身の空チェック・配列チェックを行う
             if (isNestedArray && cases.some(c => !Array.isArray(c) || c.length === 0)) {
-                throw new TestDefinitionError(`[Err API 不正利用] "${title}": cases内のネスト配列に空、または配列でない要素が含まれています。`);
+                throw new Error(`[Err API 不正利用] "${title}": cases内のネスト配列に空、または配列でない要素が含まれています。`);
             }
 
             test.each(cases)(title, (...args) => {
-                // 💡 前々回に全件合格した「直通（仕分けをしない）」論理を完全に維持
-                assMethod(() => fn(...args), ExpectedError, expectedMessage, ...args);
+                // 💡 修正：cases[0] の判定結果（isNestedArray）を元に、関数の実行形式を正しく切り替える
+                const targetFn = isNestedArray ? () => fn(...args) : () => fn(args[0]);
+                assMethod(targetFn, ExpectedError, expectedMessage, ...args);
             });
         } else {
             test(title, () => assMethod(fn, ExpectedError, expectedMessage));
         }
     }
 }
+
