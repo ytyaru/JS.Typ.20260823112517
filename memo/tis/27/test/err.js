@@ -1,6 +1,7 @@
 import { test } from "bun:test";
 
-class TestFailureError extends Error {
+export class TestFailureError extends Error {
+//class TestFailureError extends Error {
     constructor(message) {
         super(message);
         this.name = "TestFailureError";
