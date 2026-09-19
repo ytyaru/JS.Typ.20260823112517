@@ -78,10 +78,15 @@ const MAP = {
         } },
     } },
 //    d: {fn: v => [undefined,null,Infinity,-Infinity].some(x=>x===v) || Number.isNaN(v) || (Number.isFinite(v) && (!Number.isSafeInteger(v) || !isSafeNum(v))) || tis.d.obj(v), full:Des.N.a, 
-    d: {fn: v => [undefined,null,Infinity,-Infinity].some(x=>x===v) || Number.isNaN(v) || (Number.isFinite(v) && (!Number.isSafeInteger(v) || !isSafeNum(v))) || dObj(v), full:Des.N.a, 
-        num: {fn: v => 'number'===typeof v, full:'Danger', default: 0, children: {
+//    d: {fn: v => [undefined,null,Infinity,-Infinity].some(x=>x===v) || Number.isNaN(v) || (Number.isFinite(v) && (!Number.isSafeInteger(v) || !isSafeNum(v))) || dObj(v), full:Des.N.a, 
+//    d: {fn: v => [undefined,null].some(x=>x===v) || !Number.isSafeInteger(v) || dObj(v), full:Des.N.a, 
+    d: {fn: v => [undefined,null,Infinity,-Infinity].some(x=>x===v) || Number.isNaN(v) || (Number.isFinite(v) && (!Number.isSafeInteger(v) || !isSafeNum(v))) || dObj(v), full:Des.N.a, children:{
+//        num: {fn: v => 'number'===typeof v, full:'Danger', default: 0, children: {
+        num: {fn: v => 'number'===typeof v && (!Number.isSafeInteger(v) || !isSafeNum(v)), full:'Number', default: 0, children: {
+
             nan: { fn: v => Number.isNaN(v), full: 'NaN', default: NaN },
-            inf: {fn: v => !Number.isFinite(v) && !Number.isNaN(v), full:'Infinity', default:Infinity, children:{
+            //inf: {fn: v => !Number.isFinite(v) && !Number.isNaN(v), full:'Infinity', default:Infinity, children:{
+            inf: {fn: v => [Infinity,-Infinity].some(x=>x===v), full:'Infinity', default:Infinity, children:{
                 p: { fn: v => v === Infinity, full:'Positive', default:Infinity },
                 n: { fn: v => -Infinity === v, full:'Negative', default:-Infinity }
             } },
@@ -97,7 +102,7 @@ const MAP = {
                 str: {fn:v=>Obj.getFlag(v).boxed.str, full:'String'},
             } },
         } }
-    },
+    } },
     g: {fn: v => true, default:0, full:'Group', children:{
         nun: {fn:v=>Number.isNaN(v) || [null,undefined].some(x=>x===v), full:'NullUndefinedNaN'},
         p: {full: 'Primitive', default: null,
