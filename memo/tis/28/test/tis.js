@@ -258,14 +258,57 @@ describe('tis', () => {
             });
             describe('arrow', () => {
                 describe('(v)', () => {
+                    describe('true', () => {
+                        test.each([[arrFn],[aarrFn],[()=>{}],[async()=>{}],[()=>1*2],[()=>{async()=>{}}]])('%p',v=>expect(tis.run.fn.arrow(v)).toBe(true));
+                    });
+                    describe('false', () => {
+                        test.each([Date,C,c,(new (function(){})()),new Date(),Object.create(null),Object.create({}),[],new Number(),undefined,null,true,0,0.1,NaN,Infinity,0n,Symbol(),''].map(x=>[x]))('%p',v=>expect(tis.run.fn.arrow(v)).toBe(false));
+                        test.each([[fn],[gfn],[afn],[agfn],[function(){}],[function*(){}],[async function(){}],[async function*(){}],[(function(){}).bind(null)],[[].map],[function f(){1*2}],[function f(){async()=>{}}]])('%p',v=>expect(tis.run.fn.arrow(v)).toBe(false));
+                        for (let x of [cal.md,des.c,des.i,des.o,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                            test.each(x)('%p',v=>expect(tis.run.fn.arrow(v)).toBe(false));
+                        }
+                    });
                 });
                 describe('s', () => {
+                    describe('true', () => {
+                        test.each([[arrFn],[()=>{}],[()=>1*2],[()=>{async()=>{}}]])('%p',v=>expect(tis.run.fn.arrow.s(v)).toBe(true));
+                    });
+                    describe('false', () => {
+                        test.each([[aarrFn],,[async()=>{}]])('%p',v=>expect(tis.run.fn.arrow.s(v)).toBe(false));
+                        test.each([Date,C,c,(new (function(){})()),new Date(),Object.create(null),Object.create({}),[],new Number(),undefined,null,true,0,0.1,NaN,Infinity,0n,Symbol(),''].map(x=>[x]))('%p',v=>expect(tis.run.fn.arrow.s(v)).toBe(false));
+                        test.each([[fn],[gfn],[afn],[agfn],[function(){}],[function*(){}],[async function(){}],[async function*(){}],[(function(){}).bind(null)],[[].map],[function f(){1*2}],[function f(){async()=>{}}]])('%p',v=>expect(tis.run.fn.arrow.s(v)).toBe(false));
+                        for (let x of [cal.md,des.c,des.i,des.o,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                            test.each(x)('%p',v=>expect(tis.run.fn.arrow.s(v)).toBe(false));
+                        }
+                    });
                 });
                 describe('a', () => {
+                    describe('true', () => {
+                        test.each([[aarrFn],[async()=>{}]])('%p',v=>expect(tis.run.fn.arrow.a(v)).toBe(true));
+                    });
+                    describe('false', () => {
+                        test.each([[arrFn],[()=>{}],[()=>1*2],[()=>{async()=>{}}]])('%p',v=>expect(tis.run.fn.arrow.a(v)).toBe(false));
+                        test.each([Date,C,c,(new (function(){})()),new Date(),Object.create(null),Object.create({}),[],new Number(),undefined,null,true,0,0.1,NaN,Infinity,0n,Symbol(),''].map(x=>[x]))('%p',v=>expect(tis.run.fn.arrow.a(v)).toBe(false));
+                        test.each([[fn],[gfn],[afn],[agfn],[function(){}],[function*(){}],[async function(){}],[async function*(){}],[(function(){}).bind(null)],[[].map],[function f(){1*2}],[function f(){async()=>{}}]])('%p',v=>expect(tis.run.fn.arrow.a(v)).toBe(false));
+                        for (let x of [cal.md,des.c,des.i,des.o,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                            test.each(x)('%p',v=>expect(tis.run.fn.arrow.a(v)).toBe(false));
+                        }
+                    });
                 });
             });
             describe('es5', () => {
                 describe('(v)', () => {
+                    describe('true', () => {
+                        test.each([[fn],[gfn],[afn],[agfn],[function(){}],[function*(){}],[async function(){}],[async function*(){}],[function f(){1*2}],[function f(){async()=>{}}]])('%p',v=>expect(tis.run.fn.es5(v)).toBe(true));
+                    });
+                    describe('false', () => {
+                        test.each([[arrFn],[aarrFn],[()=>{}],[async()=>{}],[()=>1*2],[()=>{async()=>{}}]])('%p',v=>expect(tis.run.fn.es5(v)).toBe(false));
+                        test.each([Date,C,c,(new (function(){})()),new Date(),Object.create(null),Object.create({}),[],new Number(),undefined,null,true,0,0.1,NaN,Infinity,0n,Symbol(),''].map(x=>[x]))('%p',v=>expect(tis.run.fn.es5(v)).toBe(false));
+                        test.each([[(function(){}).bind(null)],[[].map]])('%p',v=>expect(tis.run.fn.es5(v)).toBe(false));
+                        for (let x of [cal.md,des.c,des.i,des.o,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                            test.each(x)('%p',v=>expect(tis.run.fn.es5(v)).toBe(false));
+                        }
+                    });
                 });
                 describe('s', () => {
                     describe('(v)', () => {

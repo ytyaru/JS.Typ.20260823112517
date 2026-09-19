@@ -1,18 +1,25 @@
 import {Ag} from './ag.js';
+const getCode = v => 'function'===typeof v ? Function.prototype.toString.call(v)
+    .replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '').trim() // コメント削除
+    .replace(/(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g, '""') // 文字列リテラル（'' , "" , ``）を空文字に置換
+    .replace(/\/([^\/\n\\]|\\.)+\/[gimsuy]*/g, '//') : ''; // 正規表現リテラルを除外
 class Cls {
     static getFlag(is,v,s) { 
+//        if (!s) s = getCode(v);
         const es6 = is && this.isEs6(v,s);
         const es5 = is && this.isEs5(v,s);
         const native = is && Fn.isNative(v,s) && this.isNative(v);
         return {is:es6 || es5 || native, es6, es5, native};
     }
     static isEs6(v,s) {
-        if (!s) s = Function.prototype.toString.call(v); // Instance判定時に呼び出す時用に必要
+//        if (!s) s = Function.prototype.toString.call(v); // Instance判定時に呼び出す時用に必要
+//        if (!s) s = getCode(v);
         // Bunの最適化やコメントに対応した正規表現で class 構文か判定
         return /^\s*class\b/.test(s);
     }
     static isEs5(v,s) {
-        if (!s) s = Function.prototype.toString.call(v);
+//        if (!s) s = Function.prototype.toString.call(v);
+//        if (!s) s = getCode(v);
         //if (this._isEs6Cls(v,s) || Fn.isNative(v,s) || Fn.isArrow(v,s)) return false;
         if (Cls.isEs6(v,s) || Fn.isNative(v,s) || Fn.isArrow(v,s)) return false;
         
@@ -52,15 +59,11 @@ class Fn {// クラスと関数を分け、関数を更に細分化する
         es5: 'ES5',
         es6: 'ES6',
     });
-    static getCode(v){
-        return 'function'===typeof v ? Function.prototype.toString.call(v)
-            .replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '').trim() // コメント削除
-            .replace(/(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g, '""') // 文字列リテラル（'' , "" , ``）を空文字に置換
-            .replace(/\/([^\/\n\\]|\\.)+\/[gimsuy]*/g, '//') : ''; // 正規表現リテラルを除外
-    }
+    static getCode(v){return getCode(v)}
     static getFlag(v) {
         const is = 'function'===typeof v;
-        const s = is ? this.getCode(v) : '';
+        //const s = is ? this.getCode(v) : '';
+        const s = is ? getCode(v) : '';
         const cls = Cls.getFlag(is,v,s);
         if (!is) return {is,cls,...this.#getFnMd(v,false,cls,false,false,false,false,false,false)};
         const bound = !cls.is && v.name?.startsWith('bound ');
@@ -85,10 +88,12 @@ class Fn {// クラスと関数を分け、関数を更に細分化する
         //is: is && !cls.is,
 //        is: is && !cls.is && !md,
 //        is: is && !cls.is || (bound || native || arrow || es5),
+//        is: is && !cls.is && !md || (bound || native || arrow || es5),
         is: is && !cls.is && !md || (bound || native || arrow || es5),
         bound,
         native,
         arrow: {
+            //is: arrow,
             is: arrow,
             a: arrow &&  ag.a,
             s: arrow && !ag.a,

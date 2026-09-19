@@ -94,12 +94,22 @@ class Des {
 }
 class Ins {
     static getFlag(v,is,proto,plain,tag,ary,boxed) {
-        const es6 = is && this.isEs6(proto, proto?.constructor);
-        const es5 = is && this.isEs5(proto, proto?.constructor);
+        const ctor = proto?.constructor;
+        const s = Fn.getCode(ctor);
+        const es6 = is && this.#isEs6(proto, ctor, s);
+        const es5 = is && this.#isEs5(proto, ctor, s);
         const native = is && !plain && !ary && !boxed.is && 'Object'!==tag && !es6 && !es5;
         return {is:es6||es5||native, es6, es5, native}
     }
+    static #isEs6(proto, ctor, s) {return (typeof ctor !== 'function') ? false : Cls.isEs6(ctor, s)}
+    static #isEs5(proto, ctor, s) {return typeof ctor !== 'function' || (ctor === Object || ctor === Function) || (Cls.isEs6(ctor,s) || Fn.isNative(ctor, s)) ? false : (Cls.isEs5(ctor,s) || (proto !== Object.prototype && proto !== Function.prototype));}
+    /*
     static isEs6(proto, ctor) {return (typeof ctor !== 'function') ? false : Cls.isEs6(ctor, Fn.getCode(ctor))}
-    static isEs5(proto, ctor) {return typeof ctor !== 'function' || (ctor === Object || ctor === Function) || (Cls.isEs6(ctor) || Fn.isNative(ctor, Fn.getCode(ctor))) ? false : (Cls.isEs5(ctor) || (proto !== Object.prototype && proto !== Function.prototype));}
+    static isEs5(proto, ctor) {
+        const s = Fn.getCode(ctor);
+        return typeof ctor !== 'function' || (ctor === Object || ctor === Function) || (Cls.isEs6(ctor,s) || Fn.isNative(ctor, Fn.getCode(ctor))) ? false : (Cls.isEs5(ctor,s) || (proto !== Object.prototype && proto !== Function.prototype));
+    }
+    //static isEs5(proto, ctor) {return typeof ctor !== 'function' || (ctor === Object || ctor === Function) || (Cls.isEs6(ctor) || Fn.isNative(ctor, Fn.getCode(ctor))) ? false : (Cls.isEs5(ctor) || (proto !== Object.prototype && proto !== Function.prototype));}
+    */
 }
 export {Obj,Des,Ins}

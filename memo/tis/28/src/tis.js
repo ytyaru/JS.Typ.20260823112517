@@ -1,5 +1,5 @@
 import {Ag} from './is/ag.js';
-import {Fn} from './is/fn.js';
+import {Fn,Cls} from './is/fn.js';
 import {Obj,Des,Ins} from './is/obj.js';
 const getTag = v => Object.prototype.toString.call(v).slice(8, -1);
 const isSafeNum = v => v <= Number.MAX_SAFE_INTEGER && Number.MIN_SAFE_INTEGER <= v;
@@ -32,18 +32,19 @@ const MAP = {
         fn: {fn: v => Fn.getFlag(v).fn.is, default: null, full: 'Function', children: {
             bound: {fn:v=>Fn.getFlag(v).fn.bound, full:Fn.N.b},
             native: {fn:v=>Fn.getFlag(v).fn.native, full:Fn.N.n},
-            arrow: {fn:v=>Fn.getFlag(v).fn.arrow, default: null, full:Fn.N.a, children: {
+            arrow: {fn:v=>Fn.getFlag(v).fn.arrow.is, default: null, full:Fn.N.a, children: {
                 s: {fn:v=>Fn.getFlag(v).fn.arrow.s, full:Ag.N.s},
                 a: {fn:v=>Fn.getFlag(v).fn.arrow.a, full:Ag.N.a},
             } },
-            es5: {fn:v=>!Cls.getFlag(v,Fn.getCode(v)).fn.is, default: null, full:Fn.N.f, children: {
-                s: {fn:v=>Fn.getFlag(v).fn.s.n, full:Ag.N.s, children: {
-                    n: {fn:v=>Fn.getFlag(v).fn.s.n, full:Fn.N.f},
-                    a: {fn:v=>Fn.getFlag(v).fn.s.a, full:Ag.N.A},
+            //es5: {fn:v=>!Cls.getFlag(v,Fn.getCode(v)).fn.es5.is, default: null, full:Fn.N.f, children: {
+            es5: {fn:v=>Fn.getFlag(v).fn.es5.is, default: null, full:Fn.N.f, children: {
+                s: {fn:v=>Fn.getFlag(v).fn.es5.s.is, full:Ag.N.s, children: {
+                    n: {fn:v=>Fn.getFlag(v).fn.es5.s.n, full:Fn.N.f},
+                    a: {fn:v=>Fn.getFlag(v).fn.es5.s.a, full:Ag.N.A},
                 } },
-                a: {fn:v=>Fn.getFlag(v).fn.a, full:Ag.N.a},
-                g: {fn:v=>Fn.getFlag(v).fn.g, full:Ag.N.g},
-                ag: {fn:v=>Fn.getFlag(v).fn.ag, full:Ag.N.ag},
+                a: {fn:v=>Fn.getFlag(v).fn.es5.a, full:Ag.N.a},
+                g: {fn:v=>Fn.getFlag(v).fn.es5.g, full:Ag.N.g},
+                ag: {fn:v=>Fn.getFlag(v).fn.es5.ag, full:Ag.N.ag},
             } },
         } },
         md: {fn:v=>Fn.getFlag(v).md.is, default:null, full:Fn.N.m, children: {
