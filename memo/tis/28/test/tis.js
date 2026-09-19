@@ -963,17 +963,77 @@ describe('tis', () => {
     });
     describe('g', () => {
         describe('(v)', () => {
+            // 常にtrueだからテストする必要なし。実装する必要すらなし。
         });
         describe('nun', () => {
+            describe('true', () => {
+                test.each([[undefined],[null],[NaN]])('%p',v=>expect(tis.g.nun(v)).toBe(true));
+            });
+            describe('false', () => {
+                test.each([[new Boolean()],[new Number()],[new String()]])('%p',v=>expect(tis.g.nun(v)).toBe(false));
+                test.each([[Object.create({})],[Object.create(null)]])('%p',v=>expect(tis.g.nun(v)).toBe(false));
+                test.each([[Infinity],[-Infinity],[0.1],[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1]])('%p',v=>expect(tis.g.nun(v)).toBe(false));
+                test.each([[true],[false],[0],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0n],[''],[Symbol()]])('%p',v=>expect(tis.g.nun(v)).toBe(false));
+                for (let x of [cal.fn,cal.md,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native,des.c,des.i,des.o]) {
+                    test.each(x)('%p',v=>expect(tis.g.nun(v)).toBe(false));
+                }
+            });
         });
         describe('p', () => {
+            describe('true', () => {
+                //test.each([])('%p',v=>expect(tis.g.p(v)).toBe(true));
+                test.each([[Infinity],[-Infinity],[NaN],[0.1],[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1]])('%p',v=>expect(tis.g.p(v)).toBe(true));
+                test.each([[true],[false],[0],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0n],[''],[Symbol()]])('%p',v=>expect(tis.g.p(v)).toBe(true));
+                test.each([[undefined],[null]])('%p',v=>expect(tis.g.p(v)).toBe(true));
+                test.each(prims)('%p',v=>expect(tis.g.p(v)).toBe(true));
+            });
+            describe('false', () => {
+                test.each([[new Boolean()],[new Number()],[new String()]])('%p',v=>expect(tis.g.p(v)).toBe(false));
+                test.each([[Object.create({})],[Object.create(null)]])('%p',v=>expect(tis.g.p(v)).toBe(false));
+                for (let x of [cal.fn,cal.md,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native,des.c,des.i,des.o]) {
+                    test.each(x)('%p',v=>expect(tis.g.p(v)).toBe(false));
+                }
+            });
         });
         describe('o', () => {
             describe('(v)', () => {
+                describe('true', () => {
+                    for (let x of [objs,cal.fn,cal.md,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native,des.c,des.i,des.o]) {
+                        test.each(x)('%p',v=>expect(tis.g.o(v)).toBe(true));
+                    }
+                });
+                describe('false', () => {
+                    for (let x of [prims]) {
+                        test.each(x)('%p',v=>expect(tis.g.o(v)).toBe(false));
+                    }
+                });
             });
             describe('cr', () => {
+                describe('true', () => {
+                    for (let x of [cal.fn,cal.md,cls.es6,cls.es5,cls.native]) {
+                        test.each(x)('%p',v=>expect(tis.g.o.cr(v)).toBe(true));
+                    }
+                    test.each([[C],[class{}],[class C{}]])('%p',v=>expect(tis.g.o.cr(v)).toBe(true));
+                });
+                describe('false', () => {//objs,
+                    for (let x of [prims,ins.es6,ins.es5,ins.native,des.c,des.i,des.o]) {
+                        test.each(x)('%p',v=>expect(tis.g.o.cr(v)).toBe(false));
+                    }
+                    test.each([[{}],[[]],[new C()],[new (class{})],[new (class C{})]])('%p',v=>expect(tis.g.o.cr(v)).toBe(false));
+                });
             });
             describe('ctn', () => {
+                describe('true', () => {
+                    for (let x of [cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native,des.c,des.i,des.o]) {
+                        test.each(x)('%p',v=>expect(tis.g.o.ctn(v)).toBe(true));
+                    }
+                    test.each([[{}],[[]],[C],[class{}],[class C{}],[new C()],[new (class{})],[new (class C{})]])('%p',v=>expect(tis.g.o.ctn(v)).toBe(true));
+                });
+                describe('false', () => {
+                    for (let x of [prims,cal.fn,cal.md,]) {
+                        test.each(x)('%p',v=>expect(tis.g.o.ctn(v)).toBe(false));
+                    }
+                });
             });
         });
     });

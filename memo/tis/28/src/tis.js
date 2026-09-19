@@ -118,7 +118,7 @@ const MAP = {
                 return null!==v && 'object function'.split(' ').some(n=>n===t);
             },
             children: {
-                cr: {fn:v=>'funtion'===typeof v, full:'ClassOrRun'},
+                cr: {fn:v=>'function'===typeof v, full:'ClassOrRun'},
                 ctn: {fn:v=>'object'===typeof v || tis.cls(v), full:'Container'},
             }
         },
