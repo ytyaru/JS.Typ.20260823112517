@@ -407,6 +407,16 @@ describe('tis', () => {
         });
         describe('md', () => {
             describe('(v)', () => {
+                describe('true', () => {
+                    test.each(cal.md)('%p',v=>expect(tis.run.md(v)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([Date,C,c,(new (function(){})()),new Date(),Object.create(null),Object.create({}),[],new Number(),undefined,null,true,0,0.1,NaN,Infinity,0n,Symbol(),''].map(x=>[x]))('%p',v=>expect(tis.run.md(v)).toBe(false));
+                    test.each([[(function(){}).bind(null)],[[].map]])('%p',v=>expect(tis.run.md(v)).toBe(false));
+                    for (let x of [cal.fn,des.c,des.i,des.o,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                        test.each(x)('%p',v=>expect(tis.run.md(v)).toBe(false));
+                    }
+                });
             });
 
             describe('s', () => {
@@ -426,6 +436,22 @@ describe('tis', () => {
     });
     describe('cls', () => {
         describe('(v)', () => {
+            describe('true', () => {
+                test.each([[C],[(function Fn(){})],[Date]])('%p',v=>expect(tis.cls(v)).toBe(true));
+            });
+            describe('false', () => {
+//                    test.each([[fn],[gfn],[afn],[agfn],[function(){}],[function*(){}],[async function(){}],[async function*(){}],[function f(){1*2}],[function f(){async()=>{}}],[arrFn],[aarrFn],[()=>{}],[async()=>{}],[()=>1*2],[()=>{async()=>{}}]])('%p',v=>expect(tis.run.fn.es5(v)).toBe(false));
+
+
+                test.each([c,(new (function(){})()),new Date(),Object.create(null),Object.create({}),[],new Number(),undefined,null,true,0,0.1,NaN,Infinity,0n,Symbol(),''].map(x=>[x]))('%p',v=>expect(tis.cls(v)).toBe(false));
+                /*
+                test.each([[(function(){}).bind(null)],[[].map]])('%p',v=>expect(tis.run.md(v)).toBe(false));
+                for (let x of [cal.fn,cal.md,des.c,des.i,des.o,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                    test.each(x)('%p',v=>expect(tis.run.md(v)).toBe(false));
+                }
+                */
+            });
+
         });
         describe('es6', () => {
         });

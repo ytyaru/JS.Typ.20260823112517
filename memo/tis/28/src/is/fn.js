@@ -63,13 +63,15 @@ class Fn {// クラスと関数を分け、関数を更に細分化する
     static getFlag(v) {
         const is = 'function'===typeof v;
         //const s = is ? this.getCode(v) : '';
-        const s = is ? getCode(v) : '';
+        const s = getCode(v);
         const cls = Cls.getFlag(is,v,s);
         if (!is) return {is,cls,...this.#getFnMd(v,false,cls,false,false,false,false,false,false)};
         const bound = !cls.is && v.name?.startsWith('bound ');
         const native = !cls.is && !bound && s.includes('[native code]');
         const arrow = !cls.is && !bound && !native && !v.hasOwnProperty('prototype') && s.includes('=>');
-        const md = !cls.is && !bound && !native && !arrow && /\bfunction\b/.test(s) ? false : !s.includes('=>');
+        const md = !cls.is && !bound && !native && !arrow && !s.includes('=>') && !/\bfunction\b/.test(s);
+//        const md = !cls.is && !bound && !native && !arrow && (/\bfunction\b/.test(s) ? false : !s.includes('=>'));
+//        const md = !cls.is && !bound && !native && !arrow && /\bfunction\b/.test(s) ? false : !s.includes('=>');
         //const md = !cls.is && (!bound && !native && !arrow && (/\bfunction\b/.test(s) ? false : !s.includes('=>')));
         //const md = !cls.is && (!bound && !native && !arrow && !s.includes('=>'));
         //const md = (!cls.is && !bound && !native && !arrow && /\bfunction\b/.test(s)) ? false : !s.includes('=>');
