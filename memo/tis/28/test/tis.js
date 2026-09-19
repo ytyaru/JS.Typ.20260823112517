@@ -830,28 +830,133 @@ describe('tis', () => {
                 });
             });
             describe('flt', () => {
+                describe('true', () => {
+                    test.each([[0.1]])('%p',v=>expect(tis.d.num.flt(v)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[Infinity],[-Infinity],[NaN]])('%p',v=>expect(tis.d.num.flt(v)).toBe(false));
+                    test.each([[undefined],[null],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[Object.create({})]])('%p',v=>expect(tis.d.num.flt(v)).toBe(false));
+                    test.each([[true],[false],[0],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0n],[''],[Symbol()]])('%p',v=>expect(tis.d.num.flt(v)).toBe(false));
+                    for (let x of [cal.fn,cal.md,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native,des.c,des.i,des.o]) {
+                        test.each(x)('%p',v=>expect(tis.d.num.flt(v)).toBe(false));
+                    }
+                });
             });
             describe('over', () => {
+                describe('true', () => {
+                    test.each([[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1]])('%p',v=>expect(tis.d.num.over(v)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[Infinity],[-Infinity],[NaN],[0.1]])('%p',v=>expect(tis.d.num.over(v)).toBe(false));
+                    test.each([[undefined],[null],[new Boolean()],[new Number()],[new String()],[Object.create(null)],[Object.create({})]])('%p',v=>expect(tis.d.num.over(v)).toBe(false));
+                    test.each([[true],[false],[0],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0n],[''],[Symbol()]])('%p',v=>expect(tis.d.num.over(v)).toBe(false));
+                    for (let x of [cal.fn,cal.md,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native,des.c,des.i,des.o]) {
+                        test.each(x)('%p',v=>expect(tis.d.num.over(v)).toBe(false));
+                    }
+                });
             });
-
         });
         describe('obj', () => {
             describe('(v)', () => {
+                describe('true', () => {
+                    test.each([[new Boolean()],[new Number()],[new String()],[Object.create(null)],[Object.create({})]])('%p',v=>expect(tis.d.obj(v)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[Infinity],[-Infinity],[NaN],[0.1],[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1]])('%p',v=>expect(tis.d.obj(v)).toBe(false));
+                    test.each([[undefined],[null]])('%p',v=>expect(tis.d.obj(v)).toBe(false));
+                    test.each([[true],[false],[0],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0n],[''],[Symbol()]])('%p',v=>expect(tis.d.obj(v)).toBe(false));
+                    for (let x of [cal.fn,cal.md,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native,des.c,des.i,des.o]) {
+                        test.each(x)('%p',v=>expect(tis.d.obj(v)).toBe(false));
+                    }
+                });
             });
             describe('none', () => {
+                describe('true', () => {
+                    test.each([[Object.create(null)]])('%p',v=>expect(tis.d.obj.none(v)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[new Boolean()],[new Number()],[new String()],[Object.create({})]])('%p',v=>expect(tis.d.obj.none(v)).toBe(false));
+                    test.each([[Infinity],[-Infinity],[NaN],[0.1],[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1]])('%p',v=>expect(tis.d.obj.none(v)).toBe(false));
+                    test.each([[undefined],[null]])('%p',v=>expect(tis.d.obj.none(v)).toBe(false));
+                    test.each([[true],[false],[0],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0n],[''],[Symbol()]])('%p',v=>expect(tis.d.obj.none(v)).toBe(false));
+                    for (let x of [cal.fn,cal.md,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native,des.c,des.i,des.o]) {
+                        test.each(x)('%p',v=>expect(tis.d.obj.none(v)).toBe(false));
+                    }
+                });
             });
-
             describe('proto', () => {
+                describe('true', () => {
+                    test.each([[Object.create({})]])('%p',v=>expect(tis.d.obj.proto(v)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[Object.create(null)],[new Boolean()],[new Number()],[new String()]])('%p',v=>expect(tis.d.obj.proto(v)).toBe(false));
+                    test.each([[Infinity],[-Infinity],[NaN],[0.1],[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1]])('%p',v=>expect(tis.d.obj.proto(v)).toBe(false));
+                    test.each([[undefined],[null]])('%p',v=>expect(tis.d.obj.proto(v)).toBe(false));
+                    test.each([[true],[false],[0],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0n],[''],[Symbol()]])('%p',v=>expect(tis.d.obj.proto(v)).toBe(false));
+                    for (let x of [cal.fn,cal.md,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native,des.c,des.i,des.o]) {
+                        test.each(x)('%p',v=>expect(tis.d.obj.proto(v)).toBe(false));
+                    }
+                });
             });
-
             describe('boxed', () => {
                 describe('(v)', () => {
+                    describe('true', () => {
+                        test.each([[new Boolean()],[new Number()],[new String()]])('%p',v=>expect(tis.d.obj.boxed(v)).toBe(true));
+                    });
+                    describe('false', () => {
+                        test.each([[Object.create({})],[Object.create(null)]])('%p',v=>expect(tis.d.obj.boxed(v)).toBe(false));
+                        test.each([[Infinity],[-Infinity],[NaN],[0.1],[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1]])('%p',v=>expect(tis.d.obj.boxed(v)).toBe(false));
+                        test.each([[undefined],[null]])('%p',v=>expect(tis.d.obj.boxed(v)).toBe(false));
+                        test.each([[true],[false],[0],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0n],[''],[Symbol()]])('%p',v=>expect(tis.d.obj.boxed(v)).toBe(false));
+                        for (let x of [cal.fn,cal.md,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native,des.c,des.i,des.o]) {
+                            test.each(x)('%p',v=>expect(tis.d.obj.boxed(v)).toBe(false));
+                        }
+                    });
                 });
                 describe('bln', () => {
+                    describe('true', () => {
+                        test.each([[new Boolean()]])('%p',v=>expect(tis.d.obj.boxed.bln(v)).toBe(true));
+                    });
+                    describe('false', () => {
+                        test.each([[new Number()],[new String()]])('%p',v=>expect(tis.d.obj.boxed.bln(v)).toBe(false));
+                        test.each([[Object.create({})],[Object.create(null)]])('%p',v=>expect(tis.d.obj.boxed.bln(v)).toBe(false));
+                        test.each([[Infinity],[-Infinity],[NaN],[0.1],[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1]])('%p',v=>expect(tis.d.obj.boxed.bln(v)).toBe(false));
+                        test.each([[undefined],[null]])('%p',v=>expect(tis.d.obj.boxed.bln(v)).toBe(false));
+                        test.each([[true],[false],[0],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0n],[''],[Symbol()]])('%p',v=>expect(tis.d.obj.boxed.bln(v)).toBe(false));
+                        for (let x of [cal.fn,cal.md,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native,des.c,des.i,des.o]) {
+                            test.each(x)('%p',v=>expect(tis.d.obj.boxed.bln(v)).toBe(false));
+                        }
+                    });
                 });
                 describe('num', () => {
+                    describe('true', () => {
+                        test.each([[new Number()]])('%p',v=>expect(tis.d.obj.boxed.num(v)).toBe(true));
+                    });
+                    describe('false', () => {
+                        test.each([[new Boolean()],[new String()]])('%p',v=>expect(tis.d.obj.boxed.num(v)).toBe(false));
+                        test.each([[Object.create({})],[Object.create(null)]])('%p',v=>expect(tis.d.obj.boxed.num(v)).toBe(false));
+                        test.each([[Infinity],[-Infinity],[NaN],[0.1],[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1]])('%p',v=>expect(tis.d.obj.boxed.num(v)).toBe(false));
+                        test.each([[undefined],[null]])('%p',v=>expect(tis.d.obj.boxed.num(v)).toBe(false));
+                        test.each([[true],[false],[0],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0n],[''],[Symbol()]])('%p',v=>expect(tis.d.obj.boxed.num(v)).toBe(false));
+                        for (let x of [cal.fn,cal.md,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native,des.c,des.i,des.o]) {
+                            test.each(x)('%p',v=>expect(tis.d.obj.boxed.num(v)).toBe(false));
+                        }
+                    });
                 });
                 describe('str', () => {
+                    describe('true', () => {
+                        test.each([[new String()]])('%p',v=>expect(tis.d.obj.boxed.str(v)).toBe(true));
+                    });
+                    describe('false', () => {
+                        test.each([[new Boolean()],[new Number()]])('%p',v=>expect(tis.d.obj.boxed.str(v)).toBe(false));
+                        test.each([[Object.create({})],[Object.create(null)]])('%p',v=>expect(tis.d.obj.boxed.str(v)).toBe(false));
+                        test.each([[Infinity],[-Infinity],[NaN],[0.1],[Number.MAX_SAFE_INTEGER+1],[Number.MIN_SAFE_INTEGER-1]])('%p',v=>expect(tis.d.obj.boxed.str(v)).toBe(false));
+                        test.each([[undefined],[null]])('%p',v=>expect(tis.d.obj.boxed.str(v)).toBe(false));
+                        test.each([[true],[false],[0],[Number.MAX_SAFE_INTEGER],[Number.MIN_SAFE_INTEGER],[0n],[''],[Symbol()]])('%p',v=>expect(tis.d.obj.boxed.str(v)).toBe(false));
+                        for (let x of [cal.fn,cal.md,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native,des.c,des.i,des.o]) {
+                            test.each(x)('%p',v=>expect(tis.d.obj.boxed.str(v)).toBe(false));
+                        }
+                    });
                 });
             });
         });
