@@ -107,7 +107,8 @@ class Fn {// クラスと関数を分け、関数を更に細分化する
             },
             a: es5 && ag.a,
             g: es5 && ag.g,
-            ag: es5 && ag.a && ag.g,
+            ag: es5 && ag.ag,
+            //ag: es5 && ag.a && ag.g,
         },
     } }
 //    static #getMd(md,ag) { return {
