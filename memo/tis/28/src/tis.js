@@ -48,10 +48,10 @@ const MAP = {
             } },
         } },
         md: {fn:v=>Fn.getFlag(v).md.is, default:null, full:Fn.N.m, children: {
-            s: {fn:v=>Fn.getFlag(v).method.s, full:Ag.N.s},
-            a: {fn:v=>Fn.getFlag(v).method.a, full:Ag.N.a},
-            g: {fn:v=>Fn.getFlag(v).method.g, full:Ag.N.g},
-            ag: {fn:v=>Fn.getFlag(v).method.ag, full:Ag.N.ag},
+            s: {fn:v=>Fn.getFlag(v).md.s, full:Ag.N.s},
+            a: {fn:v=>Fn.getFlag(v).md.a, full:Ag.N.a},
+            g: {fn:v=>Fn.getFlag(v).md.g, full:Ag.N.g},
+            ag: {fn:v=>Fn.getFlag(v).md.ag, full:Ag.N.ag},
         } },
     } },
     cls: {fn: v => Fn.getFlag(v,Fn.getCode(v)).cls.is, default: null, children: {
@@ -65,14 +65,16 @@ const MAP = {
         native: {fn:v=>Obj.getFlag(v).ins.native, full:Fn.N.n},
     } },
     des: {fn: v => Obj.getFlag(v).des.is, full:Des.N.D, default:null, children:{
-        d: {fn: v => Obj.getFlag(v).des.d, full:Des.N.d, children:{
+        d: {fn: v => Obj.getFlag(v).des.d.is, full:Des.N.d, children:{
             v: {fn:v=>Obj.getFlag(v).des.d.v, full:Des.N.v},
             m: {fn:v=>Obj.getFlag(v).des.d.m, full:Des.N.m},
         } },
-        a: {fn: v => Obj.getFlag(v).des.a, full:Des.N.a, children:{
+        a: {fn: v => Obj.getFlag(v).des.a.is, full:Des.N.a, children:{
             g: {fn:v=>Obj.getFlag(v).des.a.g, full:Des.N.g},
             s: {fn:v=>Obj.getFlag(v).des.a.s, full:Des.N.s},
             gs: {fn:v=>Obj.getFlag(v).des.a.gs, full:Des.N.gs},
+            hasG: {fn:v=>Obj.getFlag(v).des.a.hasG, full:'HasG'},
+            hasS: {fn:v=>Obj.getFlag(v).des.a.hasS, full:'HasS'},
         } },
     } },
 //    d: {fn: v => [undefined,null,Infinity,-Infinity].some(x=>x===v) || Number.isNaN(v) || (Number.isFinite(v) && (!Number.isSafeInteger(v) || !isSafeNum(v))) || tis.d.obj(v), full:Des.N.a, 

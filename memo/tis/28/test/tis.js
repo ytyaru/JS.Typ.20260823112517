@@ -418,34 +418,75 @@ describe('tis', () => {
                     }
                 });
             });
-
             describe('s', () => {
+                describe('true', () => {
+                    test.each([[_obj.m],[C.sm],[c.m]])('%p',v=>expect(tis.run.md.s(v)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[_obj.gm],[_obj.am],[_obj.agm],[C.sgm],[C.sam],[C.sagm],[c.gm],[c.am],[c.agm]])('%p',v=>expect(tis.run.md.s(v)).toBe(false));
+                    test.each([Date,C,c,(new (function(){})()),new Date(),Object.create(null),Object.create({}),[],new Number(),undefined,null,true,0,0.1,NaN,Infinity,0n,Symbol(),''].map(x=>[x]))('%p',v=>expect(tis.run.md.s(v)).toBe(false));
+                    test.each([[(function(){}).bind(null)],[[].map]])('%p',v=>expect(tis.run.md.s(v)).toBe(false));
+                    for (let x of [cal.fn,des.c,des.i,des.o,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                        test.each(x)('%p',v=>expect(tis.run.md.s(v)).toBe(false));
+                    }
+                });
             });
             describe('a', () => {
-
+                describe('true', () => {
+                    test.each([[_obj.am],[C.sam],[c.am]])('%p',v=>expect(tis.run.md.a(v)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[_obj.m],[C.sm],[c.m],[_obj.gm],[_obj.agm],[C.sgm],[C.sagm],[c.gm],[c.agm]])('%p',v=>expect(tis.run.md.a(v)).toBe(false));
+                    test.each([Date,C,c,(new (function(){})()),new Date(),Object.create(null),Object.create({}),[],new Number(),undefined,null,true,0,0.1,NaN,Infinity,0n,Symbol(),''].map(x=>[x]))('%p',v=>expect(tis.run.md.a(v)).toBe(false));
+                    test.each([[(function(){}).bind(null)],[[].map]])('%p',v=>expect(tis.run.md.a(v)).toBe(false));
+                    for (let x of [cal.fn,des.c,des.i,des.o,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                        test.each(x)('%p',v=>expect(tis.run.md.a(v)).toBe(false));
+                    }
+                });
             });
             describe('g', () => {
-
+                describe('true', () => {
+                    test.each([[_obj.gm],[C.sgm],[c.gm]])('%p',v=>expect(tis.run.md.g(v)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[_obj.am],[C.sam],[c.am],[_obj.m],[C.sm],[c.m],[_obj.agm],[C.sagm],[c.agm]])('%p',v=>expect(tis.run.md.g(v)).toBe(false));
+                    test.each([Date,C,c,(new (function(){})()),new Date(),Object.create(null),Object.create({}),[],new Number(),undefined,null,true,0,0.1,NaN,Infinity,0n,Symbol(),''].map(x=>[x]))('%p',v=>expect(tis.run.md.g(v)).toBe(false));
+                    test.each([[(function(){}).bind(null)],[[].map]])('%p',v=>expect(tis.run.md.g(v)).toBe(false));
+                    for (let x of [cal.fn,des.c,des.i,des.o,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                        test.each(x)('%p',v=>expect(tis.run.md.g(v)).toBe(false));
+                    }
+                });
             });
             describe('ag', () => {
-
+                describe('true', () => {
+                    test.each([[_obj.agm],[C.sagm],[c.agm]])('%p',v=>expect(tis.run.md.ag(v)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[_obj.am],[C.sam],[c.am],[_obj.m],[C.sm],[c.m],[_obj.gm],[C.sgm],[c.gm]])('%p',v=>expect(tis.run.md.ag(v)).toBe(false));
+                    test.each([Date,C,c,(new (function(){})()),new Date(),Object.create(null),Object.create({}),[],new Number(),undefined,null,true,0,0.1,NaN,Infinity,0n,Symbol(),''].map(x=>[x]))('%p',v=>expect(tis.run.md.ag(v)).toBe(false));
+                    test.each([[(function(){}).bind(null)],[[].map]])('%p',v=>expect(tis.run.md.ag(v)).toBe(false));
+                    for (let x of [cal.fn,des.c,des.i,des.o,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                        test.each(x)('%p',v=>expect(tis.run.md.ag(v)).toBe(false));
+                    }
+                });
             });
-
         });
-
     });
     describe('cls', () => {
         describe('(v)', () => {
             describe('true', () => {
-                test.each([[C],[(function Fn(){})],[Date]])('%p',v=>expect(tis.cls(v)).toBe(true));
+//                test.each([[C],[(function Fn(){})],[Date]])('%p',v=>expect(tis.cls(v)).toBe(true));
+                test.each(cls.es6)('%p',v=>expect(tis.cls(v)).toBe(true));
+                test.each(cls.es5)('%p',v=>expect(tis.cls(v)).toBe(true));
+                test.each(cls.native)('%p',v=>expect(tis.cls(v)).toBe(true));
             });
             describe('false', () => {
-//                    test.each([[fn],[gfn],[afn],[agfn],[function(){}],[function*(){}],[async function(){}],[async function*(){}],[function f(){1*2}],[function f(){async()=>{}}],[arrFn],[aarrFn],[()=>{}],[async()=>{}],[()=>1*2],[()=>{async()=>{}}]])('%p',v=>expect(tis.run.fn.es5(v)).toBe(false));
-
-
-                test.each([c,(new (function(){})()),new Date(),Object.create(null),Object.create({}),[],new Number(),undefined,null,true,0,0.1,NaN,Infinity,0n,Symbol(),''].map(x=>[x]))('%p',v=>expect(tis.cls(v)).toBe(false));
+//                test.each([c,(new (function(){})()),new Date(),Object.create(null),Object.create({}),[],new Number(),undefined,null,true,0,0.1,NaN,Infinity,0n,Symbol(),''].map(x=>[x]))('%p',v=>expect(tis.cls(v)).toBe(false));
+//                test.each([[(function(){}).bind(null)],[[].map]])('%p',v=>expect(tis.run.md(v)).toBe(false));
+                for (let x of [cal.fn,cal.md,des.c,des.i,des.o,prims,dangers,ins.es6,ins.es5,ins.native]) {
+                    test.each(x)('%p',v=>expect(tis.cls(v)).toBe(false));
+                }
                 /*
-                test.each([[(function(){}).bind(null)],[[].map]])('%p',v=>expect(tis.run.md(v)).toBe(false));
                 for (let x of [cal.fn,cal.md,des.c,des.i,des.o,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
                     test.each(x)('%p',v=>expect(tis.run.md(v)).toBe(false));
                 }
@@ -454,49 +495,252 @@ describe('tis', () => {
 
         });
         describe('es6', () => {
+            describe('true', () => {
+                test.each(cls.es6)('%p',v=>expect(tis.cls.es6(v)).toBe(true));
+            });
+            describe('false', () => {
+                test.each(cls.es5)('%p',v=>expect(tis.cls.es6(v)).toBe(false));
+                test.each(cls.native)('%p',v=>expect(tis.cls.es6(v)).toBe(false));
+                for (let x of [cal.fn,cal.md,des.c,des.i,des.o,prims,dangers,ins.es6,ins.es5,ins.native]) {
+                    test.each(x)('%p',v=>expect(tis.cls.es6(v)).toBe(false));
+                }
+            });
         });
         describe('es5', () => {
+            describe('true', () => {
+                test.each(cls.es5)('%p',v=>expect(tis.cls.es5(v)).toBe(true));
+            });
+            describe('false', () => {
+                test.each(cls.es6)('%p',v=>expect(tis.cls.es5(v)).toBe(false));
+                test.each(cls.native)('%p',v=>expect(tis.cls.es5(v)).toBe(false));
+                for (let x of [cal.fn,cal.md,des.c,des.i,des.o,prims,dangers,ins.es6,ins.es5,ins.native]) {
+                    test.each(x)('%p',v=>expect(tis.cls.es5(v)).toBe(false));
+                }
+            });
         });
         describe('native', () => {
+            describe('true', () => {
+                test.each(cls.native)('%p',v=>expect(tis.cls.native(v)).toBe(true));
+            });
+            describe('false', () => {
+                test.each(cls.es6)('%p',v=>expect(tis.cls.native(v)).toBe(false));
+                test.each(cls.es5)('%p',v=>expect(tis.cls.native(v)).toBe(false));
+                for (let x of [cal.fn,cal.md,des.c,des.i,des.o,prims,dangers,ins.es6,ins.es5,ins.native]) {
+                    test.each(x)('%p',v=>expect(tis.cls.native(v)).toBe(false));
+                }
+            });
         });
-
     });
     describe('ins', () => {
         describe('(v)', () => {
+            describe('true', () => {
+                test.each(ins.es6)('%p',v=>expect(tis.ins(v)).toBe(true));
+                test.each(ins.es5)('%p',v=>expect(tis.ins(v)).toBe(true));
+                test.each(ins.native)('%p',v=>expect(tis.ins(v)).toBe(true));
+            });
+            describe('false', () => {
+                for (let x of [cal.fn,cal.md,des.c,des.i,des.o,prims,dangers,cls.es6,cls.es5,cls.native]) {
+                    test.each(x)('%p',v=>expect(tis.ins(v)).toBe(false));
+                }
+            });
         });
         describe('es6', () => {
+            describe('true', () => {
+                test.each(ins.es6)('%p',v=>expect(tis.ins.es6(v)).toBe(true));
+            });
+            describe('false', () => {
+                test.each(ins.es5)('%p',v=>expect(tis.ins.es6(v)).toBe(false));
+                test.each(ins.native)('%p',v=>expect(tis.ins.es6(v)).toBe(false));
+                for (let x of [cal.fn,cal.md,des.c,des.i,des.o,prims,dangers,cls.es6,cls.es5,cls.native]) {
+                    test.each(x)('%p',v=>expect(tis.ins.es6(v)).toBe(false));
+                }
+            });
         });
         describe('es5', () => {
+            describe('true', () => {
+                test.each(ins.es5)('%p',v=>expect(tis.ins.es5(v)).toBe(true));
+            });
+            describe('false', () => {
+                test.each(ins.es6)('%p',v=>expect(tis.ins.es5(v)).toBe(false));
+                test.each(ins.native)('%p',v=>expect(tis.ins.es5(v)).toBe(false));
+                for (let x of [cal.fn,cal.md,des.c,des.i,des.o,prims,dangers,cls.es6,cls.es5,cls.native]) {
+                    test.each(x)('%p',v=>expect(tis.ins.es5(v)).toBe(false));
+                }
+            });
         });
         describe('native', () => {
+            describe('true', () => {
+                test.each(ins.native)('%p',v=>expect(tis.ins.native(v)).toBe(true));
+            });
+            describe('false', () => {
+                test.each(ins.es6)('%p',v=>expect(tis.ins.native(v)).toBe(false));
+                test.each(ins.es5)('%p',v=>expect(tis.ins.native(v)).toBe(false));
+                for (let x of [cal.fn,cal.md,des.c,des.i,des.o,prims,dangers,cls.es6,cls.es5,cls.native]) {
+                    test.each(x)('%p',v=>expect(tis.ins.native(v)).toBe(false));
+                }
+            });
         });
-
     });
     describe('des', () => {
         describe('(v)', () => {
+            describe('true', () => {
+//                test.each(des.c)('%p',v=>expect(tis.des(v)).toBe(true));
+//                test.each(des.i)('%p',v=>expect(tis.des(v)).toBe(true));
+//                test.each(des.o)('%p',v=>expect(tis.des(v)).toBe(true));
+                for (let x of [des.c, des.i, des.o]) {
+                    test.each(x)('%p',v=>expect(tis.des(v)).toBe(true));
+                }
+            });
+            describe('false', () => {
+                for (let x of [cal.fn,cal.md,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                    test.each(x)('%p',v=>expect(tis.des(v)).toBe(false));
+                }
+            });
         });
         describe('d', () => {
             describe('(v)', () => {
+                describe('true', () => {
+                    test.each([[{}, {value:0}], [{}, {value(){}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.d(v)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[{_d:0}, {get(){return this._d}}], [{_d:0}, {set(v){this._d=v;}}], [{_d:0}, {get(){return this._d}, set(v){this._d=v}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.d(v)).toBe(false));
+                    for (let x of [des.c, des.i, cal.fn,cal.md,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                        test.each(x)('%p',v=>expect(tis.des.d(v)).toBe(false));
+                    }
+                });
             });
             describe('v', () => {
+                describe('true', () => {
+                    test.each([[{}, {value:0}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.d.v(v)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[{}, {value(){}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.d.v(v)).toBe(false));
+                    test.each([[{_d:0}, {get(){return this._d}}], [{_d:0}, {set(v){this._d=v;}}], [{_d:0}, {get(){return this._d}, set(v){this._d=v}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.d.v(v)).toBe(false));
+                    for (let x of [des.c, des.i, cal.fn,cal.md,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                        test.each(x)('%p',v=>expect(tis.des.d.v(v)).toBe(false));
+                    }
+                });
             });
             describe('m', () => {
+                describe('true', () => {
+                    test.each([[{}, {value(){}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.d.m(v)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[{}, {value:0}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.d.m(v)).toBe(false));
+                    test.each([[{_d:0}, {get(){return this._d}}], [{_d:0}, {set(v){this._d=v;}}], [{_d:0}, {get(){return this._d}, set(v){this._d=v}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.d.m(v)).toBe(false));
+                    for (let x of [des.c, des.i, cal.fn,cal.md,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                        test.each(x)('%p',v=>expect(tis.des.d.m(v)).toBe(false));
+                    }
+                });
             });
-
         });
         describe('a', () => {
             describe('(v)', () => {
+                describe('true', () => {
+                    test.each([[{_d:0}, {get(){return this._d}}], [{_d:0}, {set(v){this._d=v;}}], [{_d:0}, {get(){return this._d}, set(v){this._d=v}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a(v)).toBe(true));
+                    for (let x of [des.c, des.i]) {
+                        test.each(x)('%p',v=>expect(tis.des.a(v)).toBe(true));
+                    }
+                });
+                describe('false', () => {
+                    test.each([[{}, {value:0}], [{}, {value(){}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a(v)).toBe(false));
+                    for (let x of [cal.fn,cal.md,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                        test.each(x)('%p',v=>expect(tis.des.a(v)).toBe(false));
+                    }
+                });
             });
 
             describe('g', () => {
+                describe('true', () => {
+                    test.each([[{_d:0}, {get(){return this._d}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a.g(v)).toBe(true));
+                    test.each([[C,'sg']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]))('%p',v=>expect(tis.des.a.g(v)).toBe(true));
+                    test.each([[c,'g']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]))('%p',v=>expect(tis.des.a.g(v)).toBe(true));
+//                    for (let x of [des.c, des.i]) {
+//                        test.each(x)('%p',v=>expect(tis.des.a.g(v)).toBe(true));
+//                    }
+                });
+                describe('false', () => {
+                    test.each([[C,'ss'],[C,'sa']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]))('%p',v=>expect(tis.des.a.g(v)).toBe(false));
+                    test.each([[c,'s'],[c,'a']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]))('%p',v=>expect(tis.des.a.g(v)).toBe(false));
+                    test.each([[{_d:0}, {set(v){this._d=v;}}], [{_d:0}, {get(){return this._d}, set(v){this._d=v}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a.g(v)).toBe(false));
+                    test.each([[{}, {value:0}], [{}, {value(){}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a.g(v)).toBe(false));
+                    for (let x of [cal.fn,cal.md,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                        test.each(x)('%p',v=>expect(tis.des.a.g(v)).toBe(false));
+                    }
+                });
             });
             describe('s', () => {
+                describe('true', () => {
+                    test.each([[{_d:0}, {set(v){this._d=v;}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a.s(v)).toBe(true));
+                    test.each([[C,'ss']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]))('%p',v=>expect(tis.des.a.s(v)).toBe(true));
+                    test.each([[c,'s']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]))('%p',v=>expect(tis.des.a.s(v)).toBe(true));
+//                    for (let x of [des.c, des.i]) {
+//                        test.each(x)('%p',v=>expect(tis.des.a.s(v)).toBe(true));
+//                    }
+                });
+                describe('false', () => {
+                    test.each([[{_d:0}, {get(){return this._d}}], [{_d:0}, {get(){return this._d}, set(v){this._d=v}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a.s(v)).toBe(false));
+                    test.each([[C,'sg'],[C,'sa']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]))('%p',v=>expect(tis.des.a.s(v)).toBe(false));
+                    test.each([[c,'g'],[c,'a']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]))('%p',v=>expect(tis.des.a.s(v)).toBe(false));
+                    test.each([[{}, {value:0}], [{}, {value(){}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a.s(v)).toBe(false));
+                    for (let x of [cal.fn,cal.md,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                        test.each(x)('%p',v=>expect(tis.des.a.s(v)).toBe(false));
+                    }
+                });
+
             });
             describe('gs', () => {
+                describe('true', () => {
+                    test.each([[{_d:0}, {get(){return this._d}, set(v){this._d=v}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a.gs(v)).toBe(true));
+                    test.each([[C,'sa']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]))('%p',v=>expect(tis.des.a.gs(v)).toBe(true));
+                    test.each([[c,'a']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]))('%p',v=>expect(tis.des.a.gs(v)).toBe(true));
+//                    for (let x of [des.c, des.i]) {
+//                        test.each(x)('%p',v=>expect(tis.des.a.gs(v)).toBe(true));
+//                    }
+                });
+                describe('false', () => {
+                    test.each([[{_d:0}, {get(){return this._d}}], [{_d:0}, {set(v){this._d=v;}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a.gs(v)).toBe(false));
+                    test.each([[C,'sg'],[C,'ss']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]))('%p',v=>expect(tis.des.a.gs(v)).toBe(false));
+                    test.each([[c,'g'],[c,'s']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]))('%p',v=>expect(tis.des.a.gs(v)).toBe(false));
+                    test.each([[{}, {value:0}], [{}, {value(){}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a.gs(v)).toBe(false));
+                    for (let x of [cal.fn,cal.md,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                        test.each(x)('%p',v=>expect(tis.des.a.gs(v)).toBe(false));
+                    }
+                });
+
             });
             describe('hasG', () => {
+                describe('true', () => {
+                    test.each([[{_d:0}, {get(){return this._d}}], [{_d:0}, {get(){return this._d}, set(v){this._d=v}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a.hasG(v)).toBe(true));
+                    test.each([[C,'sg'],[C,'sa']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]))('%p',v=>expect(tis.des.a.hasG(v)).toBe(true));
+                    test.each([[c,'g'],[c,'a']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]))('%p',v=>expect(tis.des.a.hasG(v)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[{_d:0}, {set(v){this._d=v;}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a.hasG(v)).toBe(false));
+                    test.each([[C,'ss']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]))('%p',v=>expect(tis.des.a.hasG(v)).toBe(false));
+                    test.each([[c,'s']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]))('%p',v=>expect(tis.des.a.hasG(v)).toBe(false));
+                    test.each([[{}, {value:0}], [{}, {value(){}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a.hasG(v)).toBe(false));
+                    for (let x of [cal.fn,cal.md,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                        test.each(x)('%p',v=>expect(tis.des.a.hasG(v)).toBe(false));
+                    }
+                });
+
             });
             describe('hasS', () => {
+                describe('true', () => {
+                    test.each([[{_d:0}, {set(v){this._d=v;}}], [{_d:0}, {get(){return this._d}, set(v){this._d=v}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a.hasS(v)).toBe(true));
+                    test.each([[C,'ss'],[C,'sa']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]))('%p',v=>expect(tis.des.a.hasS(v)).toBe(true));
+                    test.each([[c,'s'],[c,'a']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]))('%p',v=>expect(tis.des.a.hasS(v)).toBe(true));
+                });
+                describe('false', () => {
+                    test.each([[{_d:0}, {get(){return this._d}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a.hasS(v)).toBe(false));
+                    test.each([[C,'sg']].map(x=>[Object.getOwnPropertyDescriptor(x[0], x[1])]))('%p',v=>expect(tis.des.a.hasS(v)).toBe(false));
+                    test.each([[c,'g']].map(x=>[Object.getOwnPropertyDescriptor(Object.getPrototypeOf(x[0]), x[1])]))('%p',v=>expect(tis.des.a.hasS(v)).toBe(false));
+                    test.each([[{}, {value:0}], [{}, {value(){}}]].map(x=>[getDes(...x)]))('%p',v=>expect(tis.des.a.hasS(v)).toBe(false));
+                    for (let x of [cal.fn,cal.md,prims,dangers,cls.es6,cls.es5,cls.native,ins.es6,ins.es5,ins.native]) {
+                        test.each(x)('%p',v=>expect(tis.des.a.hasS(v)).toBe(false));
+                    }
+                });
             });
         });
     });
