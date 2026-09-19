@@ -140,6 +140,13 @@ const buildNodes = (defMap, parentNode = null) => {
     const nodes = {};
 
     for (const [abbr, def] of Object.entries(defMap)) {
+        // 開発時のみ有効なタイポ＆型ガード（本番ビルド時にはコードごと綺麗に消える）
+        if (process.env.NODE_ENV !== 'production') {
+            if (Object.hasOwn(def, 'full') && def.full !== undefined && typeof def.full !== 'string') {
+                throw new TypeError(`[tis] 'full' for "${abbr}" must be a string, got ${typeof def.full}. Check for typos.`);
+            }
+        }
+
 //        const typeTreeNode = function(v) {return def.fn(v);};
         // vだけでなく、渡された引数をすべて def.fn に転送する
         const typeTreeNode = function(...args) {return def.fn(...args);};

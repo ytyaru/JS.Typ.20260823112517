@@ -27,7 +27,14 @@ async function executeBuild(options: {
     minify: boolean;
     naming: string;
 }) {
-    const result = await Bun.build(options);
+    //const result = await Bun.build(options);
+    const result = await Bun.build({
+        ...options,
+        // 💡 ビルド時に NODE_ENV を 'production' にインライン置換させる
+        define: {
+            'process.env.NODE_ENV': JSON.stringify('production'),
+        },
+    });
     if (!result.success) {
         throw new Error(`Build failed for ${options.target}/${options.format}/${options.naming}: ${result.logs}`);
     }

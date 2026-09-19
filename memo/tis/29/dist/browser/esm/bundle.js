@@ -272,6 +272,29 @@ var MAP = {
       return Array.isArray(v) && (v.length === 0 ? true : v.every((x) => T(x)));
     }, full: "Generics" }
   } },
+  cls: { fn: (v) => Fn.getFlag(v, Fn.getCode(v)).cls.is, full: Fn.N.c, default: null, children: {
+    es6: { fn: (v) => Fn.getFlag(v, Fn.getCode(v)).cls.es6, full: Fn.N.es6 },
+    es5: { fn: (v) => Fn.getFlag(v, Fn.getCode(v)).cls.es5, full: Fn.N.es5 },
+    native: { fn: (v) => Fn.getFlag(v, Fn.getCode(v)).cls.native, full: Fn.N.n }
+  } },
+  ins: { fn: (v) => Obj.getFlag(v).ins.is, full: Fn.i, default: null, children: {
+    es6: { fn: (v) => Obj.getFlag(v).ins.es6, full: Fn.N.es6 },
+    es5: { fn: (v) => Obj.getFlag(v).ins.es5, full: Fn.N.es5 },
+    native: { fn: (v) => Obj.getFlag(v).ins.native, full: Fn.N.n }
+  } },
+  des: { fn: (v) => Obj.getFlag(v).des.is, full: Des.N.D, default: null, children: {
+    d: { fn: (v) => Obj.getFlag(v).des.d.is, full: Des.N.d, children: {
+      v: { fn: (v) => Obj.getFlag(v).des.d.v, full: Des.N.v },
+      m: { fn: (v) => Obj.getFlag(v).des.d.m, full: Des.N.m }
+    } },
+    a: { fn: (v) => Obj.getFlag(v).des.a.is, full: Des.N.a, children: {
+      g: { fn: (v) => Obj.getFlag(v).des.a.g, full: Des.N.g },
+      s: { fn: (v) => Obj.getFlag(v).des.a.s, full: Des.N.s },
+      gs: { fn: (v) => Obj.getFlag(v).des.a.gs, full: Des.N.gs },
+      hasG: { fn: (v) => Obj.getFlag(v).des.a.hasG, full: "HasG" },
+      hasS: { fn: (v) => Obj.getFlag(v).des.a.hasS, full: "HasS" }
+    } }
+  } },
   run: { fn: (v) => Fn.getFlag(v).is, default: null, full: "Run", children: {
     fn: { fn: (v) => Fn.getFlag(v).fn.is, default: null, full: "Function", children: {
       bound: { fn: (v) => Fn.getFlag(v).fn.bound, full: Fn.N.b },
@@ -295,29 +318,6 @@ var MAP = {
       a: { fn: (v) => Fn.getFlag(v).md.a, full: Ag.N.a },
       g: { fn: (v) => Fn.getFlag(v).md.g, full: Ag.N.g },
       ag: { fn: (v) => Fn.getFlag(v).md.ag, full: Ag.N.ag }
-    } }
-  } },
-  cls: { fn: (v) => Fn.getFlag(v, Fn.getCode(v)).cls.is, default: null, children: {
-    es6: { fn: (v) => Fn.getFlag(v, Fn.getCode(v)).cls.es6, full: Fn.N.es6 },
-    es5: { fn: (v) => Fn.getFlag(v, Fn.getCode(v)).cls.es5, full: Fn.N.es5 },
-    native: { fn: (v) => Fn.getFlag(v, Fn.getCode(v)).cls.native, full: Fn.N.n }
-  } },
-  ins: { fn: (v) => Obj.getFlag(v).ins.is, default: null, children: {
-    es6: { fn: (v) => Obj.getFlag(v).ins.es6, full: Fn.N.es6 },
-    es5: { fn: (v) => Obj.getFlag(v).ins.es5, full: Fn.N.es5 },
-    native: { fn: (v) => Obj.getFlag(v).ins.native, full: Fn.N.n }
-  } },
-  des: { fn: (v) => Obj.getFlag(v).des.is, full: Des.N.D, default: null, children: {
-    d: { fn: (v) => Obj.getFlag(v).des.d.is, full: Des.N.d, children: {
-      v: { fn: (v) => Obj.getFlag(v).des.d.v, full: Des.N.v },
-      m: { fn: (v) => Obj.getFlag(v).des.d.m, full: Des.N.m }
-    } },
-    a: { fn: (v) => Obj.getFlag(v).des.a.is, full: Des.N.a, children: {
-      g: { fn: (v) => Obj.getFlag(v).des.a.g, full: Des.N.g },
-      s: { fn: (v) => Obj.getFlag(v).des.a.s, full: Des.N.s },
-      gs: { fn: (v) => Obj.getFlag(v).des.a.gs, full: Des.N.gs },
-      hasG: { fn: (v) => Obj.getFlag(v).des.a.hasG, full: "HasG" },
-      hasS: { fn: (v) => Obj.getFlag(v).des.a.hasS, full: "HasS" }
     } }
   } },
   d: { fn: (v) => [undefined, null, Infinity, -Infinity].some((x) => x === v) || Number.isNaN(v) || Number.isFinite(v) && (!Number.isSafeInteger(v) || !isSafeNum(v)) || dObj(v), full: Des.N.a, children: {
@@ -377,6 +377,7 @@ var defV = (node) => {
 var buildNodes = (defMap, parentNode = null) => {
   const nodes = {};
   for (const [abbr, def] of Object.entries(defMap)) {
+    if (false) {}
     const typeTreeNode = function(...args) {
       return def.fn(...args);
     };
@@ -440,10 +441,12 @@ var search = (typeTreeNode, v) => {
   return typeTreeNode;
 };
 var findTypeTreeNode = (v) => {
-  for (const rootNode of Object.values(tis)) {
+  for (const [rootKey, rootNode] of Object.entries(tis)) {
     const matched = search(rootNode, v);
-    if (matched)
+    if (matched) {
+      console.log(`Matched root: ${rootKey}`, matched);
       return matched;
+    }
   }
   throw new TypeError(`Value does not match any defined type: ${v}`);
 };
