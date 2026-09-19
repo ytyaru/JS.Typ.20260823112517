@@ -29,7 +29,9 @@ class Ag {
 }
 
 // src/is/fn.js
-class Cls2 {
+var getCode = (v) => typeof v === "function" ? Function.prototype.toString.call(v).replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "").trim().replace(/(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g, '""').replace(/\/([^\/\n\\]|\\.)+\/[gimsuy]*/g, "//") : "";
+
+class Cls {
   static getFlag(is, v, s) {
     const es6 = is && this.isEs6(v, s);
     const es5 = is && this.isEs5(v, s);
@@ -37,14 +39,10 @@ class Cls2 {
     return { is: es6 || es5 || native, es6, es5, native };
   }
   static isEs6(v, s) {
-    if (!s)
-      s = Function.prototype.toString.call(v);
     return /^\s*class\b/.test(s);
   }
   static isEs5(v, s) {
-    if (!s)
-      s = Function.prototype.toString.call(v);
-    if (Cls2.isEs6(v, s) || Fn.isNative(v, s) || Fn.isArrow(v, s))
+    if (Cls.isEs6(v, s) || Fn.isNative(v, s) || Fn.isArrow(v, s))
       return false;
     const proto = v.prototype;
     if (!proto || typeof proto !== "object")
@@ -78,31 +76,31 @@ class Fn {
     es6: "ES6"
   });
   static getCode(v) {
-    return typeof v === "function" ? Function.prototype.toString.call(v).replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "").trim().replace(/(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g, '""').replace(/\/([^\/\n\\]|\\.)+\/[gimsuy]*/g, "//") : "";
+    return getCode(v);
   }
   static getFlag(v) {
     const is = typeof v === "function";
-    const s = is ? this.getCode(v) : "";
-    const cls = Cls2.getFlag(is, v, s);
+    const s = getCode(v);
+    const cls = Cls.getFlag(is, v, s);
     if (!is)
       return { is, cls, ...this.#getFnMd(v, false, cls, false, false, false, false, false, false) };
     const bound = !cls.is && v.name?.startsWith("bound ");
     const native = !cls.is && !bound && s.includes("[native code]");
     const arrow = !cls.is && !bound && !native && !v.hasOwnProperty("prototype") && s.includes("=>");
-    const md = !cls.is && !bound && !native && !arrow && /\bfunction\b/.test(s) ? false : !s.includes("=>");
+    const md = !cls.is && !bound && !native && !arrow && !s.includes("=>") && !/\bfunction\b/.test(s);
     const es5 = !cls.is && !native && !bound && !arrow && !md;
     const ag = Ag.getFlag(v);
     return { is: is && !cls.is, cls, ...this.#getFnMd(v, is && !cls.is, cls, bound, native, arrow, es5, md, ag) };
   }
   static #getFnMd(v, is, cls, bound, native, arrow, es5, md, ag) {
     return {
-      fn: this.#getFn(v, is, cls, bound, native, arrow, es5, ag),
-      md: this.#getMd(md, ag)
+      fn: this.#getFn(v, is, cls, bound, native, arrow, es5, md, ag),
+      md: this.#getMd(v, is, cls, bound, native, arrow, es5, md, ag)
     };
   }
-  static #getFn(v, is, cls, bound, native, arrow, es5, ag) {
+  static #getFn(v, is, cls, bound, native, arrow, es5, md, ag) {
     return {
-      is: is && !cls.is,
+      is: is && !cls.is && !md || (bound || native || arrow || es5),
       bound,
       native,
       arrow: {
@@ -119,11 +117,11 @@ class Fn {
         },
         a: es5 && ag.a,
         g: es5 && ag.g,
-        ag: es5 && ag.a && ag.g
+        ag: es5 && ag.ag
       }
     };
   }
-  static #getMd(md, ag) {
+  static #getMd(v, is, cls, bound, native, arrow, es5, md, ag) {
     return {
       is: md,
       s: md && ag.s,
@@ -226,16 +224,18 @@ class Des {
 
 class Ins {
   static getFlag(v, is, proto, plain, tag, ary, boxed) {
-    const es6 = is && this.isEs6(proto, proto?.constructor);
-    const es5 = is && this.isEs5(proto, proto?.constructor);
+    const ctor = proto?.constructor;
+    const s2 = Fn.getCode(ctor);
+    const es6 = is && this.#isEs6(proto, ctor, s2);
+    const es5 = is && this.#isEs5(proto, ctor, s2);
     const native = is && !plain && !ary && !boxed.is && tag !== "Object" && !es6 && !es5;
     return { is: es6 || es5 || native, es6, es5, native };
   }
-  static isEs6(proto, ctor) {
-    return typeof ctor !== "function" ? false : Cls2.isEs6(ctor, Fn.getCode(ctor));
+  static #isEs6(proto, ctor, s2) {
+    return typeof ctor !== "function" ? false : Cls.isEs6(ctor, s2);
   }
-  static isEs5(proto, ctor) {
-    return typeof ctor !== "function" || (ctor === Object || ctor === Function) || (Cls2.isEs6(ctor) || Fn.isNative(ctor, Fn.getCode(ctor))) ? false : Cls2.isEs5(ctor) || proto !== Object.prototype && proto !== Function.prototype;
+  static #isEs5(proto, ctor, s2) {
+    return typeof ctor !== "function" || (ctor === Object || ctor === Function) || (Cls.isEs6(ctor, s2) || Fn.isNative(ctor, s2)) ? false : Cls.isEs5(ctor, s2) || proto !== Object.prototype && proto !== Function.prototype;
   }
 }
 
@@ -256,42 +256,46 @@ var MAP = {
   fin: { fn: (v) => Number.isFinite(v) && isSafeNum(v), full: "Finite", default: 0 },
   nul: { fn: (v) => v === null, default: null },
   obj: { fn: (v) => Obj.getFlag(v).plain, full: "PlainObject", default: {} },
-  ary: { fn: (v) => Array.isArray(v), default: [] },
+  ary: { fn: (v) => Array.isArray(v), default: [], children: {
+    empty: { fn: (v) => Array.isArray(v) && v.length === 0, full: "Empty" },
+    filled: { fn: (v, T) => {
+      const t = Fn.getFlag(T).is;
+      if (T !== undefined && !t) {
+        throw new TypeError(`tis.ary.filled requires a validation function as the second argument.`);
+      }
+      return Array.isArray(v) && 0 < v.length && (t ? v.every((x) => T(x)) : true);
+    }, full: "Filled" },
+    gen: { fn: (v, T) => {
+      if (!Fn.getFlag(T).is) {
+        throw new TypeError(`tis.ary.gen requires a validation function as the second argument.`);
+      }
+      return Array.isArray(v) && (v.length === 0 ? true : v.every((x) => T(x)));
+    }, full: "Generics" }
+  } },
   run: { fn: (v) => Fn.getFlag(v).is, default: null, full: "Run", children: {
-    fn: {
+    fn: { fn: (v) => Fn.getFlag(v).fn.is, default: null, full: "Function", children: {
       bound: { fn: (v) => Fn.getFlag(v).fn.bound, full: Fn.N.b },
       native: { fn: (v) => Fn.getFlag(v).fn.native, full: Fn.N.n },
-      arrow: {
-        fn: (v) => Fn.getFlag(v).fn.arrow,
-        default: null,
-        full: Fn.N.a,
-        children: {
-          s: { fn: (v) => Fn.getFlag(v).fn.arrow.s, full: Ag.N.s },
-          a: { fn: (v) => Fn.getFlag(v).fn.arrow.a, full: Ag.N.a }
-        }
-      },
-      es5: {
-        fn: (v) => !Cls.getFlag(v, Fn.getCode(v)).fn.is,
-        default: null,
-        full: Fn.N.f,
-        s: { fn: (v) => Fn.getFlag(v).fn.s.n, full: Ag.N.s, children: {
-          n: { fn: (v) => Fn.getFlag(v).fn.s.n, full: Fn.N.f },
-          a: { fn: (v) => Fn.getFlag(v).fn.s.a, full: Ag.N.A }
+      arrow: { fn: (v) => Fn.getFlag(v).fn.arrow.is, default: null, full: Fn.N.a, children: {
+        s: { fn: (v) => Fn.getFlag(v).fn.arrow.s, full: Ag.N.s },
+        a: { fn: (v) => Fn.getFlag(v).fn.arrow.a, full: Ag.N.a }
+      } },
+      es5: { fn: (v) => Fn.getFlag(v).fn.es5.is, default: null, full: Fn.N.f, children: {
+        s: { fn: (v) => Fn.getFlag(v).fn.es5.s.is, full: Ag.N.s, children: {
+          n: { fn: (v) => Fn.getFlag(v).fn.es5.s.n, full: Fn.N.f },
+          a: { fn: (v) => Fn.getFlag(v).fn.es5.s.a, full: Ag.N.A }
         } },
-        a: { fn: (v) => Fn.getFlag(v).fn.a, full: Ag.N.a },
-        g: { fn: (v) => Fn.getFlag(v).fn.g, full: Ag.N.g },
-        ag: { fn: (v) => Fn.getFlag(v).fn.ag, full: Ag.N.ag }
-      }
-    },
-    md: {
-      fn: (v) => Fn.getFlag(v).md.is,
-      default: null,
-      full: Fn.N.m,
-      s: { fn: (v) => Fn.getFlag(v).method.s, full: Ag.N.s },
-      a: { fn: (v) => Fn.getFlag(v).method.a, full: Ag.N.a },
-      g: { fn: (v) => Fn.getFlag(v).method.g, full: Ag.N.g },
-      ag: { fn: (v) => Fn.getFlag(v).method.ag, full: Ag.N.ag }
-    }
+        a: { fn: (v) => Fn.getFlag(v).fn.es5.a, full: Ag.N.a },
+        g: { fn: (v) => Fn.getFlag(v).fn.es5.g, full: Ag.N.g },
+        ag: { fn: (v) => Fn.getFlag(v).fn.es5.ag, full: Ag.N.ag }
+      } }
+    } },
+    md: { fn: (v) => Fn.getFlag(v).md.is, default: null, full: Fn.N.m, children: {
+      s: { fn: (v) => Fn.getFlag(v).md.s, full: Ag.N.s },
+      a: { fn: (v) => Fn.getFlag(v).md.a, full: Ag.N.a },
+      g: { fn: (v) => Fn.getFlag(v).md.g, full: Ag.N.g },
+      ag: { fn: (v) => Fn.getFlag(v).md.ag, full: Ag.N.ag }
+    } }
   } },
   cls: { fn: (v) => Fn.getFlag(v, Fn.getCode(v)).cls.is, default: null, children: {
     es6: { fn: (v) => Fn.getFlag(v, Fn.getCode(v)).cls.es6, full: Fn.N.es6 },
@@ -304,29 +308,22 @@ var MAP = {
     native: { fn: (v) => Obj.getFlag(v).ins.native, full: Fn.N.n }
   } },
   des: { fn: (v) => Obj.getFlag(v).des.is, full: Des.N.D, default: null, children: {
-    d: {
-      fn: (v) => Obj.getFlag(v).des.d,
-      full: Des.N.d,
-      is: { fn: (v) => Obj.getFlag(v).des.d, full: Des.N.d },
+    d: { fn: (v) => Obj.getFlag(v).des.d.is, full: Des.N.d, children: {
       v: { fn: (v) => Obj.getFlag(v).des.d.v, full: Des.N.v },
       m: { fn: (v) => Obj.getFlag(v).des.d.m, full: Des.N.m }
-    },
-    a: {
-      fn: (v) => Obj.getFlag(v).des.a,
-      full: Des.N.a,
-      is: { fn: (v) => Obj.getFlag(v).des.a, full: Des.N.a },
+    } },
+    a: { fn: (v) => Obj.getFlag(v).des.a.is, full: Des.N.a, children: {
       g: { fn: (v) => Obj.getFlag(v).des.a.g, full: Des.N.g },
       s: { fn: (v) => Obj.getFlag(v).des.a.s, full: Des.N.s },
-      gs: { fn: (v) => Obj.getFlag(v).des.a.gs, full: Des.N.gs }
-    }
+      gs: { fn: (v) => Obj.getFlag(v).des.a.gs, full: Des.N.gs },
+      hasG: { fn: (v) => Obj.getFlag(v).des.a.hasG, full: "HasG" },
+      hasS: { fn: (v) => Obj.getFlag(v).des.a.hasS, full: "HasS" }
+    } }
   } },
-  d: {
-    fn: (v) => [undefined, null, Infinity, -Infinity].some((x) => x === v) || Number.isNaN(v) || Number.isFinite(v) && (!Number.isSafeInteger(v) || !isSafeNum(v)) || dObj(v),
-    full: Des.N.a,
-    num: { fn: (v) => typeof v === "number", full: "Danger", default: 0, children: {
-      int: { fn: (v) => Number.isSafeInteger(v), full: "Integer" },
+  d: { fn: (v) => [undefined, null, Infinity, -Infinity].some((x) => x === v) || Number.isNaN(v) || Number.isFinite(v) && (!Number.isSafeInteger(v) || !isSafeNum(v)) || dObj(v), full: Des.N.a, children: {
+    num: { fn: (v) => typeof v === "number" && (!Number.isSafeInteger(v) || !isSafeNum(v)), full: "Number", default: 0, children: {
       nan: { fn: (v) => Number.isNaN(v), full: "NaN", default: NaN },
-      inf: { fn: (v) => !Number.isFinite(v) && !Number.isNaN(v), full: "Infinity", default: Infinity, children: {
+      inf: { fn: (v) => [Infinity, -Infinity].some((x) => x === v), full: "Infinity", default: Infinity, children: {
         p: { fn: (v) => v === Infinity, full: "Positive", default: Infinity },
         n: { fn: (v) => v === -Infinity, full: "Negative", default: -Infinity }
       } },
@@ -336,17 +333,13 @@ var MAP = {
     obj: { fn: dObj, full: "Object", children: {
       none: { fn: (v) => Obj.getFlag(v).none, full: "NonePrototype" },
       proto: { fn: (v) => Obj.getFlag(v).proto, full: "Prototyped" },
-      boxed: {
-        fn: (v) => Obj.getFlag(v).boxed.is,
-        full: "BoxedPrimitive",
-        children: {
-          bln: { fn: (v) => Obj.getFlag(v).boxed.bln, full: "Boolean" },
-          num: { fn: (v) => Obj.getFlag(v).boxed.num, full: "Number" },
-          str: { fn: (v) => Obj.getFlag(v).boxed.str, full: "String" }
-        }
-      }
+      boxed: { fn: (v) => Obj.getFlag(v).boxed.is, full: "BoxedPrimitive", children: {
+        bln: { fn: (v) => Obj.getFlag(v).boxed.bln, full: "Boolean" },
+        num: { fn: (v) => Obj.getFlag(v).boxed.num, full: "Number" },
+        str: { fn: (v) => Obj.getFlag(v).boxed.str, full: "String" }
+      } }
     } }
-  },
+  } },
   g: { fn: (v) => true, default: 0, full: "Group", children: {
     nun: { fn: (v) => Number.isNaN(v) || [null, undefined].some((x) => x === v), full: "NullUndefinedNaN" },
     p: {
@@ -365,7 +358,7 @@ var MAP = {
         return v !== null && "object function".split(" ").some((n) => n === t);
       },
       children: {
-        cr: { fn: (v) => typeof v === "funtion", full: "ClassOrRun" },
+        cr: { fn: (v) => typeof v === "function", full: "ClassOrRun" },
         ctn: { fn: (v) => typeof v === "object" || tis.cls(v), full: "Container" }
       }
     }
@@ -384,8 +377,8 @@ var defV = (node) => {
 var buildNodes = (defMap, parentNode = null) => {
   const nodes = {};
   for (const [abbr, def] of Object.entries(defMap)) {
-    const typeTreeNode = function(v) {
-      return def.fn(v);
+    const typeTreeNode = function(...args) {
+      return def.fn(...args);
     };
     typeTreeNode._ = {
       name: {
